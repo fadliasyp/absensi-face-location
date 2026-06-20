@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard User</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+  </head>
+
+  <body class="user-dashboard-body">
+    <!-- OVERLAY SIDEBAR -->
+    <div
+      class="sidebar-overlay"
+      id="sidebarOverlay"
+      onclick="closeUserSidebar()"
+    ></div>
+
+    <!-- SIDEBAR HAMBURGER -->
+    <aside class="user-sidebar" id="userSidebar">
+      <div class="user-sidebar-header">
+        <div>
+          <span class="sidebar-mini-label">Panel User</span>
+          <h3>Menu Absensi</h3>
+        </div>
+
+        <button
+          type="button"
+          class="sidebar-close-btn"
+          onclick="closeUserSidebar()"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="user-sidebar-profile">
+        <div class="sidebar-avatar">
+          <img
+            id="sidebarUserPhoto"
+            src=""
+            alt="Foto user"
+            class="sidebar-avatar-img"
+          />
+          <span id="sidebarAvatarFallback">👤</span>
+        </div>
+
+        <div class="sidebar-profile-info">
+          <strong id="sidebarUserName">User</strong>
+          <span id="sidebarUserBagian">-</span>
+
+          <small class="sidebar-status-badge" id="sidebarUserStatus">
+            Aktif
+          </small>
+        </div>
+      </div>
+      <nav class="user-sidebar-menu">
+        <a href="dashboard.html" class="active">
+          <span>🏠</span>
+          Dashboard
+        </a>
+
+        <a href="daftar-wajah.html">
+          <span>🙂</span>
+          Daftar Wajah
+        </a>
+
+        <a href="verifikasi.html">
+          <span>📷</span>
+          Verifikasi Hadir
+        </a>
+
+        <a href="izin.html">
+          <span>📝</span>
+          Ajukan Izin
+        </a>
+
+        <a href="riwayat.html">
+          <span>📋</span>
+          Riwayat Absensi
+        </a>
+      </nav>
+
+      <button type="button" class="sidebar-logout-btn" onclick="logout()">
+        <span>🚪</span>
+        Logout
+      </button>
+    </aside>
+
+    <!-- TOP NAVBAR -->
+    <header class="user-topbar desktop-user-navbar">
+      <!-- MOBILE HAMBURGER -->
+      <button type="button" class="hamburger-btn" onclick="openUserSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!-- BRAND / LOGO -->
+      <a href="dashboard.html" class="navbar-brand-user">
+        <img src="../assets/img/Poca3.png" alt="logoPoca" class="logo-poca" />
+        <div>
+          <strong>Absensi Digital</strong>
+          <small>Face Scan & Geolocation</small>
+        </div>
+      </a>
+
+      <!-- DESKTOP MENU -->
+      <nav class="desktop-navbar-menu">
+        <a href="dashboard.html" class="active">Dashboard</a>
+        <a href="daftar-wajah.html">Daftar Wajah</a>
+        <a href="verifikasi.html">Verifikasi</a>
+        <a href="izin.html">Izin</a>
+        <a href="riwayat.html">Riwayat</a>
+      </nav>
+
+      <!-- DESKTOP PROFILE / ACTION -->
+      <div class="desktop-navbar-profile">
+        <a href="verifikasi.html" class="desktop-absen-btn"> Mulai Absen </a>
+
+        <div class="desktop-user-mini">
+          <div class="desktop-user-photo">
+            <img
+              id="desktopUserPhoto"
+              src=""
+              alt="Foto user"
+              class="desktop-user-photo-img"
+            />
+            <span id="desktopAvatarFallback">👤</span>
+          </div>
+
+          <div class="desktop-user-text">
+            <strong id="desktopUserName">User</strong>
+            <span id="desktopUserBagian">-</span>
+          </div>
+        </div>
+
+        <button type="button" class="desktop-logout-btn" onclick="logout()">
+          Logout
+        </button>
+      </div>
+    </header>
+
+    <div class="container user-dashboard-page">
+      <!-- HERO -->
+      <section class="user-hero">
+        <div class="user-hero-left">
+          <div class="user-badge">👤</div>
+          <h1>Selamat Datang, <span id="userName">User</span></h1>
+          <p id="userGreeting">Selamat datang di sistem absensi digital.</p>
+        </div>
+
+        <div class="user-hero-right">
+          <div class="user-live-card">
+            <span class="user-live-label">Waktu Sekarang</span>
+            <strong id="userLiveClock">00:00:00</strong>
+            <p id="userLiveDate">-</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- MENU -->
+      <section class="user-menu-section">
+        <div class="user-section-heading">
+          <div>
+            <h2>Menu User</h2>
+            <p>
+              Pilih menu untuk melakukan daftar wajah, verifikasi hadir,
+              pengajuan izin, atau melihat riwayat absensi.
+            </p>
+          </div>
+        </div>
+
+        <div class="user-menu-grid">
+          <a class="user-menu-card" href="daftar-wajah.html">
+            <div class="user-menu-top">
+              <div class="user-menu-icon">🙂</div>
+              <span class="user-menu-tag">Identitas</span>
+            </div>
+            <h3>Daftar Wajah</h3>
+            <p>
+              Simpan data wajah sebagai identitas utama untuk proses absensi.
+            </p>
+            <span class="user-menu-link">Buka Menu →</span>
+          </a>
+
+          <a class="user-menu-card primary-menu" href="verifikasi.html">
+            <div class="user-menu-top">
+              <div class="user-menu-icon">📷</div>
+              <span class="user-menu-tag">Absensi</span>
+            </div>
+            <h3>Verifikasi Hadir</h3>
+            <p>Lakukan absensi menggunakan face scan, liveness, dan lokasi.</p>
+            <span class="user-menu-link">Buka Menu →</span>
+          </a>
+
+          <a class="user-menu-card" href="izin.html">
+            <div class="user-menu-top">
+              <div class="user-menu-icon">📝</div>
+              <span class="user-menu-tag">Perizinan</span>
+            </div>
+            <h3>Ajukan Izin</h3>
+            <p>Kirim izin atau sakit dengan keterangan dan bukti foto.</p>
+            <span class="user-menu-link">Buka Menu →</span>
+          </a>
+
+          <a class="user-menu-card" href="riwayat.html">
+            <div class="user-menu-top">
+              <div class="user-menu-icon">📋</div>
+              <span class="user-menu-tag">Riwayat</span>
+            </div>
+            <h3>Riwayat Absensi</h3>
+            <p>Lihat riwayat hadir, izin, dan alfa yang sudah tercatat.</p>
+            <span class="user-menu-link">Buka Menu →</span>
+          </a>
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/supabase-config.js"></script>
+    <script src="../assets/js/logout.js"></script>
+
+    <script>
+      function openUserSidebar() {
+        const sidebar = document.getElementById("userSidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+
+        if (sidebar) sidebar.classList.add("show");
+        if (overlay) overlay.classList.add("show");
+
+        document.body.classList.add("sidebar-open");
+      }
+
+      function closeUserSidebar() {
+        const sidebar = document.getElementById("userSidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+
+        if (sidebar) sidebar.classList.remove("show");
+        if (overlay) overlay.classList.remove("show");
+
+        document.body.classList.remove("sidebar-open");
+      }
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+          closeUserSidebar();
+        }
+      });
+      function updateUserClock() {
+        const now = new Date();
+
+        const clockEl = document.getElementById("userLiveClock");
+        const dateEl = document.getElementById("userLiveDate");
+
+        if (clockEl) {
+          clockEl.textContent = now.toLocaleTimeString("id-ID", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          });
+        }
+
+        if (dateEl) {
+          dateEl.textContent = now.toLocaleDateString("id-ID", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          });
+        }
+      }
+
+      function getGreetingByTime() {
+        const hour = new Date().getHours();
+
+        if (hour >= 4 && hour < 11) return "Selamat pagi";
+        if (hour >= 11 && hour < 15) return "Selamat siang";
+        if (hour >= 15 && hour < 18) return "Selamat sore";
+        return "Selamat malam";
+      }
+
+      async function loadUser() {
+        const { data: authData } = await supabaseClient.auth.getUser();
+
+        if (!authData.user) {
+          window.location.href = "../login.html";
+          return;
+        }
+
+        const { data: profile, error } = await supabaseClient
+          .from("profiles")
+          .select("*")
+          .eq("id", authData.user.id)
+          .single();
+
+        if (error || !profile) {
+          window.location.href = "../login.html";
+          return;
+        }
+
+        if (profile.status_akun !== "aktif") {
+          await supabaseClient.auth.signOut();
+          window.location.href = "../login.html";
+          return;
+        }
+
+        const nama = profile.nama_lengkap || "User";
+        const bagian = profile.bagian || "-";
+        const sapaan = getGreetingByTime();
+        const userNameHero = document.getElementById("userName");
+        const userGreeting = document.getElementById("userGreeting");
+
+        if (userNameHero) {
+          userNameHero.innerText = nama;
+        }
+
+        if (userGreeting) {
+          userGreeting.innerText = `${sapaan}, ${nama}. Silakan pilih menu untuk melakukan aktivitas absensi.`;
+        }
+
+        const sidebarName = document.getElementById("sidebarUserName");
+        const sidebarBagian = document.getElementById("sidebarUserBagian");
+        const sidebarStatus = document.getElementById("sidebarUserStatus");
+
+        if (sidebarName) sidebarName.innerText = nama;
+        if (sidebarBagian) sidebarBagian.innerText = bagian;
+        if (sidebarStatus)
+          sidebarStatus.innerText = profile.status_akun || "aktif";
+
+        // ======================
+        // Navbar Desktop
+        // ======================
+        const desktopUserName = document.getElementById("desktopUserName");
+        const desktopUserBagian = document.getElementById("desktopUserBagian");
+
+        if (desktopUserName) desktopUserName.innerText = nama;
+        if (desktopUserBagian) desktopUserBagian.innerText = bagian;
+
+        // ======================
+        // Foto di sidebar
+        // ======================
+        const sidebarPhoto = document.getElementById("sidebarUserPhoto");
+        const sidebarFallback = document.getElementById(
+          "sidebarAvatarFallback",
+        );
+
+        const desktopPhoto = document.getElementById("desktopUserPhoto");
+        const desktopFallback = document.getElementById(
+          "desktopAvatarFallback",
+        );
+
+        if (profile.foto_wajah_url) {
+          if (sidebarPhoto) {
+            sidebarPhoto.src = profile.foto_wajah_url;
+            sidebarPhoto.classList.add("show");
+          }
+
+          if (sidebarFallback) {
+            sidebarFallback.classList.add("hide");
+          }
+
+          if (desktopPhoto) {
+            desktopPhoto.src = profile.foto_wajah_url;
+            desktopPhoto.classList.add("show");
+          }
+
+          if (desktopFallback) {
+            desktopFallback.classList.add("hide");
+          }
+        } else {
+          if (sidebarPhoto) {
+            sidebarPhoto.removeAttribute("src");
+            sidebarPhoto.classList.remove("show");
+          }
+
+          if (sidebarFallback) {
+            sidebarFallback.classList.remove("hide");
+          }
+
+          if (desktopPhoto) {
+            desktopPhoto.removeAttribute("src");
+            desktopPhoto.classList.remove("show");
+          }
+
+          if (desktopFallback) {
+            desktopFallback.classList.remove("hide");
+          }
+        }
+      }
+
+      updateUserClock();
+      setInterval(updateUserClock, 1000);
+      loadUser();
+    </script>
+  </body>
+</html>

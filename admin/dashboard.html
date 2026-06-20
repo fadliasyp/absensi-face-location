@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8" />
+    <title>Dashboard Admin</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+  </head>
+  <body class="admin-dashboard-body">
+    <!-- OVERLAY SIDEBAR ADMIN MOBILE -->
+    <div
+      class="admin-sidebar-overlay"
+      id="adminSidebarOverlay"
+      onclick="closeAdminSidebar()"
+    ></div>
+
+    <!-- SIDEBAR ADMIN MOBILE -->
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="admin-sidebar-header">
+        <div>
+          <span class="admin-sidebar-mini-label">Panel Administrator</span>
+          <h3>Menu Admin</h3>
+        </div>
+
+        <button
+          type="button"
+          class="admin-sidebar-close-btn"
+          onclick="closeAdminSidebar()"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="admin-sidebar-profile">
+        <div class="admin-sidebar-avatar">🛡️</div>
+
+        <div class="admin-sidebar-profile-info">
+          <strong id="sidebarAdminName">Admin</strong>
+          <span>Administrator</span>
+          <small class="admin-sidebar-status">Sistem Aktif</small>
+        </div>
+      </div>
+
+      <nav class="admin-sidebar-menu">
+        <a href="dashboard.html" class="active">
+          <span>🏠</span>
+          Dashboard
+        </a>
+
+        <a href="users.html">
+          <span>👥</span>
+          Data User
+        </a>
+
+        <a href="waktu.html">
+          <span>⏰</span>
+          Waktu Masuk
+        </a>
+
+        <a href="lokasi.html">
+          <span>📍</span>
+          Lokasi Absen
+        </a>
+
+        <a href="list-absen.html">
+          <span>📋</span>
+          List Absen
+        </a>
+
+        <a href="export-pdf.html">
+          <span>🧾</span>
+          Export PDF
+        </a>
+      </nav>
+
+      <button type="button" class="admin-sidebar-logout-btn" onclick="logout()">
+        <span>🚪</span>
+        Logout
+      </button>
+    </aside>
+
+    <!-- NAVBAR ADMIN -->
+    <header class="admin-topbar desktop-admin-navbar">
+      <!-- MOBILE HAMBURGER -->
+      <button
+        type="button"
+        class="admin-hamburger-btn"
+        onclick="openAdminSidebar()"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!-- BRAND -->
+      <a href="dashboard.html" class="admin-navbar-brand">
+        <img src="../assets/img/Poca3.png" alt="logoPoca" class="logo-poca" />
+        <div>
+          <strong>Admin Absensi</strong>
+          <small>Face Scan & Geolocation</small>
+        </div>
+      </a>
+
+      <!-- DESKTOP MENU -->
+      <nav class="desktop-admin-menu">
+        <a href="dashboard.html" class="active">Dashboard</a>
+        <a href="users.html">Data User</a>
+        <a href="waktu.html">Waktu Masuk</a>
+        <a href="lokasi.html">Lokasi</a>
+        <a href="list-absen.html">List Absen</a>
+        <a href="export-pdf.html">Export PDF</a>
+      </nav>
+
+      <!-- DESKTOP PROFILE -->
+      <div class="desktop-admin-profile">
+        <a href="list-absen.html" class="desktop-admin-action"> Monitoring </a>
+
+        <div class="desktop-admin-mini">
+          <div class="desktop-admin-avatar">🛡️</div>
+
+          <div class="desktop-admin-text">
+            <strong id="desktopAdminName">Admin</strong>
+            <span>Administrator</span>
+          </div>
+        </div>
+
+        <button type="button" class="desktop-admin-logout" onclick="logout()">
+          Logout
+        </button>
+      </div>
+    </header>
+
+    <div class="container admin-dashboard-page">
+      <!-- HERO -->
+      <section class="admin-hero">
+        <div class="admin-hero-left">
+          <div class="admin-badge">🛡️ Panel Administrator</div>
+          <h1 id="greetingH1">Selamat datang User</h1>
+          <p id="greetingText" class="admin-greeting">
+            Selamat datang di panel pengelolaan sistem absensi.
+          </p>
+        </div>
+
+        <div class="admin-hero-right">
+          <div class="live-panel">
+            <span class="live-panel-label">Waktu Sekarang</span>
+            <div id="liveClock" class="live-panel-clock">00:00:00</div>
+            <div id="liveDate" class="live-panel-date">-</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MENU -->
+      <section class="admin-menu-section">
+        <div class="section-heading">
+          <div>
+            <h2>Menu Admin</h2>
+            <p>Kelola seluruh fitur sistem absensi dari satu dashboard.</p>
+          </div>
+        </div>
+
+        <div class="admin-menu-grid">
+          <a class="admin-menu-card" href="users.html">
+            <div class="menu-card-top">
+              <div class="menu-icon">👥</div>
+              <span class="menu-tag">Manajemen User</span>
+            </div>
+            <h3>Data User</h3>
+            <p>
+              Kelola user, role, status akun, aktivasi, dan penghapusan data.
+            </p>
+            <span class="menu-link-text">Buka Menu →</span>
+          </a>
+
+          <a class="admin-menu-card" href="waktu.html">
+            <div class="menu-card-top">
+              <div class="menu-icon">⏰</div>
+              <span class="menu-tag">Pengaturan</span>
+            </div>
+            <h3>Waktu Masuk</h3>
+            <p>
+              Atur jam masuk normal dan batas keterlambatan absensi karyawan.
+            </p>
+            <span class="menu-link-text">Buka Menu →</span>
+          </a>
+
+          <a class="admin-menu-card" href="lokasi.html">
+            <div class="menu-card-top">
+              <div class="menu-icon">📍</div>
+              <span class="menu-tag">Lokasi</span>
+            </div>
+            <h3>Lokasi Absen</h3>
+            <p>
+              Tentukan titik lokasi absensi dan radius valid kehadiran user.
+            </p>
+            <span class="menu-link-text">Buka Menu →</span>
+          </a>
+
+          <a class="admin-menu-card" href="list-absen.html">
+            <div class="menu-card-top">
+              <div class="menu-icon">📋</div>
+              <span class="menu-tag">Monitoring</span>
+            </div>
+            <h3>List Absen</h3>
+            <p>
+              Lihat data hadir, izin, alfa, lokasi absensi, dan riwayat
+              pengguna.
+            </p>
+            <span class="menu-link-text">Buka Menu →</span>
+          </a>
+
+          <a class="admin-menu-card" href="export-pdf.html">
+            <div class="menu-card-top">
+              <div class="menu-icon">🧾</div>
+              <span class="menu-tag">Laporan</span>
+            </div>
+            <h3>Export PDF</h3>
+            <p>Cetak laporan absensi dalam format PDF agar mudah diarsipkan.</p>
+            <span class="menu-link-text">Buka Menu →</span>
+          </a>
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/supabase-config.js"></script>
+    <script src="../assets/js/logout.js"></script>
+
+    <script>
+      function openAdminSidebar() {
+        const sidebar = document.getElementById("adminSidebar");
+        const overlay = document.getElementById("adminSidebarOverlay");
+
+        if (sidebar) sidebar.classList.add("show");
+        if (overlay) overlay.classList.add("show");
+
+        document.body.classList.add("admin-sidebar-open");
+      }
+
+      function closeAdminSidebar() {
+        const sidebar = document.getElementById("adminSidebar");
+        const overlay = document.getElementById("adminSidebarOverlay");
+
+        if (sidebar) sidebar.classList.remove("show");
+        if (overlay) overlay.classList.remove("show");
+
+        document.body.classList.remove("admin-sidebar-open");
+      }
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+          closeAdminSidebar();
+        }
+      });
+      function updateLiveClock() {
+        const now = new Date();
+
+        const clockEl = document.getElementById("liveClock");
+        const dateEl = document.getElementById("liveDate");
+
+        if (clockEl) {
+          clockEl.textContent = now.toLocaleTimeString("id-ID", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          });
+        }
+
+        if (dateEl) {
+          dateEl.textContent = now.toLocaleDateString("id-ID", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          });
+        }
+      }
+
+      function getGreetingByTime() {
+        const hour = new Date().getHours();
+
+        if (hour >= 4 && hour < 11) return "Selamat pagi";
+        if (hour >= 11 && hour < 15) return "Selamat siang";
+        if (hour >= 15 && hour < 18) return "Selamat sore";
+        return "Selamat malam";
+      }
+
+      async function loadAdmin() {
+        const { data: authData } = await supabaseClient.auth.getUser();
+
+        if (!authData.user) {
+          window.location.href = "../login.html";
+          return;
+        }
+
+        const { data: profile, error } = await supabaseClient
+          .from("profiles")
+          .select("*")
+          .eq("id", authData.user.id)
+          .single();
+
+        if (error || !profile || profile.role !== "admin") {
+          window.location.href = "../user/dashboard.html";
+          return;
+        }
+
+        const namaAdmin = profile.nama_lengkap || "Admin";
+        const sapaan = getGreetingByTime();
+
+        const adminName = document.getElementById("adminName");
+        const sidebarAdminName = document.getElementById("sidebarAdminName");
+        const desktopAdminName = document.getElementById("desktopAdminName");
+        const greetingText = document.getElementById("greetingText");
+        const greetingH1 = document.getElementById("greetingH1");
+
+        if (adminName) {
+          adminName.innerText = namaAdmin;
+        }
+
+        if (sidebarAdminName) {
+          sidebarAdminName.innerText = namaAdmin;
+        }
+
+        if (desktopAdminName) {
+          desktopAdminName.innerText = namaAdmin;
+        }
+
+        if (greetingText) {
+          greetingText.innerText = `${sapaan}, ${namaAdmin}. 
+           Kelola data absensi dengan lengkap.`;
+        }
+
+        if (greetingH1) {
+          greetingH1.innerText = `Hallo, ${namaAdmin}!`;
+        }
+      }
+
+      updateLiveClock();
+      setInterval(updateLiveClock, 1000);
+      loadAdmin();
+    </script>
+  </body>
+</html>

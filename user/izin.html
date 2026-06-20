@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ajukan Izin</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+  </head>
+
+  <body class="izin-page-body">
+    <!-- OVERLAY SIDEBAR -->
+    <div
+      class="sidebar-overlay"
+      id="sidebarOverlay"
+      onclick="closeUserSidebar()"
+    ></div>
+
+    <!-- SIDEBAR USER -->
+    <aside class="user-sidebar" id="userSidebar">
+      <div class="user-sidebar-header">
+        <div>
+          <span class="sidebar-mini-label">Panel User</span>
+          <h3>Menu Absensi</h3>
+        </div>
+
+        <button
+          type="button"
+          class="sidebar-close-btn"
+          onclick="closeUserSidebar()"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="user-sidebar-profile">
+        <div class="sidebar-avatar">
+          <img
+            id="sidebarUserPhoto"
+            src=""
+            alt="Foto user"
+            class="sidebar-avatar-img"
+          />
+          <span id="sidebarAvatarFallback">👤</span>
+        </div>
+        <div class="sidebar-profile-info">
+          <strong id="sidebarUserName">User</strong>
+          <span id="sidebarUserBagian">-</span>
+
+          <small class="sidebar-status-badge" id="sidebarUserStatus">
+            Aktif
+          </small>
+        </div>
+      </div>
+
+      <nav class="user-sidebar-menu">
+        <a href="dashboard.html">
+          <span>🏠</span>
+          Dashboard
+        </a>
+
+        <a href="daftar-wajah.html">
+          <span>🙂</span>
+          Daftar Wajah
+        </a>
+
+        <a href="verifikasi.html">
+          <span>📷</span>
+          Verifikasi Hadir
+        </a>
+
+        <a href="izin.html" class="active">
+          <span>📝</span>
+          Ajukan Izin
+        </a>
+
+        <a href="riwayat.html">
+          <span>📋</span>
+          Riwayat Absensi
+        </a>
+      </nav>
+
+      <button type="button" class="sidebar-logout-btn" onclick="logout()">
+        <span>🚪</span>
+        Logout
+      </button>
+    </aside>
+
+    <!-- TOP NAVBAR -->
+    <header class="user-topbar desktop-user-navbar">
+      <!-- MOBILE HAMBURGER -->
+      <button type="button" class="hamburger-btn" onclick="openUserSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!-- BRAND / LOGO -->
+      <a href="dashboard.html" class="navbar-brand-user">
+        <img src="../assets/img/Poca3.png" alt="logoPoca" class="logo-poca" />
+        <div>
+          <strong>Absensi Digital</strong>
+          <small>Face Scan & Geolocation</small>
+        </div>
+      </a>
+
+      <!-- DESKTOP MENU -->
+      <nav class="desktop-navbar-menu">
+        <a href="dashboard.html" class="active">Dashboard</a>
+        <a href="daftar-wajah.html">Daftar Wajah</a>
+        <a href="verifikasi.html">Verifikasi</a>
+        <a href="izin.html">Izin</a>
+        <a href="riwayat.html">Riwayat</a>
+      </nav>
+
+      <!-- DESKTOP PROFILE / ACTION -->
+      <div class="desktop-navbar-profile">
+        <a href="verifikasi.html" class="desktop-absen-btn"> Mulai Absen </a>
+
+        <div class="desktop-user-mini">
+          <div class="desktop-user-photo">
+            <img
+              id="desktopUserPhoto"
+              src=""
+              alt="Foto user"
+              class="desktop-user-photo-img"
+            />
+            <span id="desktopAvatarFallback">👤</span>
+          </div>
+
+          <div class="desktop-user-text">
+            <strong id="desktopUserName">User</strong>
+            <span id="desktopUserBagian">-</span>
+          </div>
+        </div>
+
+        <button type="button" class="desktop-logout-btn" onclick="logout()">
+          Logout
+        </button>
+      </div>
+    </header>
+
+    <div class="container izin-page">
+      <!-- HERO -->
+      <section class="izin-hero">
+        <div class="izin-hero-left">
+          <div class="izin-badge">📝 Pengajuan Izin</div>
+          <h1>Ajukan Izin</h1>
+          <p>
+            Ajukan izin atau sakit dengan mengisi tanggal, keterangan, dan bukti
+            foto agar data absensi tercatat dengan jelas.
+          </p>
+        </div>
+
+        <div class="izin-hero-right">
+          <div class="izin-note-card">
+            <span class="izin-note-label">Catatan</span>
+            <strong>Pastikan bukti foto jelas.</strong>
+            <p>
+              Bukti izin atau sakit akan membantu admin melakukan validasi data
+              absensi Anda.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <div id="message"></div>
+
+      <section class="izin-main-grid">
+        <!-- FORM -->
+        <div class="izin-glass-card">
+          <div class="izin-card-heading">
+            <div>
+              <h2>Form Izin</h2>
+              <p>Lengkapi data izin dengan benar sebelum dikirim.</p>
+            </div>
+            <div class="izin-icon-bubble">📄</div>
+          </div>
+
+          <form id="izinForm" class="izin-form">
+            <div class="izin-field">
+              <label for="tanggal_izin">Tanggal Izin</label>
+              <input type="date" id="tanggal_izin" required />
+            </div>
+
+            <div class="izin-field">
+              <label for="keterangan">Alasan / Keterangan Izin</label>
+              <textarea
+                id="keterangan"
+                rows="5"
+                placeholder="Contoh: Sakit demam, izin keluarga, dan sebagainya..."
+                required
+              ></textarea>
+            </div>
+
+            <div class="izin-field">
+              <label for="bukti_izin">Bukti Foto Izin / Sakit</label>
+
+              <label class="izin-upload-box" for="bukti_izin">
+                <div class="izin-upload-icon">📷</div>
+                <strong>Pilih Foto Bukti</strong>
+                <span>Format gambar, misalnya JPG/PNG</span>
+              </label>
+
+              <input type="file" id="bukti_izin" accept="image/*" required />
+            </div>
+
+            <div id="previewBuktiIzin" class="izin-preview-box">
+              <div class="izin-preview-empty">
+                Belum ada foto bukti yang dipilih.
+              </div>
+            </div>
+
+            <button type="submit" class="btn-izin-success btn-full">
+              Kirim Izin
+            </button>
+          </form>
+        </div>
+
+        <!-- GUIDE -->
+        <div class="izin-glass-card">
+          <div class="izin-card-heading">
+            <div>
+              <h2>Panduan Pengajuan</h2>
+              <p>Perhatikan beberapa hal berikut sebelum mengirim izin.</p>
+            </div>
+            <div class="izin-icon-bubble">✅</div>
+          </div>
+
+          <div class="izin-guide-list">
+            <div class="izin-guide-item">
+              <span>1</span>
+              <p>Pilih tanggal izin sesuai hari Anda tidak dapat hadir.</p>
+            </div>
+
+            <div class="izin-guide-item">
+              <span>2</span>
+              <p>
+                Tulis keterangan dengan jelas, misalnya sakit, urusan keluarga,
+                atau keperluan lain.
+              </p>
+            </div>
+
+            <div class="izin-guide-item">
+              <span>3</span>
+              <p>
+                Upload bukti foto yang jelas agar admin dapat melakukan
+                validasi.
+              </p>
+            </div>
+
+            <div class="izin-guide-item warning">
+              <span>!</span>
+              <p>
+                Setelah izin dikirim, data akan masuk ke riwayat absensi dan
+                dapat dilihat oleh admin.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../assets/js/supabase-config.js"></script>
+    <script src="../assets/js/logout.js"></script>
+    <script src="../assets/js/user-izin.js"></script>
+  </body>
+</html>

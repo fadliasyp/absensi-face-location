@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lokasi Absen</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+  </head>
+
+  <body class="lokasi-page-body">
+       <!-- OVERLAY SIDEBAR ADMIN MOBILE -->
+    <div
+      class="admin-sidebar-overlay"
+      id="adminSidebarOverlay"
+      onclick="closeAdminSidebar()"
+    ></div>
+
+    <!-- SIDEBAR ADMIN MOBILE -->
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="admin-sidebar-header">
+        <div>
+          <span class="admin-sidebar-mini-label">Panel Administrator</span>
+          <h3>Menu Admin</h3>
+        </div>
+
+        <button
+          type="button"
+          class="admin-sidebar-close-btn"
+          onclick="closeAdminSidebar()"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="admin-sidebar-profile">
+        <div class="admin-sidebar-avatar">🛡️</div>
+
+        <div class="admin-sidebar-profile-info">
+          <strong id="sidebarAdminName">Admin</strong>
+          <span>Administrator</span>
+          <small class="admin-sidebar-status">Sistem Aktif</small>
+        </div>
+      </div>
+
+      <nav class="admin-sidebar-menu">
+        <a href="dashboard.html" ">
+          <span>🏠</span>
+          Dashboard
+        </a>
+
+        <a href="users.html">
+          <span>👥</span>
+          Data User
+        </a>
+
+        <a href="waktu.html">
+          <span>⏰</span>
+          Waktu Masuk
+        </a>
+
+        <a href="lokasi.html" class="active">
+          <span>📍</span>
+          Lokasi Absen
+        </a>
+
+        <a href="list-absen.html" >
+          <span>📋</span>
+          List Absen
+        </a>
+
+        <a href="export-pdf.html">
+          <span>🧾</span>
+          Export PDF
+        </a>
+      </nav>
+
+      <button type="button" class="admin-sidebar-logout-btn" onclick="logout()">
+        <span>🚪</span>
+        Logout
+      </button>
+    </aside>
+
+    <!-- NAVBAR ADMIN -->
+    <header class="admin-topbar desktop-admin-navbar">
+      <!-- MOBILE HAMBURGER -->
+      <button
+        type="button"
+        class="admin-hamburger-btn"
+        onclick="openAdminSidebar()"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!-- BRAND -->
+      <a href="dashboard.html" class="admin-navbar-brand">
+        <img src="../assets/img/Poca3.png" alt="logoPoca" class="logo-poca" />
+        <div>
+          <strong>Admin Absensi</strong>
+          <small>Face Scan & Geolocation</small>
+        </div>
+      </a>
+
+      <!-- DESKTOP MENU -->
+      <nav class="desktop-admin-menu">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="users.html">Data User</a>
+        <a href="waktu.html">Waktu Masuk</a>
+        <a href="lokasi.html"  class="active">Lokasi</a>
+        <a href="list-absen.html">List Absen</a>
+        <a href="export-pdf.html" >Export PDF</a>
+      </nav>
+
+      <!-- DESKTOP PROFILE -->
+      <div class="desktop-admin-profile">
+        <a href="list-absen.html" class="desktop-admin-action"> Monitoring </a>
+
+        <div class="desktop-admin-mini">
+          <div class="desktop-admin-avatar">🛡️</div>
+
+          <div class="desktop-admin-text">
+            <strong id="desktopAdminName">Admin</strong>
+            <span>Administrator</span>
+          </div>
+        </div>
+
+        <button type="button" class="desktop-admin-logout" onclick="logout()">
+          Logout
+        </button>
+      </div>
+    </header>
+    <div class="container lokasi-page">
+      <!-- HERO -->
+      <section class="lokasi-hero">
+        <div class="lokasi-hero-left">
+          <div class="lokasi-badge">📍 Panel Lokasi</div>
+          <h1>Lokasi Absen</h1>
+          <p>
+            Tentukan titik lokasi absensi dan radius valid agar user hanya dapat
+            melakukan absensi dari area yang sudah ditentukan.
+          </p>
+
+    
+        </div>
+
+        <div class="lokasi-hero-right">
+          <div class="location-live-card">
+            <span class="location-live-label">Koordinat Aktif</span>
+            <strong id="previewLokasiNama">Belum dipilih</strong>
+            <p id="previewKoordinat">
+              Latitude dan longitude akan muncul di sini.
+            </p>
+            <div class="location-mini-info">
+              <span id="previewRadius">Radius: -</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="message"></div>
+
+      <!-- CONTENT -->
+      <section class="lokasi-grid">
+        <!-- FORM LOKASI -->
+        <div class="location-glass-card">
+          <div class="location-card-heading">
+            <div>
+              <h2>Form Lokasi</h2>
+              <p>
+                Isi data lokasi atau ambil titik lokasi dari perangkat saat ini.
+              </p>
+            </div>
+            <div class="location-icon-bubble">🗺️</div>
+          </div>
+
+          <input type="hidden" id="id_lokasi" />
+
+          <div class="location-form">
+            <div class="location-field">
+              <label for="nama_lokasi">Nama Lokasi</label>
+              <input
+                type="text"
+                id="nama_lokasi"
+                placeholder="Contoh: Kutabumi"
+                required
+              />
+            </div>
+
+            <div class="location-field-row">
+              <div class="location-field">
+                <label for="latitude">Latitude</label>
+                <input
+                  type="number"
+                  step="any"
+                  id="latitude"
+                  placeholder="Contoh: -6.178306"
+                  required
+                />
+              </div>
+
+              <div class="location-field">
+                <label for="longitude">Longitude</label>
+                <input
+                  type="number"
+                  step="any"
+                  id="longitude"
+                  placeholder="Contoh: 106.631889"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="location-field">
+              <label for="radius_meter">Radius Valid Meter</label>
+              <input
+                type="number"
+                id="radius_meter"
+                placeholder="Contoh: 100"
+                required
+              />
+              <small>
+                Semakin besar radius, semakin longgar area valid absensi.
+              </small>
+            </div>
+
+            <div class="location-action-grid">
+              <button
+                type="button"
+                class="btn-location-primary"
+                onclick="simpanLokasi()"
+              >
+                Simpan Lokasi
+              </button>
+
+              <button
+                type="button"
+                class="btn-location-soft"
+                onclick="ambilLokasiSekarang()"
+              >
+                Ambil Lokasi Saya Sekarang
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- INFO CARD -->
+        <div class="location-glass-card">
+          <div class="location-card-heading">
+            <div>
+              <h2>Panduan Radius</h2>
+              <p>
+                Gunakan radius yang sesuai agar absensi tidak terlalu ketat.
+              </p>
+            </div>
+            <div class="location-icon-bubble">🎯</div>
+          </div>
+
+          <div class="radius-guide-list">
+            <div class="radius-guide-item">
+              <span>50 m</span>
+              <p>Cocok untuk ruangan kecil atau area kantor yang sempit.</p>
+            </div>
+
+            <div class="radius-guide-item">
+              <span>100 m</span>
+              <p>Rekomendasi umum untuk kantor, sekolah, atau toko.</p>
+            </div>
+
+            <div class="radius-guide-item">
+              <span>200 m</span>
+              <p>Cocok jika GPS di lokasi sering kurang akurat.</p>
+            </div>
+          </div>
+
+          <div class="location-note">
+            <strong>Catatan:</strong> GPS di HP bisa berbeda akurasinya. Untuk
+            pengujian, radius 100–200 meter biasanya lebih aman.
+          </div>
+        </div>
+      </section>
+
+      <!-- DATA LOKASI -->
+      <section class="location-glass-card lokasi-data-section">
+        <div class="location-card-heading">
+          <div>
+            <h2>Data Lokasi Tersimpan</h2>
+            <p>
+              Daftar titik lokasi yang dapat digunakan sebagai validasi absensi.
+            </p>
+          </div>
+          <div class="location-icon-bubble">📌</div>
+        </div>
+
+        <!-- Desktop Table -->
+        <div class="table-wrapper lokasi-desktop-table">
+          <table class="table lokasi-modern-table">
+            <thead>
+              <tr>
+                <th>Nama Lokasi</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Radius</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="lokasiTableBody">
+              <tr>
+                <td colspan="5">Memuat data lokasi...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div id="lokasiCardList" class="lokasi-mobile-list">
+          Memuat data lokasi...
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/supabase-config.js"></script>
+    <script src="../assets/js/logout.js"></script>
+    <script src="../assets/js/admin-lokasi.js"></script>
+  </body>
+</html>

@@ -1,0 +1,67 @@
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f5f7fb;
+  color: #222;
+}
+
+.container {
+  width: 90%;
+  max-width: 800px;
+  margin: 30px auto;
+  text-align: center;
+}
+
+h1 {
+  color: #2f4f8f;
+  margin-bottom: 25px;
+}
+
+.card,
+.result-box,
+.camera-box {
+  background: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+input {
+  width: 100%;
+  max-width: 400px;
+  padding: 12px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+button {
+  padding: 12px 18px;
+  margin: 8px;
+  border: none;
+  border-radius: 8px;
+  background: #2f4f8f;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  background: #1e3a70;
+}
+
+video {
+  border-radius: 12px;
+  border: 3px solid #2f4f8f;
+  max-width: 100%;
+}
+
+.result-box p {
+  font-size: 16px;
+  margin: 8px 0;
+}

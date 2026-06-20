@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Riwayat Absensi</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+  </head>
+
+  <body class="riwayat-page-body">
+    <!-- OVERLAY SIDEBAR -->
+    <div
+      class="sidebar-overlay"
+      id="sidebarOverlay"
+      onclick="closeUserSidebar()"
+    ></div>
+
+    <!-- SIDEBAR USER -->
+    <aside class="user-sidebar" id="userSidebar">
+      <div class="user-sidebar-header">
+        <div>
+          <span class="sidebar-mini-label">Panel User</span>
+          <h3>Menu Absensi</h3>
+        </div>
+
+        <button
+          type="button"
+          class="sidebar-close-btn"
+          onclick="closeUserSidebar()"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="user-sidebar-profile">
+        <div class="sidebar-avatar">
+          <img
+            id="sidebarUserPhoto"
+            src=""
+            alt="Foto user"
+            class="sidebar-avatar-img"
+          />
+          <span id="sidebarAvatarFallback">👤</span>
+        </div>
+
+        <div class="sidebar-profile-info">
+          <strong id="sidebarUserName">User</strong>
+          <span id="sidebarUserBagian">-</span>
+
+          <small class="sidebar-status-badge" id="sidebarUserStatus">
+            Aktif
+          </small>
+        </div>
+      </div>
+
+      <nav class="user-sidebar-menu">
+        <a href="dashboard.html">
+          <span>🏠</span>
+          Dashboard
+        </a>
+
+        <a href="daftar-wajah.html">
+          <span>🙂</span>
+          Daftar Wajah
+        </a>
+
+        <a href="verifikasi.html">
+          <span>📷</span>
+          Verifikasi Hadir
+        </a>
+
+        <a href="izin.html">
+          <span>📝</span>
+          Ajukan Izin
+        </a>
+
+        <a href="riwayat.html" class="active">
+          <span>📋</span>
+          Riwayat Absensi
+        </a>
+      </nav>
+
+      <button type="button" class="sidebar-logout-btn" onclick="logout()">
+        <span>🚪</span>
+        Logout
+      </button>
+    </aside>
+
+    <!-- TOP NAVBAR -->
+    <header class="user-topbar desktop-user-navbar">
+      <!-- MOBILE HAMBURGER -->
+      <button type="button" class="hamburger-btn" onclick="openUserSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!-- BRAND / LOGO -->
+      <a href="dashboard.html" class="navbar-brand-user">
+        <img src="../assets/img/Poca3.png" alt="logoPoca" class="logo-poca" />
+        <div>
+          <strong>Absensi Digital</strong>
+          <small>Face Scan & Geolocation</small>
+        </div>
+      </a>
+
+      <!-- DESKTOP MENU -->
+      <nav class="desktop-navbar-menu">
+        <a href="dashboard.html" class="active">Dashboard</a>
+        <a href="daftar-wajah.html">Daftar Wajah</a>
+        <a href="verifikasi.html">Verifikasi</a>
+        <a href="izin.html">Izin</a>
+        <a href="riwayat.html">Riwayat</a>
+      </nav>
+
+      <!-- DESKTOP PROFILE / ACTION -->
+      <div class="desktop-navbar-profile">
+        <a href="verifikasi.html" class="desktop-absen-btn"> Mulai Absen </a>
+
+        <div class="desktop-user-mini">
+          <div class="desktop-user-photo">
+            <img
+              id="desktopUserPhoto"
+              src=""
+              alt="Foto user"
+              class="desktop-user-photo-img"
+            />
+            <span id="desktopAvatarFallback">👤</span>
+          </div>
+
+          <div class="desktop-user-text">
+            <strong id="desktopUserName">User</strong>
+            <span id="desktopUserBagian">-</span>
+          </div>
+        </div>
+
+        <button type="button" class="desktop-logout-btn" onclick="logout()">
+          Logout
+        </button>
+      </div>
+    </header>
+
+    <div class="container riwayat-page">
+      <!-- HERO -->
+      <section class="riwayat-hero">
+        <div class="riwayat-hero-left">
+          <div class="riwayat-badge">📋 Riwayat Absensi</div>
+          <h1>Riwayat Absensi</h1>
+          <p>
+            Lihat data hadir, izin, dan alfa milik Anda berdasarkan rentang
+            tanggal dan status yang dipilih.
+          </p>
+        </div>
+
+        <div class="riwayat-hero-right">
+          <div class="riwayat-live-card">
+            <span class="riwayat-live-label">Tanggal Hari Ini</span>
+            <strong id="riwayatTodayText">-</strong>
+            <p>Pantau riwayat kehadiran Anda</p>
+          </div>
+        </div>
+      </section>
+
+      <div id="message"></div>
+
+      <!-- SUMMARY -->
+      <section class="riwayat-summary-grid">
+        <div class="riwayat-summary-card hadir">
+          <span class="summary-mini-label">Hadir</span>
+          <strong id="totalHadir">0</strong>
+          <p>Total hadir pada filter aktif.</p>
+        </div>
+
+        <div class="riwayat-summary-card terlambat">
+          <span class="summary-mini-label">Terlambat</span>
+          <strong id="totalTerlambat">0</strong>
+          <p>Total terlambat pada filter aktif.</p>
+        </div>
+
+        <div class="riwayat-summary-card izin">
+          <span class="summary-mini-label">Izin</span>
+          <strong id="totalIzin">0</strong>
+          <p>Total izin pada filter aktif.</p>
+        </div>
+
+        <div class="riwayat-summary-card alfa">
+          <span class="summary-mini-label">Alfa</span>
+          <strong id="totalAlfa">0</strong>
+          <p>Total alfa pada filter aktif.</p>
+        </div>
+      </section>
+
+      <!-- FILTER -->
+      <section class="riwayat-glass-card">
+        <div class="riwayat-card-heading">
+          <div>
+            <h2>Filter Riwayat</h2>
+            <p>
+              Pilih rentang tanggal dan status riwayat yang ingin ditampilkan.
+            </p>
+          </div>
+          <div class="riwayat-icon-bubble">🔎</div>
+        </div>
+
+        <div class="riwayat-filter-grid">
+          <div class="riwayat-field">
+            <label for="tanggal_awal">Tanggal Awal</label>
+            <input type="date" id="tanggal_awal" />
+          </div>
+
+          <div class="riwayat-field">
+            <label for="tanggal_akhir">Tanggal Akhir</label>
+            <input type="date" id="tanggal_akhir" />
+          </div>
+
+          <div class="riwayat-field">
+            <label for="filter_status">Status</label>
+            <select id="filter_status">
+              <option value="">Semua Status</option>
+              <option value="hadir">Hadir</option>
+              <option value="terlambat">Terlambat</option>
+              <option value="izin">Izin</option>
+              <option value="alfa">Alfa</option>
+            </select>
+          </div>
+
+          <div class="riwayat-field riwayat-filter-button">
+            <label>&nbsp;</label>
+            <button
+              type="button"
+              class="btn-riwayat-primary"
+              onclick="loadRiwayat()"
+            >
+              Tampilkan Riwayat
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- DATA -->
+      <section class="riwayat-glass-card">
+        <div class="riwayat-card-heading">
+          <div>
+            <h2>Data Riwayat</h2>
+            <p>Data riwayat akan tampil sesuai filter yang dipilih.</p>
+          </div>
+          <div class="riwayat-icon-bubble">🧾</div>
+        </div>
+
+        <!-- Desktop Table -->
+        <div class="table-wrapper riwayat-desktop-table">
+          <table class="table riwayat-modern-table">
+            <thead>
+              <tr>
+                <th>Tanggal</th>
+                <th>Waktu Masuk</th>
+                <th>Status</th>
+                <th>Tempat</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Jarak</th>
+                <th>Validasi Lokasi</th>
+                <th>Validasi Wajah</th>
+                <th>Keterangan</th>
+                <th>Bukti Izin</th>
+              </tr>
+            </thead>
+            <tbody id="riwayatTableBody">
+              <tr>
+                <td colspan="11">Memuat riwayat absensi...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div id="riwayatCardList" class="riwayat-mobile-list">
+          Memuat riwayat absensi...
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/supabase-config.js"></script>
+    <script src="../assets/js/logout.js"></script>
+    <script src="../assets/js/user-riwayat.js"></script>
+  </body>
+</html>

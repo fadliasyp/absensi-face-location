@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Memproses Login Google</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="card">
+        <h1>Memproses Login Google...</h1>
+        <p>Mohon tunggu, sistem sedang memeriksa status akun Anda.</p>
+        <div id="message"></div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase-config.js"></script>
+
+    <script>
+      const messageBox = document.getElementById("message");
+
+      function showMessage(text, type = "error") {
+        if (!messageBox) return;
+
+        messageBox.innerHTML = `
+          <div class="alert ${type === "success" ? "alert-success" : "alert-error"}">
+            ${text}
+          </div>
+        `;
+      }
+
+      async function handleGoogleCallback() {
+        const { data: authData, error: authError } =
+          await supabaseClient.auth.getUser();
+
+        if (authError || !authData.user) {
+          showMessage("Sesi Google tidak valid. Silakan login ulang.");
+          setTimeout(() => {
+            window.location.href = "login.html";
+          }, 1600);
+          return;
+        }
+
+        const user = authData.user;
+
+        const { data: existingProfile, error: profileError } =
+          await supabaseClient
+            .from("profiles")
+            .select("*")
+            .eq("id", user.id)
+            .maybeSingle();
+
+        if (profileError) {
+          console.error(profileError);
+          showMessage("Gagal memeriksa data akun.");
+          await supabaseClient.auth.signOut();
+          return;
+        }
+
+        if (!existingProfile) {
+          const namaGoogle =
+            user.user_metadata?.full_name ||
+            user.user_metadata?.name ||
+            user.email ||
+            "User Google";
+
+          const { error: insertError } = await supabaseClient
+            .from("profiles")
+            .insert({
+              id: user.id,
+              nama_lengkap: namaGoogle,
+              email: user.email,
+              role: "user",
+              status_akun: "pending",
+            });
+
+          if (insertError) {
+            console.error(insertError);
+            showMessage("Gagal membuat data profil Google.");
+            await supabaseClient.auth.signOut();
+            return;
+          }
+
+          showMessage(
+            "Akun Google berhasil dibuat. Silakan lengkapi profil terlebih dahulu.",
+            "success",
+          );
+
+          setTimeout(() => {
+            window.location.href = "lengkapi-profil.html";
+          }, 1200);
+
+          return;
+        }
+
+        if (existingProfile.status_akun !== "aktif") {
+          const profilBelumLengkap =
+            !existingProfile.nik ||
+            !existingProfile.tanggal_lahir ||
+            !existingProfile.gender ||
+            !existingProfile.bagian;
+
+          if (profilBelumLengkap) {
+            showMessage(
+              "Profil Anda belum lengkap. Silakan lengkapi data terlebih dahulu.",
+              "success",
+            );
+
+            setTimeout(() => {
+              window.location.href = "lengkapi-profil.html";
+            }, 1200);
+
+            return;
+          }
+
+          await supabaseClient.auth.signOut();
+
+          showMessage(
+            "Akun Anda belum aktif. Silakan tunggu persetujuan admin.",
+          );
+
+          setTimeout(() => {
+            window.location.href = "login.html?status=pending";
+          }, 1800);
+
+          return;
+        }
+
+        if (existingProfile.role === "admin") {
+          window.location.href = "admin/dashboard.html";
+          return;
+        }
+
+        window.location.href = "user/dashboard.html";
+      }
+
+      handleGoogleCallback();
+    </script>
+  </body>
+</html>

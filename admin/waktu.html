@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Waktu Masuk</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+  </head>
+
+  <body class="page-waktu-body">
+    <!-- OVERLAY SIDEBAR ADMIN MOBILE -->
+    <div
+      class="admin-sidebar-overlay"
+      id="adminSidebarOverlay"
+      onclick="closeAdminSidebar()"
+    ></div>
+
+    <!-- SIDEBAR ADMIN MOBILE -->
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="admin-sidebar-header">
+        <div>
+          <span class="admin-sidebar-mini-label">Panel Administrator</span>
+          <h3>Menu Admin</h3>
+        </div>
+
+        <button
+          type="button"
+          class="admin-sidebar-close-btn"
+          onclick="closeAdminSidebar()"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="admin-sidebar-profile">
+        <div class="admin-sidebar-avatar">🛡️</div>
+
+        <div class="admin-sidebar-profile-info">
+          <strong id="sidebarAdminName">Admin</strong>
+          <span>Administrator</span>
+          <small class="admin-sidebar-status">Sistem Aktif</small>
+        </div>
+      </div>
+
+      <nav class="admin-sidebar-menu">
+        <a href="dashboard.html">
+          <span>🏠</span>
+          Dashboard
+        </a>
+
+        <a href="users.html">
+          <span>👥</span>
+          Data User
+        </a>
+
+        <a href="waktu.html" class="active">
+          <span>⏰</span>
+          Waktu Masuk
+        </a>
+
+        <a href="lokasi.html">
+          <span>📍</span>
+          Lokasi Absen
+        </a>
+
+        <a href="list-absen.html">
+          <span>📋</span>
+          List Absen
+        </a>
+
+        <a href="export-pdf.html">
+          <span>🧾</span>
+          Export PDF
+        </a>
+      </nav>
+
+      <button type="button" class="admin-sidebar-logout-btn" onclick="logout()">
+        <span>🚪</span>
+        Logout
+      </button>
+    </aside>
+
+    <!-- NAVBAR ADMIN -->
+    <header class="admin-topbar desktop-admin-navbar">
+      <!-- MOBILE HAMBURGER -->
+      <button
+        type="button"
+        class="admin-hamburger-btn"
+        onclick="openAdminSidebar()"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!-- BRAND -->
+      <a href="dashboard.html" class="admin-navbar-brand">
+        <img src="../assets/img/Poca3.png" alt="logoPoca" class="logo-poca" />
+        <div>
+          <strong>Admin Absensi</strong>
+          <small>Face Scan & Geolocation</small>
+        </div>
+      </a>
+
+      <!-- DESKTOP MENU -->
+      <nav class="desktop-admin-menu">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="users.html">Data User</a>
+        <a href="waktu.html" class="active">Waktu Masuk</a>
+        <a href="lokasi.html">Lokasi</a>
+        <a href="list-absen.html">List Absen</a>
+        <a href="export-pdf.html">Export PDF</a>
+      </nav>
+
+      <!-- DESKTOP PROFILE -->
+      <div class="desktop-admin-profile">
+        <a href="list-absen.html" class="desktop-admin-action"> Monitoring </a>
+
+        <div class="desktop-admin-mini">
+          <div class="desktop-admin-avatar">🛡️</div>
+
+          <div class="desktop-admin-text">
+            <strong id="desktopAdminName">Admin</strong>
+            <span>Administrator</span>
+          </div>
+        </div>
+
+        <button type="button" class="desktop-admin-logout" onclick="logout()">
+          Logout
+        </button>
+      </div>
+    </header>
+
+    <div class="container waktu-page">
+      <!-- HERO -->
+      <section class="waktu-hero">
+        <div class="waktu-hero-text">
+          <div class="mini-badge">⚙️ Panel Admin</div>
+          <h1>Pengaturan Waktu Absensi</h1>
+          <p>Atur jam masuk normal dan batas keterlambatan absensi karyawan.</p>
+        </div>
+
+        <div class="waktu-live-box">
+          <span class="live-label">Waktu Sekarang</span>
+          <div id="liveClock" class="live-clock">00:00:00</div>
+          <div id="liveDate" class="live-date">-</div>
+        </div>
+      </section>
+
+      <div id="message"></div>
+
+      <!-- GRID -->
+      <section class="waktu-grid">
+        <!-- FORM CARD -->
+        <div class="glass-card">
+          <div class="card-heading">
+            <div>
+              <h2>Atur Waktu</h2>
+              <p>Pengaturan waktu masuk dan batas keterlambatan.</p>
+            </div>
+            <div class="icon-bubble">⏰</div>
+          </div>
+
+          <form id="formWaktu" class="modern-form">
+            <div class="field-group">
+              <label for="jamMasukInput">Jam Masuk Normal</label>
+              <input type="time" id="jamMasukInput" required />
+              <small>Contoh: 08:00</small>
+            </div>
+
+            <div class="field-group">
+              <label for="batasTelatInput">Batas Telat</label>
+              <input type="time" id="batasTelatInput" required />
+              <small>Contoh: 08:30</small>
+            </div>
+
+            <button type="submit" class="btn-primary btn-full">
+              Simpan Pengaturan Waktu
+            </button>
+          </form>
+        </div>
+
+        <!-- INFO CARD -->
+        <div class="glass-card">
+          <div class="card-heading">
+            <div>
+              <h2>Waktu Saat Ini</h2>
+              <p>Data terbaru yang sedang aktif di sistem.</p>
+            </div>
+            <div class="icon-bubble">📊</div>
+          </div>
+
+          <div class="stat-grid">
+            <div class="stat-box">
+              <span class="stat-label">Jam Masuk</span>
+              <strong id="currentJamMasuk">-</strong>
+            </div>
+
+            <div class="stat-box">
+              <span class="stat-label">Batas Telat</span>
+              <strong id="currentBatasTelat">-</strong>
+            </div>
+
+            <div class="stat-box stat-wide">
+              <span class="stat-label">Terakhir Diperbarui</span>
+              <strong id="currentUpdatedAt">-</strong>
+            </div>
+          </div>
+
+          <div class="highlight-note">
+            <strong>Catatan:</strong> Karyawan yang absennya diatas jam tersebut
+            maka dihitung Terlambat.
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/supabase-config.js"></script>
+    <script src="../assets/js/logout.js"></script>
+    <script src="../assets/js/admin-waktu.js"></script>
+  </body>
+</html>

@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>List Absen</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+  </head>
+
+  <body class="absen-page-body">
+      <!-- OVERLAY SIDEBAR ADMIN MOBILE -->
+    <div
+      class="admin-sidebar-overlay"
+      id="adminSidebarOverlay"
+      onclick="closeAdminSidebar()"
+    ></div>
+
+    <!-- SIDEBAR ADMIN MOBILE -->
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="admin-sidebar-header">
+        <div>
+          <span class="admin-sidebar-mini-label">Panel Administrator</span>
+          <h3>Menu Admin</h3>
+        </div>
+
+        <button
+          type="button"
+          class="admin-sidebar-close-btn"
+          onclick="closeAdminSidebar()"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="admin-sidebar-profile">
+        <div class="admin-sidebar-avatar">🛡️</div>
+
+        <div class="admin-sidebar-profile-info">
+          <strong id="sidebarAdminName">Admin</strong>
+          <span>Administrator</span>
+          <small class="admin-sidebar-status">Sistem Aktif</small>
+        </div>
+      </div>
+
+      <nav class="admin-sidebar-menu">
+        <a href="dashboard.html" ">
+          <span>🏠</span>
+          Dashboard
+        </a>
+
+        <a href="users.html">
+          <span>👥</span>
+          Data User
+        </a>
+
+        <a href="waktu.html">
+          <span>⏰</span>
+          Waktu Masuk
+        </a>
+
+        <a href="lokasi.html">
+          <span>📍</span>
+          Lokasi Absen
+        </a>
+
+        <a href="list-absen.html" class="active">
+          <span>📋</span>
+          List Absen
+        </a>
+
+        <a href="export-pdf.html">
+          <span>🧾</span>
+          Export PDF
+        </a>
+      </nav>
+
+      <button type="button" class="admin-sidebar-logout-btn" onclick="logout()">
+        <span>🚪</span>
+        Logout
+      </button>
+    </aside>
+
+    <!-- NAVBAR ADMIN -->
+    <header class="admin-topbar desktop-admin-navbar">
+      <!-- MOBILE HAMBURGER -->
+      <button
+        type="button"
+        class="admin-hamburger-btn"
+        onclick="openAdminSidebar()"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!-- BRAND -->
+      <a href="dashboard.html" class="admin-navbar-brand">
+        <img src="../assets/img/Poca3.png" alt="logoPoca" class="logo-poca" />
+        <div>
+          <strong>Admin Absensi</strong>
+          <small>Face Scan & Geolocation</small>
+        </div>
+      </a>
+
+      <!-- DESKTOP MENU -->
+      <nav class="desktop-admin-menu">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="users.html">Data User</a>
+        <a href="waktu.html">Waktu Masuk</a>
+        <a href="lokasi.html">Lokasi</a>
+        <a href="list-absen.html" class="active">List Absen</a>
+        <a href="export-pdf.html" >Export PDF</a>
+      </nav>
+
+      <!-- DESKTOP PROFILE -->
+      <div class="desktop-admin-profile">
+        <a href="list-absen.html" class="desktop-admin-action"> Monitoring </a>
+
+        <div class="desktop-admin-mini">
+          <div class="desktop-admin-avatar">🛡️</div>
+
+          <div class="desktop-admin-text">
+            <strong id="desktopAdminName">Admin</strong>
+            <span>Administrator</span>
+          </div>
+        </div>
+
+        <button type="button" class="desktop-admin-logout" onclick="logout()">
+          Logout
+        </button>
+      </div>
+    </header>
+
+
+    <div class="container absen-page">
+      <!-- HERO -->
+      <section class="absen-hero">
+        <div class="absen-hero-left">
+          <div class="absen-badge">📋 Monitoring Absensi</div>
+          <h1>List Absen</h1>
+          <p>
+            Pantau data hadir, izin, terlambat, alfa, validasi lokasi, validasi
+            wajah, dan bukti izin pengguna
+          </p>
+
+         
+        </div>
+
+        <div class="absen-hero-right">
+          <div class="absen-live-card">
+            <span class="absen-live-label">Tanggal Hari Ini</span>
+            <strong id="todayText">-</strong>
+            <p>Gunakan filter untuk melihat data absensi sesuai periode.</p>
+          </div>
+        </div>
+      </section>
+
+      <div id="message"></div>
+
+      <!-- SUMMARY -->
+      <section class="absen-summary-grid">
+        <div class="absen-summary-card hadir">
+          <span class="summary-mini-label">Hadir</span>
+          <strong id="totalHadir">0</strong>
+          <p>Total data hadir pada filter aktif.</p>
+        </div>
+
+        <div class="absen-summary-card terlambat">
+          <span class="summary-mini-label">Terlambat</span>
+          <strong id="totalTerlambat">0</strong>
+          <p>Total data terlambat pada filter aktif.</p>
+        </div>
+
+        <div class="absen-summary-card izin">
+          <span class="summary-mini-label">Izin</span>
+          <strong id="totalIzin">0</strong>
+          <p>Total data izin pada filter aktif.</p>
+        </div>
+
+        <div class="absen-summary-card alfa">
+          <span class="summary-mini-label">Alfa</span>
+          <strong id="totalAlfa">0</strong>
+          <p>Total data alfa pada filter aktif.</p>
+        </div>
+      </section>
+
+      <!-- FILTER -->
+      <section class="absen-glass-card">
+        <div class="absen-card-heading">
+          <div>
+            <h2>Filter Data</h2>
+            <p>
+              Pilih rentang tanggal dan status absensi yang ingin ditampilkan.
+            </p>
+          </div>
+          <div class="absen-icon-bubble">🔎</div>
+        </div>
+
+        <div class="absen-filter-grid">
+          <div class="absen-field">
+            <label for="tanggal_awal">Tanggal Awal</label>
+            <input type="date" id="tanggal_awal" />
+          </div>
+
+          <div class="absen-field">
+            <label for="tanggal_akhir">Tanggal Akhir</label>
+            <input type="date" id="tanggal_akhir" />
+          </div>
+
+          <div class="absen-field">
+            <label for="filter_status">Status</label>
+            <select id="filter_status">
+              <option value="">Semua Status</option>
+              <option value="terlambat">Terlambat</option>
+              <option value="hadir">Hadir</option>
+              <option value="izin">Izin</option>
+              <option value="alfa">Alfa</option>
+            </select>
+          </div>
+
+          <div class="absen-field absen-filter-button">
+            <label>&nbsp;</label>
+            <button
+              type="button"
+              class="btn-absen-primary"
+              onclick="loadAbsensi()"
+            >
+              Tampilkan Data
+            </button>
+            <button
+              type="button"
+              class="btn-absen-soft"
+              onclick="generateAlfaHariIni()"
+            >
+              Generate Alfa Hari Ini
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- DATA ABSENSI -->
+      <section class="absen-glass-card">
+        <div class="absen-card-heading">
+          <div>
+            <h2>Data Absensi</h2>
+            <p>Data absensi akan tampil sesuai filter yang dipilih.</p>
+          </div>
+          <div class="absen-icon-bubble">🧾</div>
+        </div>
+
+        <!-- Desktop Table -->
+        <div class="table-wrapper absen-desktop-table">
+          <table class="table absen-modern-table">
+            <thead>
+              <tr>
+                <th>Nama</th>
+                <th>Bagian</th>
+                <th>Tanggal</th>
+                <th>Waktu Masuk</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Tempat</th>
+                <th>Jarak</th>
+                <th>Status</th>
+                <th>Validasi Wajah</th>
+                <th>Validasi Lokasi</th>
+                <th>Keterangan</th>
+                <th>Foto Absen</th>
+                <th>Bukti Izin</th>
+              </tr>
+            </thead>
+            <tbody id="absenTableBody">
+              <tr>
+                <td colspan="14">Memuat data absensi...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div id="absenCardList" class="absen-mobile-list">
+          Memuat data absensi...
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/supabase-config.js"></script>
+    <script src="../assets/js/logout.js"></script>
+    <script src="../assets/js/admin-list-absen.js"></script>
+  </body>
+</html>

@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daftar Wajah</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+  </head>
+
+  <body class="face-register-body">
+    <!-- OVERLAY SIDEBAR -->
+    <div
+      class="sidebar-overlay"
+      id="sidebarOverlay"
+      onclick="closeUserSidebar()"
+    ></div>
+
+    <!-- SIDEBAR USER -->
+    <aside class="user-sidebar" id="userSidebar">
+      <div class="user-sidebar-header">
+        <div>
+          <span class="sidebar-mini-label">Panel User</span>
+          <h3>Menu Absensi</h3>
+        </div>
+
+        <button
+          type="button"
+          class="sidebar-close-btn"
+          onclick="closeUserSidebar()"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="user-sidebar-profile">
+        <div class="sidebar-avatar">
+          <img
+            id="sidebarUserPhoto"
+            src=""
+            alt="Foto user"
+            class="sidebar-avatar-img"
+          />
+          <span id="sidebarAvatarFallback">👤</span>
+        </div>
+
+        <div class="sidebar-profile-info">
+          <strong id="sidebarUserName">User</strong>
+          <span id="sidebarUserBagian">-</span>
+
+          <small class="sidebar-status-badge" id="sidebarUserStatus">
+            Aktif
+          </small>
+        </div>
+      </div>
+
+      <nav class="user-sidebar-menu">
+        <a href="dashboard.html">
+          <span>🏠</span>
+          Dashboard
+        </a>
+
+        <a href="daftar-wajah.html" class="active">
+          <span>🙂</span>
+          Daftar Wajah
+        </a>
+
+        <a href="verifikasi.html">
+          <span>📷</span>
+          Verifikasi Hadir
+        </a>
+
+        <a href="izin.html">
+          <span>📝</span>
+          Ajukan Izin
+        </a>
+
+        <a href="riwayat.html">
+          <span>📋</span>
+          Riwayat Absensi
+        </a>
+      </nav>
+
+      <button type="button" class="sidebar-logout-btn" onclick="logout()">
+        <span>🚪</span>
+        Logout
+      </button>
+    </aside>
+
+    <!-- TOP NAVBAR -->
+    <header class="user-topbar desktop-user-navbar">
+      <!-- MOBILE HAMBURGER -->
+      <button type="button" class="hamburger-btn" onclick="openUserSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!-- BRAND / LOGO -->
+      <a href="dashboard.html" class="navbar-brand-user">
+        <img src="../assets/img/Poca3.png" alt="logoPoca" class="logo-poca" />
+        <div>
+          <strong>Absensi Digital</strong>
+          <small>Face Scan & Geolocation</small>
+        </div>
+      </a>
+
+      <!-- DESKTOP MENU -->
+      <nav class="desktop-navbar-menu">
+        <a href="dashboard.html" class="active">Dashboard</a>
+        <a href="daftar-wajah.html">Daftar Wajah</a>
+        <a href="verifikasi.html">Verifikasi</a>
+        <a href="izin.html">Izin</a>
+        <a href="riwayat.html">Riwayat</a>
+      </nav>
+
+      <!-- DESKTOP PROFILE / ACTION -->
+      <div class="desktop-navbar-profile">
+        <a href="verifikasi.html" class="desktop-absen-btn"> Mulai Absen </a>
+
+        <div class="desktop-user-mini">
+          <div class="desktop-user-photo">
+            <img
+              id="desktopUserPhoto"
+              src=""
+              alt="Foto user"
+              class="desktop-user-photo-img"
+            />
+            <span id="desktopAvatarFallback">👤</span>
+          </div>
+
+          <div class="desktop-user-text">
+            <strong id="desktopUserName">User</strong>
+            <span id="desktopUserBagian">-</span>
+          </div>
+        </div>
+
+        <button type="button" class="desktop-logout-btn" onclick="logout()">
+          Logout
+        </button>
+      </div>
+    </header>
+
+    <div class="container face-register-page">
+      <!-- HERO -->
+      <section class="face-hero">
+        <div class="face-hero-left">
+          <div class="face-badge">🙂 Registrasi Wajah</div>
+          <h1>Daftar Wajah</h1>
+          <p>
+            Simpan data wajah sebagai identitas utama untuk proses absensi
+            berbasis face scan dan validasi lokasi.
+          </p>
+        </div>
+
+        <div class="face-hero-right">
+          <div class="face-note-card">
+            <span class="face-note-label">Catatan Penting</span>
+            <strong>Daftar wajah hanya diperbolehkan 1 kali.</strong>
+            <p>
+              Jika terjadi kesalahan saat pendaftaran wajah atau ingin mengganti
+              data wajah, silakan hubungi admin untuk reset data wajah.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <div id="message"></div>
+
+      <!-- FACE STATUS -->
+      <section class="face-status-section">
+        <div class="face-status-card">
+          <div>
+            <span>Status Pendaftaran Wajah</span>
+            <strong id="statusWajah">Memuat...</strong>
+          </div>
+
+          <div class="face-status-icon">🙂</div>
+        </div>
+      </section>
+
+      <!-- MAIN CONTENT -->
+      <section class="face-main-grid">
+        <!-- CAMERA -->
+        <div class="face-glass-card face-camera-card">
+          <div class="face-card-heading">
+            <div>
+              <h2>Kamera Pendaftaran</h2>
+              <p>
+                Posisikan wajah di tengah kamera. Pastikan wajah terlihat jelas,
+                tidak terlalu dekat, dan pencahayaan cukup.
+              </p>
+            </div>
+            <div class="face-icon-bubble">📷</div>
+          </div>
+
+          <div class="face-video-frame overlay-camera">
+            <video id="video" autoplay muted playsinline></video>
+
+            <canvas id="faceGuideCanvas"></canvas>
+
+            <div class="face-shape-guide">
+              <img
+                src="../assets/img/face-id.svg"
+                alt="Panduan wajah"
+                class="face-shape-img invalid"
+                id="faceShape"
+              />
+            </div>
+            <div class="face-camera-overlay">
+              <div class="face-overlay-pill">
+                <span>Tips</span>
+                <strong>Hadap kamera dengan posisi wajah lurus</strong>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            id="btnDaftarWajah"
+            class="btn-face-success btn-full"
+            onclick="daftarkanWajah()"
+          >
+            Simpan Data Wajah
+          </button>
+        </div>
+
+        <!-- GUIDE -->
+        <div class="face-glass-card">
+          <div class="face-card-heading">
+            <div>
+              <h2>Panduan Daftar Wajah</h2>
+              <p>
+                Ikuti panduan berikut agar data wajah tersimpan dengan baik.
+              </p>
+            </div>
+            <div class="face-icon-bubble">✅</div>
+          </div>
+
+          <div class="face-guide-list">
+            <div class="face-guide-item">
+              <span>1</span>
+              <p>
+                Pastikan wajah terlihat penuh, termasuk mata, hidung, mulut, dan
+                dagu.
+              </p>
+            </div>
+
+            <div class="face-guide-item">
+              <span>2</span>
+              <p>
+                Jangan terlalu dekat dengan kamera agar sistem dapat membaca
+                wajah stabil.
+              </p>
+            </div>
+
+            <div class="face-guide-item">
+              <span>3</span>
+              <p>
+                Gunakan pencahayaan yang cukup dan hindari cahaya terlalu terang
+                dari belakang.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="../assets/js/mediapipe-face-guide.js"></script>
+    <script src="../assets/js/supabase-config.js"></script>
+    <script src="../assets/js/logout.js"></script>
+    <script src="../assets/js/user-daftar-wajah.js"></script>
+  </body>
+</html>

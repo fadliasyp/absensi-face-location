@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data User</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+  </head>
+
+  <body class="admin-users-body">
+    <!-- OVERLAY SIDEBAR ADMIN MOBILE -->
+    <div
+      class="admin-sidebar-overlay"
+      id="adminSidebarOverlay"
+      onclick="closeAdminSidebar()"
+    ></div>
+
+    <!-- SIDEBAR ADMIN MOBILE -->
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="admin-sidebar-header">
+        <div>
+          <span class="admin-sidebar-mini-label">Panel Administrator</span>
+          <h3>Menu Admin</h3>
+        </div>
+
+        <button
+          type="button"
+          class="admin-sidebar-close-btn"
+          onclick="closeAdminSidebar()"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="admin-sidebar-profile">
+        <div class="admin-sidebar-avatar">🛡️</div>
+
+        <div class="admin-sidebar-profile-info">
+          <strong id="sidebarAdminName">Admin</strong>
+          <span>Administrator</span>
+          <small class="admin-sidebar-status">Sistem Aktif</small>
+        </div>
+      </div>
+
+      <nav class="admin-sidebar-menu">
+        <a href="dashboard.html">
+          <span>🏠</span>
+          Dashboard
+        </a>
+
+        <a href="users.html" class="active">
+          <span>👥</span>
+          Data User
+        </a>
+
+        <a href="waktu.html">
+          <span>⏰</span>
+          Waktu Masuk
+        </a>
+
+        <a href="lokasi.html">
+          <span>📍</span>
+          Lokasi Absen
+        </a>
+
+        <a href="list-absen.html">
+          <span>📋</span>
+          List Absen
+        </a>
+
+        <a href="export-pdf.html">
+          <span>🧾</span>
+          Export PDF
+        </a>
+      </nav>
+
+      <button type="button" class="admin-sidebar-logout-btn" onclick="logout()">
+        <span>🚪</span>
+        Logout
+      </button>
+    </aside>
+
+    <!-- NAVBAR ADMIN -->
+    <header class="admin-topbar desktop-admin-navbar">
+      <!-- MOBILE HAMBURGER -->
+      <button
+        type="button"
+        class="admin-hamburger-btn"
+        onclick="openAdminSidebar()"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!-- BRAND -->
+      <a href="dashboard.html" class="admin-navbar-brand">
+        <img src="../assets/img/Poca3.png" alt="logoPoca" class="logo-poca" />
+        <div>
+          <strong>Admin Absensi</strong>
+          <small>Manajemen data user</small>
+        </div>
+      </a>
+
+      <!-- DESKTOP MENU -->
+      <nav class="desktop-admin-menu">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="users.html" class="active">Data User</a>
+        <a href="waktu.html">Waktu Masuk</a>
+        <a href="lokasi.html">Lokasi</a>
+        <a href="list-absen.html">List Absen</a>
+        <a href="export-pdf.html">Export PDF</a>
+      </nav>
+
+      <!-- DESKTOP PROFILE -->
+      <div class="desktop-admin-profile">
+        <a href="list-absen.html" class="desktop-admin-action"> Monitoring </a>
+
+        <div class="desktop-admin-mini">
+          <div class="desktop-admin-avatar">🛡️</div>
+
+          <div class="desktop-admin-text">
+            <strong id="desktopAdminName">Admin</strong>
+            <span>Administrator</span>
+          </div>
+        </div>
+
+        <button type="button" class="desktop-admin-logout" onclick="logout()">
+          Logout
+        </button>
+      </div>
+    </header>
+
+    <div class="container admin-users-page">
+      <!-- HERO -->
+      <section class="users-hero">
+        <div class="users-hero-left">
+          <div class="users-badge">👥 Manajemen User</div>
+          <h1>Data User</h1>
+          <p>
+            Kelola data user, role, status akun, approval, reset wajah, dan
+            penghapusan akun dari satu halaman admin.
+          </p>
+        </div>
+
+        <div class="users-hero-right">
+          <div class="users-note-card">
+            <span class="users-note-label">Kontrol Admin</span>
+            <strong>Approval & Validasi User</strong>
+            <p>
+              Pastikan data user sudah benar sebelum mengaktifkan akun atau
+              mereset data wajah.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <div id="message"></div>
+
+      <!-- FILTER -->
+      <section class="users-glass-card">
+        <div class="users-card-heading">
+          <div>
+            <h2>Filter Data User</h2>
+            <p>Pilih status akun untuk menampilkan data user tertentu.</p>
+          </div>
+          <div class="users-icon-bubble">🔎</div>
+        </div>
+
+        <div class="users-filter-row">
+          <div class="users-field">
+            <label for="filterStatus">Filter Status Akun</label>
+            <select id="filterStatus" onchange="loadUsers()">
+              <option value="">Semua Status</option>
+              <option value="pending">Menunggu Persetujuan</option>
+              <option value="aktif">Aktif</option>
+              <option value="ditolak">Ditolak</option>
+            </select>
+          </div>
+
+          <button type="button" class="btn-users-primary" onclick="loadUsers()">
+            Refresh Data
+          </button>
+        </div>
+      </section>
+
+      <!-- DATA USER -->
+      <section class="users-glass-card">
+        <div class="users-card-heading">
+          <div>
+            <h2>List User</h2>
+            <p>
+              Data user ditampilkan dalam tabel desktop dan card mobile agar
+              tetap nyaman digunakan di HP.
+            </p>
+          </div>
+          <div class="users-icon-bubble">📋</div>
+        </div>
+
+        <div class="table-wrapper desktop-table users-desktop-table">
+          <table class="table users-modern-table">
+            <thead>
+              <tr>
+                <th>Nama Lengkap</th>
+                <th>NIK</th>
+                <th>Gender</th>
+                <th>Bagian</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status Akun</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="userTableBody">
+              <tr>
+                <td colspan="8">Memuat data user...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="userCardList" class="mobile-card-list">
+          Memuat data user...
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/supabase-config.js"></script>
+    <script src="../assets/js/logout.js"></script>
+    <script src="../assets/js/admin-users.js"></script>
+  </body>
+</html>

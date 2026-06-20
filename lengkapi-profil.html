@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lengkapi Profil</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+  </head>
+
+  <body class="complete-profile-body">
+    <div class="complete-profile-page">
+      <section class="complete-profile-card">
+        <div class="complete-profile-header">
+          <div class="complete-profile-badge">👤 Profil Google</div>
+          <h1>Lengkapi Profil</h1>
+          <p>
+            Akun Google Anda berhasil terdaftar. Silakan lengkapi data berikut
+            agar admin dapat melakukan validasi sebelum akun diaktifkan.
+          </p>
+        </div>
+
+        <div id="message"></div>
+
+        <form id="completeProfileForm" class="complete-profile-form">
+          <div class="profile-field">
+            <label for="nama_lengkap">Nama Lengkap</label>
+            <input
+              type="text"
+              id="nama_lengkap"
+              placeholder="Nama lengkap"
+              required
+            />
+          </div>
+
+          <div class="profile-field">
+            <label for="nik">NIK</label>
+            <input type="text" id="nik" placeholder="Masukkan NIK" required />
+          </div>
+
+          <div class="profile-field">
+            <label for="tanggal_lahir">Tanggal Lahir</label>
+            <input type="date" id="tanggal_lahir" required />
+          </div>
+
+          <div class="profile-field">
+            <label for="gender">Gender</label>
+            <select id="gender" required>
+              <option value="">Pilih Gender</option>
+              <option value="Laki-laki">Laki-laki</option>
+              <option value="Perempuan">Perempuan</option>
+            </select>
+          </div>
+
+          <div class="profile-field">
+            <label for="bagian">Bagian / Jabatan</label>
+            <input
+              type="text"
+              id="bagian"
+              placeholder="Contoh: Staff, Admin Gudang, Kasir"
+              required
+            />
+          </div>
+
+          <button type="submit" class="btn-complete-profile">
+            Simpan Profil
+          </button>
+        </form>
+
+        <div class="complete-profile-note">
+          <strong>Catatan:</strong>
+          Setelah profil disimpan, akun Anda tetap menunggu persetujuan admin
+          sebelum dapat masuk ke dashboard.
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="assets/js/supabase-config.js"></script>
+    <script src="assets/js/lengkapi-profil.js"></script>
+  </body>
+</html>

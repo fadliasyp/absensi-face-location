@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Absensi</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+  </head>
+
+  <body class="auth-body">
+    <main class="auth-page">
+      <section class="auth-layout">
+        <!-- LEFT PANEL -->
+        <div class="auth-info-panel">
+          <div class="auth-badge">🔐 Sistem Absensi</div>
+
+          <h1>Selamat Datang Kembali</h1>
+
+          <p>
+            Masuk ke sistem absensi untuk mengelola kehadiran, verifikasi wajah,
+            lokasi, izin, dan riwayat absensi secara digital.
+          </p>
+
+          <div class="auth-feature-list">
+            <div class="auth-feature-item">
+              <span>🧑‍💼</span>
+              <div>
+                <strong>Role Admin & User</strong>
+                <p>Akses otomatis diarahkan sesuai role akun.</p>
+              </div>
+            </div>
+
+            <div class="auth-feature-item">
+              <span>📍</span>
+              <div>
+                <strong>Validasi Lokasi</strong>
+                <p>Absensi hanya valid pada radius lokasi yang ditentukan.</p>
+              </div>
+            </div>
+
+            <div class="auth-feature-item">
+              <span>🙂</span>
+              <div>
+                <strong>Face Scan</strong>
+                <p>Identitas user diverifikasi menggunakan data wajah.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FORM PANEL -->
+        <div class="auth-card">
+          <div class="auth-card-header">
+            <div class="auth-icon">🔑</div>
+            <h2>Login</h2>
+            <p>Masukkan email dan password untuk melanjutkan.</p>
+          </div>
+
+          <div id="message"></div>
+
+          <form id="loginForm" class="auth-form">
+            <div class="auth-field">
+              <label for="login_email">Email</label>
+              <input
+                type="email"
+                id="login_email"
+                placeholder="contoh@email.com"
+                required
+              />
+            </div>
+
+            <div class="auth-field">
+              <label for="login_password">Password</label>
+              <input
+                type="password"
+                id="login_password"
+                placeholder="Masukkan password"
+                required
+              />
+            </div>
+
+            <button type="submit" class="auth-submit-btn">
+              Login Sekarang
+            </button>
+          </form>
+
+          <div class="auth-footer-text">
+            Belum punya akun?
+            <a href="register.html">Register di sini</a>
+          </div>
+
+          <div class="login-divider">
+            <span>atau</span>
+          </div>
+
+          <button
+            type="button"
+            class="btn-google-login"
+            onclick="loginWithGoogle()"
+          >
+            <span class="google-logo-wrap">
+              <svg class="google-logo" viewBox="0 0 48 48" aria-hidden="true">
+                <path
+                  fill="#FFC107"
+                  d="M43.611 20.083H42V20H24v8h11.303C33.654 32.657 29.223 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"
+                />
+                <path
+                  fill="#FF3D00"
+                  d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"
+                />
+                <path
+                  fill="#4CAF50"
+                  d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"
+                />
+                <path
+                  fill="#1976D2"
+                  d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"
+                />
+              </svg>
+            </span>
+
+            <span class="google-login-text">Masuk dengan Google</span>
+          </button>
+        </div>
+      </section>
+    </main>
+    <script>
+      async function loginWithGoogle() {
+        const { error } = await supabaseClient.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo: `${window.location.origin}/oauth-callback.html`,
+            queryParams: {
+              access_type: "offline",
+              prompt: "consent",
+            },
+          },
+        });
+
+        if (error) {
+          console.error(error);
+          alert("Login Google gagal: " + error.message);
+        }
+      }
+
+      function showMessage(text, type = "error") {
+        if (!messageBox) return;
+
+        messageBox.innerHTML = `
+    <div class="alert ${type === "success" ? "alert-success" : "alert-error"}">
+      ${text}
+    </div>
+  `;
+      }
+      const params = new URLSearchParams(window.location.search);
+
+      if (params.get("status") === "pending") {
+        showMessage(
+          "Akun Anda berhasil masuk melalui Google, tetapi belum aktif. Silakan tunggu persetujuan admin.",
+          "success",
+        );
+      }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="assets/js/supabase-config.js"></script>
+    <script src="assets/js/auth.js"></script>
+  </body>
+</html>

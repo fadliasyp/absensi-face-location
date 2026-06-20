@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistem Absensi Face Scan</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+  </head>
+
+  <body class="landing-body">
+    <main class="landing-page">
+      <!-- HERO -->
+      <section class="landing-hero">
+        <div class="landing-hero-left">
+          <div class="landing-badge">🚀 Sistem Absensi Digital</div>
+
+          <h1>
+            Absensi Lebih Aman dengan
+            <span>Face Scan & Geolocation</span>
+          </h1>
+
+          <p>
+            Sistem absensi berbasis web yang mendukung validasi wajah,
+            pengecekan lokasi, liveness detection, pengajuan izin, dan
+            pengelolaan data absensi oleh admin.
+          </p>
+
+          <div class="landing-actions">
+            <a href="login.html" class="landing-btn-primary">Login Sekarang</a>
+            <a href="register.html" class="landing-btn-soft">Register User</a>
+          </div>
+
+          <div class="landing-mini-info">
+            <div>
+              <strong>Face Scan</strong>
+              <span>Validasi identitas</span>
+            </div>
+
+            <div>
+              <strong>GPS</strong>
+              <span>Validasi lokasi</span>
+            </div>
+
+            <div>
+              <strong>Admin</strong>
+              <span>Kontrol data</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="landing-hero-right">
+          <div class="phone-preview">
+            <div class="phone-top">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+
+            <div class="phone-card main">
+              <div class="scan-circle">🙂</div>
+              <h3>Verifikasi Hadir</h3>
+              <p>Face scan + lokasi valid</p>
+              <div class="status-pill success">Terverifikasi</div>
+            </div>
+
+            <div class="phone-card small-card">
+              <div>
+                <span class="small-label">Waktu Sekarang</span>
+                <strong id="landingClock">00:00:00</strong>
+              </div>
+              <div class="mini-dot"></div>
+            </div>
+
+            <div class="phone-card small-card">
+              <div>
+                <span class="small-label">Status Sistem</span>
+                <strong>Online</strong>
+              </div>
+              <div class="status-dot"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FEATURES -->
+      <section class="landing-feature-section">
+        <div class="landing-section-heading">
+          <h2>Fitur Utama Sistem</h2>
+          <p>
+            Sistem dirancang untuk membantu proses absensi menjadi lebih aman,
+            praktis, dan mudah dipantau.
+          </p>
+        </div>
+
+        <div class="landing-feature-grid">
+          <div class="landing-feature-card">
+            <div class="feature-icon">🙂</div>
+            <h3>Face Recognition</h3>
+            <p>
+              User dapat melakukan absensi dengan verifikasi wajah melalui
+              kamera perangkat.
+            </p>
+          </div>
+
+          <div class="landing-feature-card">
+            <div class="feature-icon">📍</div>
+            <h3>Geolocation</h3>
+            <p>
+              Sistem mengecek apakah user berada dalam radius lokasi yang
+              ditentukan admin.
+            </p>
+          </div>
+
+          <div class="landing-feature-card">
+            <div class="feature-icon">👀</div>
+            <h3>Liveness Detection</h3>
+            <p>
+              Verifikasi gerakan seperti kedip atau tengok untuk mengurangi
+              risiko penggunaan foto.
+            </p>
+          </div>
+
+          <div class="landing-feature-card">
+            <div class="feature-icon">📋</div>
+            <h3>Panel Admin</h3>
+            <p>
+              Admin dapat mengelola user, lokasi, waktu masuk, dan data absensi.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="landing-cta">
+        <div>
+          <h2>Mulai Gunakan Sistem Absensi</h2>
+          <p>
+            Login jika sudah memiliki akun, atau register untuk mendaftar
+            sebagai user baru.
+          </p>
+        </div>
+
+        <div class="landing-cta-actions">
+          <a href="login.html" class="landing-btn-primary">Login</a>
+          <a href="register.html" class="landing-btn-soft">Register</a>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      function updateLandingClock() {
+        const clock = document.getElementById("landingClock");
+        if (!clock) return;
+
+        const now = new Date();
+
+        clock.textContent = now.toLocaleTimeString("id-ID", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+      }
+
+      updateLandingClock();
+      setInterval(updateLandingClock, 1000);
+    </script>
+  </body>
+</html>

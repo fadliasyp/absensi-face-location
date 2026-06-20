@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verifikasi Hadir</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+  </head>
+
+  <body class="verify-page-body">
+    <!-- OVERLAY SIDEBAR -->
+    <div
+      class="sidebar-overlay"
+      id="sidebarOverlay"
+      onclick="closeUserSidebar()"
+    ></div>
+
+    <!-- SIDEBAR USER -->
+    <aside class="user-sidebar" id="userSidebar">
+      <div class="user-sidebar-header">
+        <div>
+          <span class="sidebar-mini-label">Panel User</span>
+          <h3>Menu Absensi</h3>
+        </div>
+
+        <button
+          type="button"
+          class="sidebar-close-btn"
+          onclick="closeUserSidebar()"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="user-sidebar-profile">
+        <div class="sidebar-avatar">
+          <img
+            id="sidebarUserPhoto"
+            src=""
+            alt="Foto user"
+            class="sidebar-avatar-img"
+          />
+          <span id="sidebarAvatarFallback">👤</span>
+        </div>
+
+        <div class="sidebar-profile-info">
+          <strong id="sidebarUserName">User</strong>
+          <span id="sidebarUserBagian">-</span>
+
+          <small class="sidebar-status-badge" id="sidebarUserStatus">
+            Aktif
+          </small>
+        </div>
+      </div>
+
+      <nav class="user-sidebar-menu">
+        <a href="dashboard.html">
+          <span>🏠</span>
+          Dashboard
+        </a>
+
+        <a href="daftar-wajah.html">
+          <span>🙂</span>
+          Daftar Wajah
+        </a>
+
+        <a href="verifikasi.html" class="active">
+          <span>📷</span>
+          Verifikasi Hadir
+        </a>
+
+        <a href="izin.html">
+          <span>📝</span>
+          Ajukan Izin
+        </a>
+
+        <a href="riwayat.html">
+          <span>📋</span>
+          Riwayat Absensi
+        </a>
+      </nav>
+
+      <button type="button" class="sidebar-logout-btn" onclick="logout()">
+        <span>🚪</span>
+        Logout
+      </button>
+    </aside>
+
+    <!-- TOP NAVBAR -->
+    <header class="user-topbar desktop-user-navbar">
+      <!-- MOBILE HAMBURGER -->
+      <button type="button" class="hamburger-btn" onclick="openUserSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <!-- BRAND / LOGO -->
+      <a href="dashboard.html" class="navbar-brand-user">
+        <img src="../assets/img/Poca3.png" alt="logoPoca" class="logo-poca" />
+        <div>
+          <strong>Absensi Digital</strong>
+          <small>Face Scan & Geolocation</small>
+        </div>
+      </a>
+
+      <!-- DESKTOP MENU -->
+      <nav class="desktop-navbar-menu">
+        <a href="dashboard.html" class="active">Dashboard</a>
+        <a href="daftar-wajah.html">Daftar Wajah</a>
+        <a href="verifikasi.html">Verifikasi</a>
+        <a href="izin.html">Izin</a>
+        <a href="riwayat.html">Riwayat</a>
+      </nav>
+
+      <!-- DESKTOP PROFILE / ACTION -->
+      <div class="desktop-navbar-profile">
+        <a href="verifikasi.html" class="desktop-absen-btn"> Mulai Absen </a>
+
+        <div class="desktop-user-mini">
+          <div class="desktop-user-photo">
+            <img
+              id="desktopUserPhoto"
+              src=""
+              alt="Foto user"
+              class="desktop-user-photo-img"
+            />
+            <span id="desktopAvatarFallback">👤</span>
+          </div>
+
+          <div class="desktop-user-text">
+            <strong id="desktopUserName">User</strong>
+            <span id="desktopUserBagian">-</span>
+          </div>
+        </div>
+
+        <button type="button" class="desktop-logout-btn" onclick="logout()">
+          Logout
+        </button>
+      </div>
+    </header>
+
+    <div class="container verify-page">
+      <!-- HERO -->
+      <section class="verify-hero">
+        <div class="verify-hero-left">
+          <div class="verify-badge">🙂 Verifikasi Absensi</div>
+          <h1>Verifikasi Hadir</h1>
+          <p>
+            Lakukan absensi dengan validasi wajah, gerakan liveness, dan lokasi
+            agar kehadiran terverifikasi.
+          </p>
+        </div>
+
+        <div class="verify-hero-right">
+          <div class="verify-status-panel">
+            <span class="verify-panel-label">Status Verifikasi</span>
+            <strong id="heroStatusText">Menunggu proses</strong>
+            <p>Mulai dari verifikasi gerakan, lalu lanjutkan absensi.</p>
+          </div>
+        </div>
+      </section>
+
+      <div id="message"></div>
+
+      <!-- USER INFO -->
+      <!-- STATUS DATA WAJAH -->
+      <section class="verify-status-section">
+        <div class="verify-status-card">
+          <div>
+            <span>Status Data Wajah</span>
+            <strong id="statusDataWajah">Memuat...</strong>
+          </div>
+
+          <div class="verify-status-icon">🙂</div>
+        </div>
+      </section>
+
+      <!-- MAIN GRID -->
+      <section class="verify-main-grid verify-main-grid-focus">
+        <!-- CAMERA + OVERLAY LIVENESS -->
+        <div
+          class="verify-glass-card verify-camera-card verify-camera-focus-card"
+        >
+          <div class="verify-card-heading">
+            <div>
+              <h2>Kamera Face Scan & Liveness</h2>
+              <p>
+                Lihat wajah Anda di kamera, lalu ikuti instruksi gerakan yang
+                muncul di dalam kotak kamera.
+              </p>
+            </div>
+            <div class="verify-icon-bubble">📷</div>
+          </div>
+
+          <div class="verify-camera-shell">
+            <div class="verify-video-frame overlay-camera">
+              <video id="video" autoplay muted playsinline></video>
+
+              <canvas id="faceGuideCanvas"></canvas>
+
+              <div class="face-shape-guide">
+                <img
+                  src="../assets/img/face-id.svg"
+                  alt="Panduan wajah"
+                  class="face-shape-img invalid"
+                  id="faceShape"
+                />
+              </div>
+            </div>
+
+            <div class="verify-instruction-compact" id="instructionCompactBox">
+              <div class="instruction-compact-icon" id="instruksiIcon">🙂</div>
+              <div>
+                <span>Panduan Verifikasi</span>
+                <strong id="instruksiGerakan">Siap membaca wajah</strong>
+              </div>
+            </div>
+
+            <!-- TOMBOL TEPAT DI BAWAH KAMERA -->
+            <div class="camera-action-bar single-action">
+              <button
+                type="button"
+                id="btnVerifikasiAbsen"
+                class="btn-verify-success"
+                onclick="verifikasiDanAbsen()"
+              >
+                Verifikasi & Absen Sekarang
+              </button>
+            </div>
+          </div>
+
+          <div class="verify-result-grid verify-result-grid-inline">
+            <div class="verify-result-box">
+              <span>Validasi Wajah</span>
+              <strong id="statusWajah">-</strong>
+            </div>
+
+            <div class="verify-result-box">
+              <span>Skor Kemiripan</span>
+              <strong id="skorWajah">-</strong>
+            </div>
+          </div>
+
+          <div class="verify-tips">
+            <span>Tips:</span>
+            <p>
+              Posisikan wajah di tengah kamera. Saat instruksi muncul, lakukan
+              gerakan perlahan agar landmark wajah terbaca stabil.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- LOCATION -->
+      <section class="verify-glass-card verify-location-card">
+        <div class="verify-card-heading">
+          <div>
+            <h2>Informasi Lokasi</h2>
+            <p>
+              Sistem akan mengecek apakah posisi Anda berada dalam radius lokasi
+              valid.
+            </p>
+          </div>
+          <div class="verify-icon-bubble">📍</div>
+        </div>
+
+        <div class="verify-location-grid">
+          <div class="verify-location-item">
+            <span>Lokasi Valid</span>
+            <strong id="lokasiValid">Memuat...</strong>
+          </div>
+
+          <div class="verify-location-item">
+            <span>Radius Valid</span>
+            <strong id="radiusValid">Memuat...</strong>
+          </div>
+
+          <div class="verify-location-item">
+            <span>Latitude Anda</span>
+            <strong id="latitudeUser">-</strong>
+          </div>
+
+          <div class="verify-location-item">
+            <span>Longitude Anda</span>
+            <strong id="longitudeUser">-</strong>
+          </div>
+
+          <div class="verify-location-item">
+            <span>Jarak Anda</span>
+            <strong id="jarakUser">-</strong>
+          </div>
+
+          <div class="verify-location-item">
+            <span>Status Lokasi</span>
+            <strong id="statusLokasi">-</strong>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <script src="../assets/js/supabase-config.js"></script>
+    <script src="../assets/js/logout.js"></script>
+    <script type="module" src="../assets/js/mediapipe-face-guide.js"></script>
+    <script src="../assets/js/user-verifikasi.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </body>
+</html>
