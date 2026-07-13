@@ -5565,9 +5565,10 @@ button.danger:hover,
   line-height: 1.6;
 }
 
-.izin-icon-bubble {
+.izin-icon-bubble img {
   width: 54px;
   height: 54px;
+  object-fit: contain;
   border-radius: 18px;
   background: linear-gradient(135deg, #fff7e6, #eef5ff);
   display: flex;
@@ -5640,7 +5641,7 @@ button.danger:hover,
   border-color: #f59e0b;
 }
 
-.izin-upload-icon {
+.izin-upload-icon img {
   width: 58px;
   height: 58px;
   margin: 0 auto 10px;

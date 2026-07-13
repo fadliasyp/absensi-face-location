@@ -42,6 +42,7 @@
           />
           <span id="sidebarAvatarFallback">👤</span>
         </div>
+
         <div class="sidebar-profile-info">
           <strong id="sidebarUserName">User</strong>
           <span id="sidebarUserBagian">-</span>
@@ -51,30 +52,29 @@
           </small>
         </div>
       </div>
-
       <nav class="user-sidebar-menu">
         <a href="dashboard.html">
-          <span>🏠</span>
+          <img src="../assets/icons/home-office.png" alt="Icon Dashboard" />
           Dashboard
         </a>
 
         <a href="daftar-wajah.html">
-          <span>🙂</span>
+          <img src="../assets/icons/face.gif" alt="Icon Daftar Wajah" />
           Daftar Wajah
         </a>
 
         <a href="verifikasi.html">
-          <span>📷</span>
+          <img src="../assets/icons/face-scanner.gif" alt="Icon Verifikasi" />
           Verifikasi Hadir
         </a>
 
         <a href="izin.html" class="active">
-          <span>📝</span>
+          <img src="../assets/icons/task.gif" alt="Icon Izin" />
           Ajukan Izin
         </a>
 
         <a href="riwayat.html">
-          <span>📋</span>
+          <img src="../assets/icons/folder.gif" alt="Icon Riwayat" />
           Riwayat Absensi
         </a>
       </nav>
@@ -105,10 +105,10 @@
 
       <!-- DESKTOP MENU -->
       <nav class="desktop-navbar-menu">
-        <a href="dashboard.html" class="active">Dashboard</a>
+        <a href="dashboard.html">Dashboard</a>
         <a href="daftar-wajah.html">Daftar Wajah</a>
         <a href="verifikasi.html">Verifikasi</a>
-        <a href="izin.html">Izin</a>
+        <a href="izin.html" class="active">Izin</a>
         <a href="riwayat.html">Riwayat</a>
       </nav>
 
@@ -143,7 +143,9 @@
       <!-- HERO -->
       <section class="izin-hero">
         <div class="izin-hero-left">
-          <div class="izin-badge">📝 Pengajuan Izin</div>
+          <div class="user-menu-icon">
+            <img src="../assets/icons/task.gif" alt="Icon Izin" />
+          </div>
           <h1>Ajukan Izin</h1>
           <p>
             Ajukan izin atau sakit dengan mengisi tanggal, keterangan, dan bukti
@@ -173,7 +175,12 @@
               <h2>Form Izin</h2>
               <p>Lengkapi data izin dengan benar sebelum dikirim.</p>
             </div>
-            <div class="izin-icon-bubble">📄</div>
+            <div class="izin-icon-bubble">
+              <img
+                src="../assets/icons/tasks.gif"
+                alt="Icon Daftar Wajah kamera"
+              />
+            </div>
           </div>
 
           <form id="izinForm" class="izin-form">
@@ -196,7 +203,12 @@
               <label for="bukti_izin">Bukti Foto Izin / Sakit</label>
 
               <label class="izin-upload-box" for="bukti_izin">
-                <div class="izin-upload-icon">📷</div>
+                <div class="izin-upload-icon">
+                  <img
+                    src="../assets/icons/camera (3).png"
+                    alt="Icon Daftar Wajah kamera"
+                  />
+                </div>
                 <strong>Pilih Foto Bukti</strong>
                 <span>Format gambar, misalnya JPG/PNG</span>
               </label>
