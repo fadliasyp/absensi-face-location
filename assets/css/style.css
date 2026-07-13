@@ -4435,10 +4435,11 @@ button.danger:hover,
     align-items: center;
   }
 
-  .face-icon-bubble {
+  .face-icon-bubble img {
     width: 48px;
     height: 48px;
     font-size: 21px;
+    object-fit: contain;
   }
 }
 
