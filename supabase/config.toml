@@ -431,6 +431,6 @@ entrypoint = "./functions/delete-user/index.ts"
 
 [functions.r2-signed-url]
 enabled = true
-verify_jwt = true
+verify_jwt = false
 import_map = "./functions/r2-signed-url/deno.json"
 entrypoint = "./functions/r2-signed-url/index.ts"

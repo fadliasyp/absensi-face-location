@@ -947,10 +947,20 @@ function blobToBase64(blob) {
 }
 
 async function uploadFotoAbsen(blob) {
+  const { data: sessionData, error: sessionError } =
+    await supabaseClient.auth.getSession();
+
+  if (sessionError || !sessionData.session?.access_token) {
+    throw new Error("Sesi login tidak valid. Silakan login ulang.");
+  }
+
   const fileBase64 = await blobToBase64(blob);
   const { data, error } = await supabaseClient.functions.invoke(
     "r2-signed-url",
     {
+      headers: {
+        Authorization: `Bearer ${sessionData.session.access_token}`,
+      },
       body: {
         action: "upload_direct",
         content_type: blob.type,

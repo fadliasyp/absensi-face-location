@@ -41,9 +41,22 @@ async function loadFotoAbsen() {
     return;
   }
 
+  const { data: sessionData, error: sessionError } =
+    await supabaseClient.auth.getSession();
+
+  if (sessionError || !sessionData.session?.access_token) {
+    showFotoError(
+      "Sesi login tidak valid. Silakan login kembali, kemudian buka ulang link foto.",
+    );
+    return;
+  }
+
   const { data, error } = await supabaseClient.functions.invoke(
     "r2-signed-url",
     {
+      headers: {
+        Authorization: `Bearer ${sessionData.session.access_token}`,
+      },
       body: {
         action: "view",
         object_key: objectKey,
