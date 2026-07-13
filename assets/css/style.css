@@ -4242,6 +4242,7 @@ button.danger:hover,
   width: 54px;
   height: 54px;
   border-radius: 18px;
+  object-fit: contain;
   background: linear-gradient(135deg, #e8efff, #e9fbf2);
   display: flex;
   align-items: center;
@@ -6949,6 +6950,7 @@ body.sidebar-open {
 .face-status-icon {
   width: 52px;
   height: 52px;
+  object-fit: contain;
   display: grid;
   place-items: center;
   border-radius: 18px;
