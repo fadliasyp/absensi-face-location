@@ -434,3 +434,9 @@ enabled = true
 verify_jwt = false
 import_map = "./functions/r2-signed-url/deno.json"
 entrypoint = "./functions/r2-signed-url/index.ts"
+
+[functions.r2-public-view]
+enabled = true
+verify_jwt = false
+import_map = "./functions/r2-public-view/deno.json"
+entrypoint = "./functions/r2-public-view/index.ts"

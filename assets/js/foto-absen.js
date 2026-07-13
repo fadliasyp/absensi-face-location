@@ -31,34 +31,10 @@ async function loadFotoAbsen() {
     return;
   }
 
-  const { data: authData, error: authError } =
-    await supabaseClient.auth.getUser();
-
-  if (authError || !authData.user) {
-    showFotoError(
-      "Silakan login terlebih dahulu, kemudian buka kembali link foto ini.",
-    );
-    return;
-  }
-
-  const { data: sessionData, error: sessionError } =
-    await supabaseClient.auth.getSession();
-
-  if (sessionError || !sessionData.session?.access_token) {
-    showFotoError(
-      "Sesi login tidak valid. Silakan login kembali, kemudian buka ulang link foto.",
-    );
-    return;
-  }
-
   const { data, error } = await supabaseClient.functions.invoke(
-    "r2-signed-url",
+    "r2-public-view",
     {
-      headers: {
-        Authorization: `Bearer ${sessionData.session.access_token}`,
-      },
       body: {
-        action: "view",
         object_key: objectKey,
       },
     },
