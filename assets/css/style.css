@@ -3546,9 +3546,10 @@ button.danger:hover,
   line-height: 1.6;
 }
 
-.verify-icon-bubble {
+.verify-icon-bubble img {
   width: 54px;
   height: 54px;
+  object-fit: contain;
   border-radius: 18px;
   background: linear-gradient(135deg, #e8efff, #e9fbf2);
   display: flex;
@@ -7025,9 +7026,10 @@ body.sidebar-open {
   font-weight: 900;
 }
 
-.verify-status-icon {
+.verify-status-icon img {
   width: 52px;
   height: 52px;
+  object-fit: contain;
   display: grid;
   place-items: center;
   border-radius: 18px;
