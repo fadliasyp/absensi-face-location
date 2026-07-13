@@ -355,6 +355,27 @@ async function updateUser(userId, mode) {
   const newRole = roleEl.value;
   const newStatus = statusEl.value;
 
+  const { data: currentUserData, error: getError } = await supabaseClient
+    .from("profiles")
+    .select("role, status_akun")
+    .eq("id", userId)
+    .single();
+
+  if (getError || !currentUserData) {
+    showMessage(
+      "Gagal mengambil data user: " + (getError?.message || "Data tidak ditemukan."),
+    );
+    return;
+  }
+
+  if (
+    currentUserData.role === newRole &&
+    currentUserData.status_akun === newStatus
+  ) {
+    showMessage("Tidak ada perubahan role atau status akun.");
+    return;
+  }
+
   const { error } = await supabaseClient
     .from("profiles")
     .update({
@@ -368,7 +389,31 @@ async function updateUser(userId, mode) {
     return;
   }
 
-  showMessage("Data user berhasil diperbarui.", "success");
+  const { error: emailError } = await supabaseClient.functions.invoke(
+    "send-approval-email",
+    {
+      body: {
+        action: "account_updated",
+        user_id: userId,
+        previous_role: currentUserData.role,
+        previous_status: currentUserData.status_akun,
+      },
+    },
+  );
+
+  if (emailError) {
+    showMessage(
+      "Data user berhasil diperbarui, tetapi email notifikasi gagal dikirim: " +
+        emailError.message,
+    );
+    loadUsers();
+    return;
+  }
+
+  showMessage(
+    "Data user berhasil diperbarui dan notifikasi email sudah dikirim.",
+    "success",
+  );
   loadUsers();
 }
 

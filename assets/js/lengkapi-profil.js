@@ -155,6 +155,21 @@ if (completeProfileForm) {
       return;
     }
 
+    const { error: notificationError } =
+      await supabaseClient.functions.invoke("send-approval-email", {
+        body: {
+          action: "new_registration",
+          user_id: currentUser.id,
+        },
+      });
+
+    if (notificationError) {
+      console.error(
+        "Notifikasi registrasi ke admin gagal dikirim:",
+        notificationError,
+      );
+    }
+
     showMessage(
       "Profil berhasil disimpan. Silakan tunggu persetujuan admin.",
       "success",

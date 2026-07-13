@@ -1,86 +1,6 @@
 // REGISTER USER
 const registerForm = document.getElementById("registerForm");
 
-if (registerForm) {
-  registerForm.addEventListener("submit", async function (e) {
-    e.preventDefault();
-
-    const submitButton = registerForm.querySelector("button[type='submit']");
-    submitButton.disabled = true;
-    submitButton.innerText = "Memproses...";
-
-    showMessage("Memproses register...", "success");
-
-    const nama_lengkap = document.getElementById("nama_lengkap").value.trim();
-    const nik = document.getElementById("nik").value.trim();
-    const tanggal_lahir = document.getElementById("tanggal_lahir").value;
-    const gender = document.getElementById("gender").value;
-    const bagian = document.getElementById("bagian").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-
-    if (
-      !nama_lengkap ||
-      !nik ||
-      !tanggal_lahir ||
-      !gender ||
-      !bagian ||
-      !email ||
-      !password
-    ) {
-      showMessage("Semua data wajib diisi.");
-      submitButton.disabled = false;
-      submitButton.innerText = "Register";
-      return;
-    }
-
-    const { data: signUpData, error: signUpError } =
-      await supabaseClient.auth.signUp({
-        email: email,
-        password: password,
-      });
-
-    if (signUpError) {
-      showMessage("Gagal register auth: " + signUpError.message);
-      submitButton.disabled = false;
-      submitButton.innerText = "Register";
-      return;
-    }
-
-    const user = signUpData.user;
-
-    const { error: profileError } = await supabaseClient
-      .from("profiles")
-      .insert({
-        id: user.id,
-        nama_lengkap,
-        nik,
-        tanggal_lahir,
-        gender,
-        bagian,
-        email,
-        role: "user",
-        status_akun: "pending",
-      });
-
-    if (profileError) {
-      showMessage("Gagal menyimpan profil: " + profileError.message);
-      submitButton.disabled = false;
-      submitButton.innerText = "Register";
-      return;
-    }
-
-    showMessage(
-      "Register berhasil. Akun Anda menunggu persetujuan admin.",
-      "success",
-    );
-
-    setTimeout(() => {
-      window.location.href = "login.html";
-    }, 2500);
-  });
-}
-
 const messageBox = document.getElementById("message");
 
 function showPopupSuccess(title, text, callback = null) {
@@ -139,6 +59,25 @@ function showMessage(text, type = "error") {
       ${text}
     </div>
   `;
+}
+
+async function kirimNotifikasiRegistrasiKeAdmin(userId) {
+  const { error } = await supabaseClient.functions.invoke(
+    "send-approval-email",
+    {
+      body: {
+        action: "new_registration",
+        user_id: userId,
+      },
+    },
+  );
+
+  if (error) {
+    console.error("Notifikasi registrasi ke admin gagal dikirim:", error);
+    return false;
+  }
+
+  return true;
 }
 
 if (registerForm) {
@@ -232,6 +171,8 @@ if (registerForm) {
       );
       return;
     }
+
+    await kirimNotifikasiRegistrasiKeAdmin(user.id);
 
     showPopupSuccess(
       "Register Berhasil",
