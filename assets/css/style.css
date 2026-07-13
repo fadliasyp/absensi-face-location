@@ -6794,6 +6794,15 @@ button.danger:hover,
   border-radius: 10px;
   background: #f1f5f9;
 }
+.user-sidebar-menu a img {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #f1f5f9;
+  object-fit: contain;
+}
 
 .user-sidebar-menu a:hover,
 .user-sidebar-menu a.active {
