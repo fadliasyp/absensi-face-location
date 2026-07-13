@@ -278,6 +278,132 @@ async function loadPreview() {
   }
 }
 
+function getReportSummary(list) {
+  return {
+    hadir: list.filter((item) => item.status === "hadir").length,
+    terlambat: list.filter((item) => item.status === "terlambat").length,
+    izin: list.filter((item) => item.status === "izin").length,
+    alfa: list.filter((item) => item.status === "alfa").length,
+  };
+}
+
+function getReportMeta(admin) {
+  const tanggalAwal = tanggalAwalInput.value;
+  const tanggalAkhir = tanggalAkhirInput.value;
+  const filterStatus = filterStatusInput.value;
+  const waktuCetak = new Date();
+
+  return {
+    tanggalAwal,
+    tanggalAkhir,
+    filterStatus,
+    periode: `${formatTanggal(tanggalAwal)} - ${formatTanggal(tanggalAkhir)}`,
+    status: filterStatus ? labelStatus(filterStatus) : "Semua Status",
+    admin: admin.nama_lengkap || "Admin",
+    waktuCetak,
+    waktuCetakText: waktuCetak.toLocaleString("id-ID"),
+    summary: getReportSummary(dataPreview),
+    fileBaseName: `laporan-kehadiran-${formatTanggalFile(tanggalAwal)}-${formatTanggalFile(tanggalAkhir)}`,
+  };
+}
+
+function formatTanggalSingkat(tanggal) {
+  if (!tanggal) return "-";
+
+  return new Date(tanggal + "T00:00:00").toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function setExportButtonLoading(buttonId, isLoading, loadingText) {
+  const button = document.getElementById(buttonId);
+  if (!button) return;
+
+  if (isLoading) {
+    button.dataset.originalContent = button.innerHTML;
+    button.innerHTML = loadingText;
+    button.disabled = true;
+  } else {
+    button.innerHTML = button.dataset.originalContent || button.innerHTML;
+    button.disabled = false;
+  }
+}
+
+function drawPdfSummaryCard(doc, x, y, width, label, value, colors) {
+  doc.setFillColor(...colors.background);
+  doc.setDrawColor(...colors.border);
+  doc.roundedRect(x, y, width, 17, 2.5, 2.5, "FD");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(7.2);
+  doc.setTextColor(...colors.text);
+  doc.text(label.toUpperCase(), x + 4, y + 5.5);
+
+  doc.setFontSize(14);
+  doc.text(String(value), x + 4, y + 13.1);
+}
+
+function drawPdfMainHeader(doc, meta) {
+  doc.setFillColor(15, 81, 50);
+  doc.rect(0, 0, 210, 33, "F");
+  doc.setFillColor(37, 99, 235);
+  doc.rect(0, 0, 4, 33, "F");
+
+  doc.setTextColor(202, 255, 222);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.text("POCA JS  /  ABSENSI DIGITAL", 11, 9);
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(18);
+  doc.text("LAPORAN KEHADIRAN", 11, 19);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(226, 240, 234);
+  doc.text(`Periode ${meta.periode}`, 11, 26);
+
+  doc.setFillColor(255, 255, 255);
+  doc.roundedRect(159, 8, 40, 16, 3, 3, "F");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(7);
+  doc.setTextColor(73, 91, 83);
+  doc.text("TOTAL DATA", 179, 13, { align: "center" });
+  doc.setFontSize(14);
+  doc.setTextColor(15, 81, 50);
+  doc.text(String(dataPreview.length), 179, 20.5, { align: "center" });
+}
+
+function drawPdfCompactHeader(doc, meta) {
+  doc.setFillColor(15, 81, 50);
+  doc.rect(0, 0, 210, 17, "F");
+  doc.setFillColor(37, 99, 235);
+  doc.rect(0, 0, 4, 17, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.text("LAPORAN KEHADIRAN", 10, 7.5);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7);
+  doc.setTextColor(220, 238, 229);
+  doc.text(`POCA JS  |  ${meta.periode}`, 10, 12.5);
+}
+
+function getPdfStatusStyle(status) {
+  if (status === "hadir") {
+    return { background: [232, 248, 239], text: [21, 128, 61] };
+  }
+  if (status === "terlambat") {
+    return { background: [255, 247, 230], text: [180, 83, 9] };
+  }
+  if (status === "izin") {
+    return { background: [232, 239, 255], text: [49, 87, 157] };
+  }
+  return { background: [255, 241, 242], text: [190, 18, 60] };
+}
+
 async function exportPDF() {
   const admin = await cekAdmin();
   if (!admin) return;
@@ -287,142 +413,400 @@ async function exportPDF() {
     return;
   }
 
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF("landscape", "mm", "a4");
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    showMessage("Library PDF gagal dimuat. Periksa koneksi internet lalu coba lagi.");
+    return;
+  }
 
-  const tanggalAwal = tanggalAwalInput.value;
-  const tanggalAkhir = tanggalAkhirInput.value;
-  const filterStatus = filterStatusInput.value;
+  setExportButtonLoading("downloadPdfBtn", true, "Membuat PDF...");
 
-  const judul = "Laporan Kehadiran";
-  const periode = `Periode: ${tanggalAwal || "-"} sampai ${tanggalAkhir || "-"}`;
-  const statusText = `Status: ${filterStatus ? labelStatus(filterStatus) : "Semua Status"}`;
-  const dicetakOleh = `Dicetak oleh: ${admin.nama_lengkap || "Admin"}`;
-  const waktuCetak = `Waktu cetak: ${new Date().toLocaleString("id-ID")}`;
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF("portrait", "mm", "a4");
+    const meta = getReportMeta(admin);
+    const fotoLinks = dataPreview.map((item) => getFotoAbsenLink(item));
 
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
-  doc.text(judul, 14, 15);
+    doc.setProperties({
+      title: "Laporan Kehadiran",
+      subject: `Laporan absensi periode ${meta.periode}`,
+      author: meta.admin,
+      creator: "Sistem Absensi Digital POCA JS",
+    });
 
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  doc.text(periode, 14, 22);
-  doc.text(statusText, 14, 28);
-  doc.text(dicetakOleh, 14, 34);
-  doc.text(waktuCetak, 14, 40);
+    drawPdfMainHeader(doc, meta);
 
-  const totalHadir = dataPreview.filter(
-    (item) => item.status === "hadir",
-  ).length;
-  const totalTerlambat = dataPreview.filter(
-    (item) => item.status === "terlambat",
-  ).length;
-  const totalIzin = dataPreview.filter((item) => item.status === "izin").length;
-  const totalAlfa = dataPreview.filter((item) => item.status === "alfa").length;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7.5);
+    doc.setTextColor(82, 96, 90);
+    doc.text(`Status: ${meta.status}`, 10, 39);
+    doc.text(`Dicetak oleh: ${meta.admin}`, 10, 44);
+    doc.text(`Dibuat: ${meta.waktuCetakText}`, 200, 39, { align: "right" });
+    doc.text("Bukti foto dapat dibuka melalui tautan pada kolom Foto.", 200, 44, {
+      align: "right",
+    });
 
-  doc.setFont("helvetica", "bold");
-  doc.text(
-    `Ringkasan: Hadir ${totalHadir} | Terlambat ${totalTerlambat} | Izin ${totalIzin} | Alfa ${totalAlfa}`,
-    14,
-    48,
-  );
-
-  const fotoLinks = dataPreview.map((item) => getFotoAbsenLink(item));
-
-  const tableRows = dataPreview.map((item, index) => {
-    const profile = item.profiles || {};
-
-    return [
-      index + 1,
-      safeText(profile.nama_lengkap),
-      safeText(profile.bagian),
-      formatTanggal(item.tanggal),
-      formatWaktu(item.waktu_masuk),
-      labelStatus(item.status),
-      safeText(item.nama_tempat),
-      formatJarak(item.jarak_meter),
-      safeText(item.validasi_wajah),
-      safeText(item.validasi_lokasi),
-      safeText(item.keterangan),
-      fotoLinks[index] ? "Lihat Foto" : "-",
+    const cardGap = 3;
+    const cardWidth = (190 - cardGap * 3) / 4;
+    const summaryCards = [
+      ["Hadir", meta.summary.hadir, { background: [232, 248, 239], border: [187, 225, 202], text: [21, 128, 61] }],
+      ["Terlambat", meta.summary.terlambat, { background: [255, 247, 230], border: [246, 215, 158], text: [180, 83, 9] }],
+      ["Izin", meta.summary.izin, { background: [232, 239, 255], border: [190, 205, 239], text: [49, 87, 157] }],
+      ["Alfa", meta.summary.alfa, { background: [255, 241, 242], border: [244, 194, 201], text: [190, 18, 60] }],
     ];
-  });
 
-  doc.autoTable({
-    startY: 55,
-    head: [
-      [
-        "No",
-        "Nama",
-        "Bagian",
-        "Tanggal",
-        "Waktu",
-        "Status",
-        "Tempat",
-        "Jarak",
-        "Wajah",
-        "Lokasi",
-        "Keterangan",
-        "Foto",
-      ],
-    ],
-    body: tableRows,
-    styles: {
-      fontSize: 8,
-      cellPadding: 2,
-      overflow: "linebreak",
-    },
-    headStyles: {
-      fillColor: [20, 83, 45],
-      textColor: 255,
-      fontStyle: "bold",
-    },
-    columnStyles: {
-      0: { cellWidth: 10 },
-      1: { cellWidth: 28 },
-      2: { cellWidth: 20 },
-      3: { cellWidth: 23 },
-      4: { cellWidth: 16 },
-      5: { cellWidth: 18 },
-      6: { cellWidth: 25 },
-      7: { cellWidth: 18 },
-      8: { cellWidth: 16 },
-      9: { cellWidth: 16 },
-      10: { cellWidth: 35 },
-      11: { cellWidth: 18 },
-    },
-    margin: { left: 14, right: 14 },
-    didParseCell: (hookData) => {
-      if (
-        hookData.section === "body" &&
-        hookData.column.index === 11 &&
-        fotoLinks[hookData.row.index]
-      ) {
-        hookData.cell.styles.textColor = [37, 99, 235];
+    summaryCards.forEach((card, index) => {
+      drawPdfSummaryCard(
+        doc,
+        10 + index * (cardWidth + cardGap),
+        49,
+        cardWidth,
+        card[0],
+        card[1],
+        card[2],
+      );
+    });
+
+    const tableRows = dataPreview.map((item, index) => {
+      const profile = item.profiles || {};
+
+      return [
+        index + 1,
+        `${safeText(profile.nama_lengkap)}\n${safeText(profile.bagian)}`,
+        `${formatTanggalSingkat(item.tanggal)}\n${formatWaktu(item.waktu_masuk)} WIB`,
+        labelStatus(item.status),
+        `${safeText(item.nama_tempat)}\n${formatJarak(item.jarak_meter)}`,
+        `Wajah: ${safeText(item.validasi_wajah)}\nLokasi: ${safeText(item.validasi_lokasi)}`,
+        safeText(item.keterangan),
+        fotoLinks[index] ? "Lihat Foto" : "-",
+      ];
+    });
+
+    doc.autoTable({
+      startY: 71,
+      head: [["No", "Pegawai", "Tanggal / Waktu", "Status", "Lokasi / Jarak", "Validasi", "Keterangan", "Foto"]],
+      body: tableRows,
+      theme: "plain",
+      showHead: "everyPage",
+      styles: {
+        font: "helvetica",
+        fontSize: 7,
+        textColor: [45, 57, 52],
+        cellPadding: { top: 2.5, right: 1.8, bottom: 2.5, left: 1.8 },
+        lineColor: [222, 230, 226],
+        lineWidth: 0.15,
+        valign: "middle",
+        overflow: "linebreak",
+      },
+      headStyles: {
+        fillColor: [15, 81, 50],
+        textColor: [255, 255, 255],
+        fontStyle: "bold",
+        fontSize: 7.2,
+        minCellHeight: 9,
+        halign: "left",
+      },
+      alternateRowStyles: {
+        fillColor: [247, 250, 248],
+      },
+      columnStyles: {
+        0: { cellWidth: 8, halign: "center" },
+        1: { cellWidth: 26 },
+        2: { cellWidth: 24 },
+        3: { cellWidth: 18, halign: "center", fontStyle: "bold" },
+        4: { cellWidth: 29 },
+        5: { cellWidth: 24 },
+        6: { cellWidth: 41 },
+        7: { cellWidth: 18, halign: "center", fontStyle: "bold" },
+      },
+      margin: { top: 22, left: 10, right: 10, bottom: 15 },
+      didParseCell: (hookData) => {
+        if (hookData.section !== "body") return;
+
+        if (hookData.column.index === 3) {
+          const statusStyle = getPdfStatusStyle(
+            dataPreview[hookData.row.index]?.status,
+          );
+          hookData.cell.styles.fillColor = statusStyle.background;
+          hookData.cell.styles.textColor = statusStyle.text;
+        }
+
+        if (hookData.column.index === 7 && fotoLinks[hookData.row.index]) {
+          hookData.cell.styles.textColor = [37, 99, 235];
+        }
+      },
+      didDrawCell: (hookData) => {
+        if (
+          hookData.section === "body" &&
+          hookData.column.index === 7 &&
+          fotoLinks[hookData.row.index]
+        ) {
+          doc.link(
+            hookData.cell.x,
+            hookData.cell.y,
+            hookData.cell.width,
+            hookData.cell.height,
+            { url: fotoLinks[hookData.row.index] },
+          );
+        }
+      },
+    });
+
+    const totalPages = doc.getNumberOfPages();
+    for (let pageNumber = 1; pageNumber <= totalPages; pageNumber += 1) {
+      doc.setPage(pageNumber);
+
+      if (pageNumber > 1) {
+        drawPdfCompactHeader(doc, meta);
       }
-    },
-    didDrawCell: (hookData) => {
-      if (
-        hookData.section === "body" &&
-        hookData.column.index === 11 &&
-        fotoLinks[hookData.row.index]
-      ) {
-        doc.link(
-          hookData.cell.x,
-          hookData.cell.y,
-          hookData.cell.width,
-          hookData.cell.height,
-          { url: fotoLinks[hookData.row.index] },
-        );
+
+      doc.setDrawColor(217, 226, 221);
+      doc.line(10, 285, 200, 285);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(6.8);
+      doc.setTextColor(105, 118, 112);
+      doc.text("Sistem Absensi Digital - Face Scan & Geolocation", 10, 290);
+      doc.text(`Halaman ${pageNumber} dari ${totalPages}`, 200, 290, {
+        align: "right",
+      });
+    }
+
+    doc.save(`${meta.fileBaseName}.pdf`);
+    showMessage("PDF rapi berhasil dibuat dan diunduh.", "success");
+  } catch (error) {
+    console.error(error);
+    showMessage("Gagal membuat PDF: " + error.message);
+  } finally {
+    setExportButtonLoading("downloadPdfBtn", false);
+  }
+}
+
+function getExcelStatusStyle(status) {
+  if (status === "hadir") {
+    return { fill: "FFE8F8EF", font: "FF15803D" };
+  }
+  if (status === "terlambat") {
+    return { fill: "FFFFF7E6", font: "FFB45309" };
+  }
+  if (status === "izin") {
+    return { fill: "FFE8EFFF", font: "FF31579D" };
+  }
+  return { fill: "FFFFF1F2", font: "FFBE123C" };
+}
+
+function styleExcelSummaryCard(worksheet, range, label, value, colors) {
+  worksheet.mergeCells(range);
+  const startCell = range.split(":")[0];
+  const cell = worksheet.getCell(startCell);
+  cell.value = `${label.toUpperCase()}\n${value}`;
+  cell.font = { name: "Calibri", size: 12, bold: true, color: { argb: colors.font } };
+  cell.alignment = { vertical: "middle", horizontal: "center", wrapText: true };
+  cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: colors.fill } };
+
+  const [startColumn, endColumn] = [
+    worksheet.getCell(range.split(":")[0]).col,
+    worksheet.getCell(range.split(":")[1]).col,
+  ];
+  for (let column = startColumn; column <= endColumn; column += 1) {
+    worksheet.getCell(6, column).border = {
+      top: { style: "thin", color: { argb: colors.border } },
+      left: { style: "thin", color: { argb: colors.border } },
+      bottom: { style: "thin", color: { argb: colors.border } },
+      right: { style: "thin", color: { argb: colors.border } },
+    };
+  }
+}
+
+async function exportExcel() {
+  const admin = await cekAdmin();
+  if (!admin) return;
+
+  if (!dataPreview || dataPreview.length === 0) {
+    showMessage("Data masih kosong. Klik Tampilkan Preview terlebih dahulu.");
+    return;
+  }
+
+  if (!window.ExcelJS) {
+    showMessage("Library Excel gagal dimuat. Periksa koneksi internet lalu coba lagi.");
+    return;
+  }
+
+  setExportButtonLoading("downloadExcelBtn", true, "Membuat Excel...");
+
+  try {
+    const meta = getReportMeta(admin);
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = "Sistem Absensi Digital POCA JS";
+    workbook.lastModifiedBy = meta.admin;
+    workbook.created = meta.waktuCetak;
+    workbook.modified = meta.waktuCetak;
+
+    const worksheet = workbook.addWorksheet("Laporan Kehadiran", {
+      properties: { defaultRowHeight: 22 },
+      pageSetup: {
+        paperSize: 9,
+        orientation: "landscape",
+        fitToPage: true,
+        fitToWidth: 1,
+        fitToHeight: 0,
+        margins: { left: 0.25, right: 0.25, top: 0.5, bottom: 0.5, header: 0.2, footer: 0.2 },
+      },
+    });
+
+    worksheet.columns = [
+      { key: "no", width: 7 },
+      { key: "nama", width: 25 },
+      { key: "bagian", width: 19 },
+      { key: "email", width: 29 },
+      { key: "tanggal", width: 17 },
+      { key: "waktu", width: 12 },
+      { key: "status", width: 16 },
+      { key: "tempat", width: 24 },
+      { key: "jarak", width: 13 },
+      { key: "wajah", width: 17 },
+      { key: "lokasi", width: 17 },
+      { key: "keterangan", width: 45 },
+      { key: "foto", width: 16 },
+    ];
+
+    worksheet.mergeCells("A1:M1");
+    const titleCell = worksheet.getCell("A1");
+    titleCell.value = "LAPORAN KEHADIRAN";
+    titleCell.font = { name: "Calibri", size: 20, bold: true, color: { argb: "FFFFFFFF" } };
+    titleCell.alignment = { vertical: "middle", horizontal: "left" };
+    titleCell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF0F5132" } };
+    worksheet.getRow(1).height = 34;
+
+    worksheet.mergeCells("A2:M2");
+    const subtitleCell = worksheet.getCell("A2");
+    subtitleCell.value = "POCA JS  |  Sistem Absensi Digital - Face Scan & Geolocation";
+    subtitleCell.font = { name: "Calibri", size: 10, bold: true, color: { argb: "FFD7F7E4" } };
+    subtitleCell.alignment = { vertical: "middle", horizontal: "left" };
+    subtitleCell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF0F5132" } };
+    worksheet.getRow(2).height = 24;
+
+    worksheet.mergeCells("A3:G3");
+    worksheet.mergeCells("H3:M3");
+    worksheet.getCell("A3").value = `Periode: ${meta.periode}`;
+    worksheet.getCell("H3").value = `Status: ${meta.status}`;
+    worksheet.mergeCells("A4:G4");
+    worksheet.mergeCells("H4:M4");
+    worksheet.getCell("A4").value = `Dibuat oleh: ${meta.admin}`;
+    worksheet.getCell("H4").value = `Waktu dibuat: ${meta.waktuCetakText}`;
+
+    ["A3", "H3", "A4", "H4"].forEach((address) => {
+      const cell = worksheet.getCell(address);
+      cell.font = { name: "Calibri", size: 10, color: { argb: "FF42574C" }, bold: address.endsWith("3") };
+      cell.alignment = { vertical: "middle", horizontal: "left" };
+      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF2F8F5" } };
+    });
+
+    worksheet.getRow(5).height = 8;
+    worksheet.getRow(6).height = 42;
+    styleExcelSummaryCard(worksheet, "A6:C6", "Hadir", meta.summary.hadir, { fill: "FFE8F8EF", font: "FF15803D", border: "FFBBE1CA" });
+    styleExcelSummaryCard(worksheet, "D6:F6", "Terlambat", meta.summary.terlambat, { fill: "FFFFF7E6", font: "FFB45309", border: "FFF6D79E" });
+    styleExcelSummaryCard(worksheet, "G6:I6", "Izin", meta.summary.izin, { fill: "FFE8EFFF", font: "FF31579D", border: "FFBECDEF" });
+    styleExcelSummaryCard(worksheet, "J6:M6", "Alfa", meta.summary.alfa, { fill: "FFFFF1F2", font: "FFBE123C", border: "FFF4C2C9" });
+    worksheet.getRow(7).height = 8;
+
+    const headerRowNumber = 8;
+    const headerRow = worksheet.getRow(headerRowNumber);
+    headerRow.values = [
+      "No", "Nama Pegawai", "Bagian", "Email", "Tanggal", "Waktu", "Status",
+      "Tempat", "Jarak", "Validasi Wajah", "Validasi Lokasi", "Keterangan", "Foto",
+    ];
+    headerRow.height = 30;
+    headerRow.eachCell((cell) => {
+      cell.font = { name: "Calibri", size: 10, bold: true, color: { argb: "FFFFFFFF" } };
+      cell.alignment = { vertical: "middle", horizontal: "center", wrapText: true };
+      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF0F5132" } };
+      cell.border = {
+        top: { style: "thin", color: { argb: "FF3C8060" } },
+        left: { style: "thin", color: { argb: "FF3C8060" } },
+        bottom: { style: "thin", color: { argb: "FF3C8060" } },
+        right: { style: "thin", color: { argb: "FF3C8060" } },
+      };
+    });
+
+    dataPreview.forEach((item, index) => {
+      const profile = item.profiles || {};
+      const fotoLink = getFotoAbsenLink(item);
+      const row = worksheet.addRow([
+        index + 1,
+        safeText(profile.nama_lengkap),
+        safeText(profile.bagian),
+        safeText(profile.email),
+        formatTanggal(item.tanggal),
+        `${formatWaktu(item.waktu_masuk)} WIB`,
+        labelStatus(item.status),
+        safeText(item.nama_tempat),
+        item.jarak_meter === null || item.jarak_meter === undefined ? "-" : Number(item.jarak_meter),
+        safeText(item.validasi_wajah),
+        safeText(item.validasi_lokasi),
+        safeText(item.keterangan),
+        fotoLink ? { text: "Lihat Foto", hyperlink: fotoLink, tooltip: "Buka foto bukti absensi" } : "-",
+      ]);
+
+      row.height = 34;
+      row.eachCell({ includeEmpty: true }, (cell, columnNumber) => {
+        cell.font = { name: "Calibri", size: 10, color: { argb: "FF2D3934" } };
+        cell.alignment = {
+          vertical: "middle",
+          horizontal: [1, 6, 7, 9, 10, 11, 13].includes(columnNumber) ? "center" : "left",
+          wrapText: true,
+        };
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: index % 2 === 0 ? "FFFFFFFF" : "FFF6FAF8" },
+        };
+        cell.border = {
+          top: { style: "hair", color: { argb: "FFDCE6E1" } },
+          left: { style: "hair", color: { argb: "FFDCE6E1" } },
+          bottom: { style: "hair", color: { argb: "FFDCE6E1" } },
+          right: { style: "hair", color: { argb: "FFDCE6E1" } },
+        };
+      });
+
+      const statusStyle = getExcelStatusStyle(item.status);
+      const statusCell = row.getCell(7);
+      statusCell.font = { name: "Calibri", size: 10, bold: true, color: { argb: statusStyle.font } };
+      statusCell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: statusStyle.fill } };
+
+      if (typeof row.getCell(9).value === "number") {
+        row.getCell(9).numFmt = '0.00 "m"';
       }
-    },
-  });
 
-  const fileName = `laporan-kehadiran-${formatTanggalFile(tanggalAwal)}-${formatTanggalFile(tanggalAkhir)}.pdf`;
+      if (fotoLink) {
+        row.getCell(13).font = { name: "Calibri", size: 10, bold: true, color: { argb: "FF2563EB" }, underline: true };
+      }
+    });
 
-  doc.save(fileName);
+    const lastRow = worksheet.lastRow.number;
+    worksheet.views = [{ state: "frozen", xSplit: 3, ySplit: headerRowNumber, activeCell: "D9" }];
+    worksheet.autoFilter = { from: `A${headerRowNumber}`, to: `M${lastRow}` };
+    worksheet.pageSetup.printTitlesRow = `${headerRowNumber}:${headerRowNumber}`;
+    worksheet.headerFooter.oddFooter = "&LSistem Absensi Digital POCA JS&C&F&RHalaman &P dari &N";
 
-  showMessage("PDF berhasil dibuat dan diunduh.", "success");
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const downloadUrl = URL.createObjectURL(blob);
+    const downloadLink = document.createElement("a");
+    downloadLink.href = downloadUrl;
+    downloadLink.download = `${meta.fileBaseName}.xlsx`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    downloadLink.remove();
+    setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+
+    showMessage("Excel rapi berhasil dibuat dan diunduh.", "success");
+  } catch (error) {
+    console.error(error);
+    showMessage("Gagal membuat Excel: " + error.message);
+  } finally {
+    setExportButtonLoading("downloadExcelBtn", false);
+  }
 }
 
 async function init() {

@@ -5919,7 +5919,8 @@ button.danger:hover,
 
 .btn-export-primary,
 .btn-export-soft,
-.btn-export-success {
+.btn-export-success,
+.btn-export-excel {
   border: none;
   border-radius: 16px;
   padding: 14px 18px;
@@ -5943,6 +5944,27 @@ button.danger:hover,
   box-shadow: 0 14px 28px rgba(22, 163, 74, 0.22);
 }
 
+.btn-export-excel {
+  background: linear-gradient(135deg, #0f766e, #0f5132);
+  color: #fff;
+  box-shadow: 0 14px 28px rgba(15, 118, 110, 0.22);
+}
+
+.export-button-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  height: 25px;
+  margin-right: 7px;
+  padding: 0 7px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.13);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
 .btn-export-soft {
   background: #eef3fb;
   color: #456079;
@@ -5950,6 +5972,7 @@ button.danger:hover,
 
 .btn-export-primary:hover,
 .btn-export-success:hover,
+.btn-export-excel:hover,
 .btn-export-soft:hover {
   transform: translateY(-2px);
 }
@@ -6077,6 +6100,8 @@ button.danger:hover,
   margin-top: 16px;
   display: flex;
   justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .export-summary-grid {
@@ -6170,7 +6195,8 @@ button.danger:hover,
 
   .btn-export-primary,
   .btn-export-soft,
-  .btn-export-success {
+  .btn-export-success,
+  .btn-export-excel {
     width: 100%;
     padding: 15px;
   }
