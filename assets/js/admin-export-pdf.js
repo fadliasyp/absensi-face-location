@@ -94,6 +94,32 @@ function safeText(value) {
     : "-";
 }
 
+function escapeAttribute(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+function getFotoAbsenLink(item) {
+  if (item.foto_absen_key) {
+    const viewerUrl = new URL("/foto-absen.html", window.location.origin);
+    viewerUrl.searchParams.set("key", item.foto_absen_key);
+    return viewerUrl.toString();
+  }
+
+  if (
+    item.foto_absen_url &&
+    /^https:\/\//i.test(String(item.foto_absen_url))
+  ) {
+    return item.foto_absen_url;
+  }
+
+  return "";
+}
+
 function formatTanggal(tanggal) {
   if (!tanggal) return "-";
 
@@ -147,7 +173,7 @@ function renderPreview(list) {
   if (!list || list.length === 0) {
     previewTableBody.innerHTML = `
       <tr>
-        <td colspan="8">Tidak ada data untuk ditampilkan.</td>
+        <td colspan="9">Tidak ada data untuk ditampilkan.</td>
       </tr>
     `;
     return;
@@ -167,6 +193,13 @@ function renderPreview(list) {
           <td>${safeText(item.nama_tempat)}</td>
           <td>${formatJarak(item.jarak_meter)}</td>
           <td>${safeText(item.keterangan)}</td>
+          <td>
+            ${
+              getFotoAbsenLink(item)
+                ? `<a href="${escapeAttribute(getFotoAbsenLink(item))}" target="_blank" rel="noopener noreferrer">Lihat Foto</a>`
+                : "-"
+            }
+          </td>
         </tr>
       `;
     })
@@ -294,6 +327,8 @@ async function exportPDF() {
     48,
   );
 
+  const fotoLinks = dataPreview.map((item) => getFotoAbsenLink(item));
+
   const tableRows = dataPreview.map((item, index) => {
     const profile = item.profiles || {};
 
@@ -309,6 +344,7 @@ async function exportPDF() {
       safeText(item.validasi_wajah),
       safeText(item.validasi_lokasi),
       safeText(item.keterangan),
+      fotoLinks[index] ? "Lihat Foto" : "-",
     ];
   });
 
@@ -327,6 +363,7 @@ async function exportPDF() {
         "Wajah",
         "Lokasi",
         "Keterangan",
+        "Foto",
       ],
     ],
     body: tableRows,
@@ -342,18 +379,43 @@ async function exportPDF() {
     },
     columnStyles: {
       0: { cellWidth: 10 },
-      1: { cellWidth: 32 },
-      2: { cellWidth: 25 },
-      3: { cellWidth: 28 },
-      4: { cellWidth: 18 },
-      5: { cellWidth: 22 },
-      6: { cellWidth: 30 },
-      7: { cellWidth: 22 },
-      8: { cellWidth: 20 },
-      9: { cellWidth: 20 },
-      10: { cellWidth: 55 },
+      1: { cellWidth: 28 },
+      2: { cellWidth: 20 },
+      3: { cellWidth: 23 },
+      4: { cellWidth: 16 },
+      5: { cellWidth: 18 },
+      6: { cellWidth: 25 },
+      7: { cellWidth: 18 },
+      8: { cellWidth: 16 },
+      9: { cellWidth: 16 },
+      10: { cellWidth: 35 },
+      11: { cellWidth: 18 },
     },
     margin: { left: 14, right: 14 },
+    didParseCell: (hookData) => {
+      if (
+        hookData.section === "body" &&
+        hookData.column.index === 11 &&
+        fotoLinks[hookData.row.index]
+      ) {
+        hookData.cell.styles.textColor = [37, 99, 235];
+      }
+    },
+    didDrawCell: (hookData) => {
+      if (
+        hookData.section === "body" &&
+        hookData.column.index === 11 &&
+        fotoLinks[hookData.row.index]
+      ) {
+        doc.link(
+          hookData.cell.x,
+          hookData.cell.y,
+          hookData.cell.width,
+          hookData.cell.height,
+          { url: fotoLinks[hookData.row.index] },
+        );
+      }
+    },
   });
 
   const fileName = `laporan-kehadiran-${formatTanggalFile(tanggalAwal)}-${formatTanggalFile(tanggalAkhir)}.pdf`;

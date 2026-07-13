@@ -428,3 +428,9 @@ entrypoint = "./functions/delete-user/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/delete-user/*.html" ]
+
+[functions.r2-signed-url]
+enabled = true
+verify_jwt = true
+import_map = "./functions/r2-signed-url/deno.json"
+entrypoint = "./functions/r2-signed-url/index.ts"

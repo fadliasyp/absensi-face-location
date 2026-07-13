@@ -850,58 +850,117 @@ function getCurrentPositionPromise() {
   });
 }
 
-function ambilSnapshotAbsen() {
+function canvasToBlob(canvas, type, quality) {
   return new Promise((resolve, reject) => {
-    if (!video || video.videoWidth === 0 || video.videoHeight === 0) {
-      reject(new Error("Video belum siap untuk mengambil foto absen."));
-      return;
-    }
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        reject(new Error("Gagal membuat foto absen."));
+        return;
+      }
 
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    const ctx = canvas.getContext("2d");
-
-    // Jika tampilan kamera kamu dibalik mirror dengan CSS scaleX(-1),
-    // snapshot ini dibuat normal sesuai frame video asli.
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    canvas.toBlob(
-      (blob) => {
-        if (!blob) {
-          reject(new Error("Gagal membuat foto absen."));
-          return;
-        }
-
-        resolve(blob);
-      },
-      "image/jpeg",
-      0.85,
-    );
+      resolve(blob);
+    }, type, quality);
   });
 }
 
-async function uploadFotoAbsen(blob) {
-  const tanggalHariIni = getTanggalHariIni();
-  const fileName = `${currentUser.id}/${tanggalHariIni}/absen-${Date.now()}.jpg`;
-
-  const { error: uploadError } = await supabaseClient.storage
-    .from("foto-absen")
-    .upload(fileName, blob, {
-      cacheControl: "3600",
-      upsert: true,
-    });
-
-  if (uploadError) {
-    throw uploadError;
+async function ambilSnapshotAbsen() {
+  if (!video || video.videoWidth === 0 || video.videoHeight === 0) {
+    throw new Error("Video belum siap untuk mengambil foto absen.");
   }
 
-  const { data: publicData } = supabaseClient.storage
-    .from("foto-absen")
-    .getPublicUrl(fileName);
+  const maxDimension = 640;
+  const scale = Math.min(
+    1,
+    maxDimension / video.videoWidth,
+    maxDimension / video.videoHeight,
+  );
 
-  return publicData.publicUrl;
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(video.videoWidth * scale);
+  canvas.height = Math.round(video.videoHeight * scale);
+
+  const ctx = canvas.getContext("2d");
+
+  if (!ctx) {
+    throw new Error("Browser tidak dapat memproses foto absen.");
+  }
+
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  const qualityOptions = [0.72, 0.62, 0.52, 0.42];
+  let fotoBlob = null;
+
+  for (const quality of qualityOptions) {
+    fotoBlob = await canvasToBlob(canvas, "image/webp", quality);
+
+    if (!["image/webp", "image/jpeg"].includes(fotoBlob.type)) {
+      fotoBlob = await canvasToBlob(canvas, "image/jpeg", quality);
+    }
+
+    if (fotoBlob.size <= 200 * 1024) {
+      return fotoBlob;
+    }
+  }
+
+  throw new Error(
+    "Ukuran foto masih melebihi 200 KB setelah dikompres. Coba gunakan pencahayaan yang lebih stabil.",
+  );
+}
+
+async function getFunctionErrorMessage(error, fallbackMessage) {
+  try {
+    const response = error?.context;
+
+    if (response && typeof response.json === "function") {
+      const details = await response.json();
+      return details?.error || fallbackMessage;
+    }
+  } catch (contextError) {
+    console.error("Gagal membaca detail Edge Function:", contextError);
+  }
+
+  return error?.message || fallbackMessage;
+}
+
+async function uploadFotoAbsen(blob) {
+  const { data, error } = await supabaseClient.functions.invoke(
+    "r2-signed-url",
+    {
+      body: {
+        action: "upload",
+        content_type: blob.type,
+        file_size: blob.size,
+      },
+    },
+  );
+
+  if (error) {
+    const message = await getFunctionErrorMessage(
+      error,
+      "Gagal meminta izin upload foto ke R2.",
+    );
+    throw new Error(message);
+  }
+
+  if (!data?.upload_url || !data?.object_key) {
+    throw new Error("Signed upload URL dari R2 tidak lengkap.");
+  }
+
+  const uploadResponse = await fetch(data.upload_url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": blob.type,
+    },
+    body: blob,
+  });
+
+  if (!uploadResponse.ok) {
+    throw new Error(
+      `Upload foto ke R2 gagal dengan status ${uploadResponse.status}.`,
+    );
+  }
+
+  return data.object_key;
 }
 
 function hitungJarakMeter(lat1, lon1, lat2, lon2) {
@@ -1066,13 +1125,13 @@ async function prosesAbsenSetelahValidasi() {
   const waktuSekarang = getWaktuSekarang();
   const statusKehadiran = tentukanStatusKehadiran(waktuSekarang);
 
-  let fotoAbsenUrl = "";
+  let fotoAbsenKey = "";
 
   try {
     showMessage("Mengambil foto bukti absensi...", "success");
 
     const fotoBlob = await ambilSnapshotAbsen();
-    fotoAbsenUrl = await uploadFotoAbsen(fotoBlob);
+    fotoAbsenKey = await uploadFotoAbsen(fotoBlob);
   } catch (error) {
     console.error(error);
 
@@ -1104,7 +1163,7 @@ async function prosesAbsenSetelahValidasi() {
     keterangan: keteranganKehadiran,
     validasi_wajah: "valid",
     validasi_lokasi: "valid",
-    foto_absen_url: fotoAbsenUrl,
+    foto_absen_key: fotoAbsenKey,
   });
 
   if (error) {

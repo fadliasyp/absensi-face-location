@@ -95,6 +95,38 @@ function safeText(value) {
     : "-";
 }
 
+function escapeAttribute(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+function getFotoAbsenHref(absen) {
+  if (absen.foto_absen_key) {
+    return `../foto-absen.html?key=${encodeURIComponent(absen.foto_absen_key)}`;
+  }
+
+  if (
+    absen.foto_absen_url &&
+    /^https:\/\//i.test(String(absen.foto_absen_url))
+  ) {
+    return absen.foto_absen_url;
+  }
+
+  return "";
+}
+
+function renderFotoAbsenLink(absen) {
+  const href = getFotoAbsenHref(absen);
+
+  return href
+    ? `<a href="${escapeAttribute(href)}" target="_blank" rel="noopener noreferrer" class="absen-photo-link">Lihat Foto Absen</a>`
+    : "-";
+}
+
 function formatTanggal(tanggal) {
   if (!tanggal) return "-";
 
@@ -209,11 +241,7 @@ function renderDesktopTable(absensiList) {
         <td>${badgeValidasi(absen.validasi_lokasi)}</td>
         <td>${safeText(absen.keterangan)}</td>
         <td>
-  ${
-    absen.foto_absen_url
-      ? `<a href="${absen.foto_absen_url}" target="_blank" class="absen-photo-link">Lihat Foto Absen</a>`
-      : "-"
-  }
+  ${renderFotoAbsenLink(absen)}
 </td>
         <td>
           ${
@@ -282,11 +310,7 @@ function renderMobileCards(absensiList) {
           <div class="absen-mobile-proof">
   <span>Foto Absen</span>
   <strong>
-    ${
-      absen.foto_absen_url
-        ? `<a href="${absen.foto_absen_url}" target="_blank">Lihat Foto Absen</a>`
-        : "-"
-    }
+    ${renderFotoAbsenLink(absen)}
   </strong>
 </div>
         </div>

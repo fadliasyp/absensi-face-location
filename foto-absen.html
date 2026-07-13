@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Foto Bukti Absensi</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+  </head>
+  <body class="auth-body">
+    <main class="auth-page">
+      <section class="auth-card" style="max-width: 760px; width: 100%">
+        <div class="auth-card-header">
+          <div class="auth-icon">📷</div>
+          <h1>Foto Bukti Absensi</h1>
+          <p id="fotoAbsenStatus">Memeriksa akses foto...</p>
+        </div>
+
+        <div id="fotoAbsenError" class="alert alert-error" hidden></div>
+
+        <img
+          id="fotoAbsenImage"
+          alt="Foto bukti absensi"
+          style="display: none; width: 100%; max-height: 70vh; object-fit: contain; border-radius: 16px"
+        />
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase-config.js"></script>
+    <script src="assets/js/foto-absen.js"></script>
+  </body>
+</html>

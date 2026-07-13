@@ -1,0 +1,4 @@
+saya mau menambah fitur yaitu di dashboar admin, yaitu halaman data user, ketika admin merubah role/status akun, lalu saat tekan simpan perubahan maka ada notifikasi ke email user /pegawai itu.
+juga saya mau menambahkan semua admin dapat notifikasi email juga saat ada pegawai/user registerasi
+catatan: tolong jangan merubah logic yg engga sesuai konteks
+
