@@ -8440,3 +8440,19 @@ body.admin-sidebar-open {
 .google-login-text {
   line-height: 1;
 }
+
+/* Mengatur bungkus ikonnya jika belum ada */
+.user-menu-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px; /* Sesuaikan dengan ukuran yang kamu mau */
+  height: 40px; /* Sesuaikan dengan ukuran yang kamu mau */
+}
+
+/* Mengatur gambar/GIF di dalamnya agar responsif */
+.user-menu-icon img {
+  width: 28px; /* Sesuaikan ukuran gambar di sini (misal: sekitar setengah dari wadah 56px) */
+  height: 28px; /* Samakan dengan width agar tetap proporsional */
+  object-fit: contain; /* Memastikan gambar tidak gepeng/terdistorsi */
+}
