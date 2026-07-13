@@ -922,14 +922,40 @@ async function getFunctionErrorMessage(error, fallbackMessage) {
   return error?.message || fallbackMessage;
 }
 
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.addEventListener("load", () => {
+      const result = String(reader.result || "");
+      const separatorIndex = result.indexOf(",");
+
+      if (separatorIndex === -1) {
+        reject(new Error("Gagal membaca data foto absen."));
+        return;
+      }
+
+      resolve(result.slice(separatorIndex + 1));
+    });
+
+    reader.addEventListener("error", () => {
+      reject(new Error("Gagal membaca data foto absen."));
+    });
+
+    reader.readAsDataURL(blob);
+  });
+}
+
 async function uploadFotoAbsen(blob) {
+  const fileBase64 = await blobToBase64(blob);
   const { data, error } = await supabaseClient.functions.invoke(
     "r2-signed-url",
     {
       body: {
-        action: "upload",
+        action: "upload_direct",
         content_type: blob.type,
         file_size: blob.size,
+        file_base64: fileBase64,
       },
     },
   );
@@ -942,22 +968,8 @@ async function uploadFotoAbsen(blob) {
     throw new Error(message);
   }
 
-  if (!data?.upload_url || !data?.object_key) {
-    throw new Error("Signed upload URL dari R2 tidak lengkap.");
-  }
-
-  const uploadResponse = await fetch(data.upload_url, {
-    method: "PUT",
-    headers: {
-      "Content-Type": blob.type,
-    },
-    body: blob,
-  });
-
-  if (!uploadResponse.ok) {
-    throw new Error(
-      `Upload foto ke R2 gagal dengan status ${uploadResponse.status}.`,
-    );
+  if (!data?.object_key) {
+    throw new Error("Object key foto dari R2 tidak tersedia.");
   }
 
   return data.object_key;
@@ -1139,7 +1151,8 @@ async function prosesAbsenSetelahValidasi() {
 
     showPopupError(
       "Foto Absen Gagal",
-      "Sistem gagal mengambil atau menyimpan foto bukti absen. Silakan coba lagi.",
+      error.message ||
+        "Sistem gagal mengambil atau menyimpan foto bukti absen. Silakan coba lagi.",
     );
 
     return;

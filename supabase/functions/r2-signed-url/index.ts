@@ -60,6 +60,26 @@ function isSafeObjectKey(objectKey: string) {
   );
 }
 
+function decodeBase64(value: string) {
+  const binary = atob(value);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let index = 0; index < binary.length; index++) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+
+  return bytes;
+}
+
+function createFotoAbsenObjectKey(userId: string, extension: string) {
+  const date = getJakartaDateParts();
+
+  return (
+    `foto-absen/${userId}/${date.year}/${date.month}/${date.day}/` +
+    `${crypto.randomUUID()}.${extension}`
+  );
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -134,6 +154,60 @@ Deno.serve(async (req) => {
       },
     });
 
+    if (action === "upload_direct") {
+      const contentType = String(body.content_type || "").toLowerCase();
+      const fileSize = Number(body.file_size);
+      const fileBase64 = String(body.file_base64 || "");
+      const extension = allowedContentTypes[contentType];
+
+      if (!extension) {
+        return jsonResponse(
+          { error: "Format foto harus JPEG atau WebP." },
+          400,
+        );
+      }
+
+      if (!Number.isFinite(fileSize) || fileSize <= 0 || fileSize > maxUploadSize) {
+        return jsonResponse(
+          { error: "Ukuran foto maksimal 200 KB." },
+          400,
+        );
+      }
+
+      if (!fileBase64 || fileBase64.length > 300 * 1024) {
+        return jsonResponse({ error: "Data foto tidak valid atau terlalu besar." }, 400);
+      }
+
+      let fileBytes: Uint8Array;
+
+      try {
+        fileBytes = decodeBase64(fileBase64);
+      } catch {
+        return jsonResponse({ error: "Format data foto tidak valid." }, 400);
+      }
+
+      if (fileBytes.byteLength !== fileSize) {
+        return jsonResponse({ error: "Ukuran data foto tidak sesuai." }, 400);
+      }
+
+      const objectKey = createFotoAbsenObjectKey(userId, extension);
+
+      await r2Client.send(
+        new PutObjectCommand({
+          Bucket: r2BucketName,
+          Key: objectKey,
+          Body: fileBytes,
+          ContentType: contentType,
+          ContentLength: fileBytes.byteLength,
+        }),
+      );
+
+      return jsonResponse({
+        success: true,
+        object_key: objectKey,
+      });
+    }
+
     if (action === "upload") {
       const contentType = String(body.content_type || "").toLowerCase();
       const fileSize = Number(body.file_size);
@@ -153,10 +227,7 @@ Deno.serve(async (req) => {
         );
       }
 
-      const date = getJakartaDateParts();
-      const objectKey =
-        `foto-absen/${userId}/${date.year}/${date.month}/${date.day}/` +
-        `${crypto.randomUUID()}.${extension}`;
+      const objectKey = createFotoAbsenObjectKey(userId, extension);
 
       const uploadUrl = await getSignedUrl(
         r2Client,
