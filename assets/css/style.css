@@ -7745,6 +7745,7 @@ body.sidebar-open {
 .admin-sidebar-menu a span {
   width: 28px;
   height: 28px;
+  object-fit: contain;
   display: grid;
   place-items: center;
   border-radius: 10px;
