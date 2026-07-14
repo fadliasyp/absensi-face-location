@@ -1236,9 +1236,10 @@ button.danger:hover,
   margin-bottom: 18px;
 }
 
-.menu-icon {
+.menu-icon img {
   width: 54px;
   height: 54px;
+  object-fit: contain;
   border-radius: 18px;
   background: linear-gradient(135deg, #e6eeff, #f2f6ff);
   display: flex;
