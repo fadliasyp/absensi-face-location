@@ -7742,7 +7742,7 @@ body.sidebar-open {
   transition: 0.25s ease;
 }
 
-.admin-sidebar-menu a span {
+.admin-sidebar-menu a img {
   width: 28px;
   height: 28px;
   object-fit: contain;
