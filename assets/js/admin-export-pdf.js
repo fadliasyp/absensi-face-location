@@ -197,7 +197,9 @@ function renderPreview(list) {
             ${
               getFotoAbsenLink(item)
                 ? `<a href="${escapeAttribute(getFotoAbsenLink(item))}" target="_blank" rel="noopener noreferrer">Lihat Foto</a>`
-                : "-"
+                : item.foto_dihapus_at
+                  ? `<span class="absen-photo-deleted">Foto dihapus</span>`
+                  : "-"
             }
           </td>
         </tr>
@@ -477,7 +479,11 @@ async function exportPDF() {
         `${safeText(item.nama_tempat)}\n${formatJarak(item.jarak_meter)}`,
         `Wajah: ${safeText(item.validasi_wajah)}\nLokasi: ${safeText(item.validasi_lokasi)}`,
         safeText(item.keterangan),
-        fotoLinks[index] ? "Lihat Foto" : "-",
+        fotoLinks[index]
+          ? "Lihat Foto"
+          : item.foto_dihapus_at
+            ? "Dihapus"
+            : "-",
       ];
     });
 
@@ -739,7 +745,11 @@ async function exportExcel() {
         `${safeText(item.nama_tempat)}\n${formatJarak(item.jarak_meter)}`,
         `Wajah: ${safeText(item.validasi_wajah)}\nLokasi: ${safeText(item.validasi_lokasi)}`,
         safeText(item.keterangan),
-        fotoLink ? { text: "Lihat Foto", hyperlink: fotoLink, tooltip: "Buka foto bukti absensi" } : "-",
+        fotoLink
+          ? { text: "Lihat Foto", hyperlink: fotoLink, tooltip: "Buka foto bukti absensi" }
+          : item.foto_dihapus_at
+            ? "Foto dihapus"
+            : "-",
       ]);
 
       row.height = 42;
@@ -857,7 +867,11 @@ async function exportExcel() {
         safeText(item.validasi_wajah),
         safeText(item.validasi_lokasi),
         safeText(item.keterangan),
-        fotoLink ? { text: "Lihat Foto", hyperlink: fotoLink, tooltip: "Buka foto bukti absensi" } : "-",
+        fotoLink
+          ? { text: "Lihat Foto", hyperlink: fotoLink, tooltip: "Buka foto bukti absensi" }
+          : item.foto_dihapus_at
+            ? "Foto dihapus"
+            : "-",
       ]);
 
       row.height = 32;

@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kelola Storage Foto Absensi</title>
+    <link rel="stylesheet" href="../assets/css/style.css" />
+  </head>
+
+  <body class="storage-page-body">
+    <div
+      class="admin-sidebar-overlay"
+      id="adminSidebarOverlay"
+      onclick="closeAdminSidebar()"
+    ></div>
+
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="admin-sidebar-header">
+        <div>
+          <span class="admin-sidebar-mini-label">Panel Administrator</span>
+          <h3>Menu Admin</h3>
+        </div>
+        <button
+          type="button"
+          class="admin-sidebar-close-btn"
+          onclick="closeAdminSidebar()"
+          aria-label="Tutup menu"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="admin-sidebar-profile">
+        <div class="admin-sidebar-avatar">🛡️</div>
+        <div class="admin-sidebar-profile-info">
+          <strong id="sidebarAdminName">Admin</strong>
+          <span>Administrator</span>
+          <small class="admin-sidebar-status">Sistem Aktif</small>
+        </div>
+      </div>
+
+      <nav class="admin-sidebar-menu">
+        <a href="dashboard.html">
+          <img src="../assets/icons/home-office.png" alt="" />
+          Dashboard
+        </a>
+        <a href="users.html">
+          <img src="../assets/icons/data-user.gif" alt="" />
+          Data User
+        </a>
+        <a href="waktu.html">
+          <img src="../assets/icons/calendar-time.gif" alt="" />
+          Waktu Masuk
+        </a>
+        <a href="lokasi.html">
+          <img src="../assets/icons/location.gif" alt="" />
+          Lokasi Absen
+        </a>
+        <a href="list-absen.html">
+          <img src="../assets/icons/task.gif" alt="" />
+          List Absen
+        </a>
+        <a href="export-pdf.html">
+          <img src="../assets/icons/export.gif" alt="" />
+          Export PDF/Excel
+        </a>
+        <a href="storage.html" class="active">
+          <img src="../assets/icons/folder.gif" alt="" />
+          Kelola Storage
+        </a>
+      </nav>
+
+      <button type="button" class="admin-sidebar-logout-btn" onclick="logout()">
+        <span>🚪</span>
+        Logout
+      </button>
+    </aside>
+
+    <header class="admin-topbar desktop-admin-navbar">
+      <button
+        type="button"
+        class="admin-hamburger-btn"
+        onclick="openAdminSidebar()"
+        aria-label="Buka menu"
+      >
+        <span></span><span></span><span></span>
+      </button>
+
+      <a href="dashboard.html" class="admin-navbar-brand">
+        <img src="../assets/img/Poca3.png" alt="logo Poca" class="logo-poca" />
+        <div>
+          <strong>Admin Absensi</strong>
+          <small>Face Scan & Geolocation</small>
+        </div>
+      </a>
+
+      <nav class="desktop-admin-menu">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="users.html">Data User</a>
+        <a href="waktu.html">Waktu</a>
+        <a href="lokasi.html">Lokasi</a>
+        <a href="list-absen.html">Absensi</a>
+        <a href="export-pdf.html">Laporan</a>
+        <a href="storage.html" class="active">Storage</a>
+      </nav>
+
+      <div class="desktop-admin-profile">
+        <div class="desktop-admin-mini">
+          <div class="desktop-admin-avatar">🛡️</div>
+          <div class="desktop-admin-text">
+            <strong id="desktopAdminName">Admin</strong>
+            <span>Administrator</span>
+          </div>
+        </div>
+        <button type="button" class="desktop-admin-logout" onclick="logout()">
+          Logout
+        </button>
+      </div>
+    </header>
+
+    <main class="container storage-page">
+      <section class="storage-hero">
+        <div>
+          <span class="storage-kicker">PENGELOLAAN PENYIMPANAN</span>
+          <h1>Kelola Foto Absensi</h1>
+          <p>
+            Hapus foto bukti absensi dari Cloudflare R2 berdasarkan rentang
+            tanggal tanpa menghapus data kehadirannya.
+          </p>
+        </div>
+        <div class="storage-hero-warning">
+          <strong>Penghapusan permanen</strong>
+          <span>Foto yang sudah dihapus tidak dapat dipulihkan kembali.</span>
+        </div>
+      </section>
+
+      <div id="storageMessage" aria-live="polite"></div>
+
+      <section class="storage-card">
+        <div class="storage-card-heading">
+          <div>
+            <span class="storage-step">LANGKAH 1</span>
+            <h2>Tentukan rentang tanggal</h2>
+            <p>Tanggal mengikuti tanggal absensi yang tersimpan di Supabase.</p>
+          </div>
+          <div class="storage-heading-icon">📅</div>
+        </div>
+
+        <div class="storage-filter-grid">
+          <div class="storage-field">
+            <label for="storageStartDate">Tanggal awal</label>
+            <input type="date" id="storageStartDate" />
+          </div>
+          <div class="storage-field">
+            <label for="storageEndDate">Tanggal akhir</label>
+            <input type="date" id="storageEndDate" />
+          </div>
+          <button type="button" class="storage-preview-btn" id="storagePreviewBtn">
+            Cek Foto
+          </button>
+        </div>
+      </section>
+
+      <section class="storage-preview-card" id="storagePreviewCard" hidden>
+        <div class="storage-preview-main">
+          <span>Foto yang ditemukan</span>
+          <strong id="storagePhotoCount">0</strong>
+          <small id="storageSelectedPeriod">-</small>
+        </div>
+        <div class="storage-preview-detail">
+          <span>Perkiraan ruang maksimum</span>
+          <strong id="storageEstimatedSize">0 MB</strong>
+          <small>Perhitungan berdasarkan batas maksimum 200 KB per foto.</small>
+        </div>
+      </section>
+
+      <section class="storage-card storage-danger-card" id="storageDeleteCard">
+        <div class="storage-card-heading">
+          <div>
+            <span class="storage-step danger">LANGKAH 2</span>
+            <h2>Konfirmasi penghapusan</h2>
+            <p>
+              Data absensi tetap tersimpan. Hanya file foto dan link fotonya
+              yang akan dihapus permanen.
+            </p>
+          </div>
+          <div class="storage-heading-icon danger">⚠️</div>
+        </div>
+
+        <div class="storage-danger-notice">
+          <strong>Sebelum melanjutkan:</strong>
+          <ul>
+            <li>Pastikan rentang tanggal sudah benar.</li>
+            <li>Link foto pada PDF dan Excel lama tidak akan dapat dibuka.</li>
+            <li>Foto izin dan data wajah pendaftaran tidak ikut dihapus.</li>
+          </ul>
+        </div>
+
+        <div class="storage-confirm-row">
+          <div class="storage-field">
+            <label for="storageConfirmation">
+              Ketik <strong>HAPUS FOTO</strong> untuk mengonfirmasi
+            </label>
+            <input
+              type="text"
+              id="storageConfirmation"
+              autocomplete="off"
+              placeholder="HAPUS FOTO"
+              disabled
+            />
+          </div>
+          <button type="button" class="storage-delete-btn" id="storageDeleteBtn" disabled>
+            Hapus Foto Permanen
+          </button>
+        </div>
+
+        <div class="storage-progress" id="storageProgress" hidden>
+          <div class="storage-progress-info">
+            <span id="storageProgressText">Menyiapkan penghapusan...</span>
+            <strong id="storageProgressPercent">0%</strong>
+          </div>
+          <div class="storage-progress-track">
+            <div class="storage-progress-bar" id="storageProgressBar"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="storage-card">
+        <div class="storage-card-heading">
+          <div>
+            <span class="storage-step">AUDIT</span>
+            <h2>Riwayat penghapusan</h2>
+            <p>Sepuluh proses penghapusan terbaru yang dilakukan admin.</p>
+          </div>
+          <button type="button" class="storage-refresh-btn" id="storageRefreshBtn">
+            Muat ulang
+          </button>
+        </div>
+
+        <div class="storage-history-list" id="storageHistoryList">
+          <div class="storage-history-empty">Memuat riwayat...</div>
+        </div>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/supabase-config.js"></script>
+    <script src="../assets/js/logout.js"></script>
+    <script src="../assets/js/admin-storage.js?v=20260714-storage-v1"></script>
+  </body>
+</html>

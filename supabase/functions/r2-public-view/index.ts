@@ -1,4 +1,8 @@
-import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  GetObjectCommand,
+  HeadObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const corsHeaders = {
@@ -66,6 +70,32 @@ Deno.serve(async (req) => {
         secretAccessKey: r2SecretAccessKey,
       },
     });
+
+    try {
+      await r2Client.send(
+        new HeadObjectCommand({
+          Bucket: r2BucketName,
+          Key: objectKey,
+        }),
+      );
+    } catch (headError) {
+      const statusCode =
+        typeof headError === "object" && headError !== null && "$metadata" in headError
+          ? Number(
+              (headError as { $metadata?: { httpStatusCode?: number } })
+                .$metadata?.httpStatusCode,
+            )
+          : 0;
+
+      if (statusCode === 404) {
+        return jsonResponse(
+          { error: "Foto tidak ditemukan atau telah dihapus permanen." },
+          404,
+        );
+      }
+
+      throw headError;
+    }
 
     const viewUrl = await getSignedUrl(
       r2Client,

@@ -122,6 +122,10 @@ function getFotoAbsenHref(absen) {
 function renderFotoAbsenLink(absen) {
   const href = getFotoAbsenHref(absen);
 
+  if (absen.foto_dihapus_at) {
+    return `<span class="absen-photo-deleted" title="Dihapus permanen pada ${escapeAttribute(new Date(absen.foto_dihapus_at).toLocaleString("id-ID"))}">Foto dihapus</span>`;
+  }
+
   return href
     ? `<a href="${escapeAttribute(href)}" target="_blank" rel="noopener noreferrer" class="absen-photo-link">Lihat Foto Absen</a>`
     : "-";
