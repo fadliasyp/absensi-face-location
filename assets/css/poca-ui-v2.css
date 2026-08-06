@@ -1,30 +1,27 @@
 /* Poca UI v2 - tahap 1: Dashboard User */
 
 .poca-ui-v2 {
-  --poca-bg: #f3f5f7;
-  --poca-surface: #fdfefe;
-  --poca-surface-muted: #eef2f5;
-  --poca-border: #dce2e8;
-  --poca-border-strong: #c7d0da;
+  --poca-bg: #eef3f8;
+  --poca-surface: #fff;
+  --poca-surface-muted: #f2f6fa;
+  --poca-border: #d8e2ec;
+  --poca-border-strong: #b9c9d9;
   --poca-text: #172033;
-  --poca-text-muted: #647084;
-  --poca-brand: #244d7c;
-  --poca-brand-hover: #1c3e65;
+  --poca-text-muted: #5f6f82;
+  --poca-brand: #1f4f82;
+  --poca-brand-hover: #183e68;
+  --poca-brand-soft: #e8f1fa;
+  --poca-teal: #16857a;
+  --poca-teal-soft: #e8f6f3;
+  --poca-amber: #b56826;
+  --poca-amber-soft: #fff3e7;
+  --poca-violet: #665ca0;
+  --poca-violet-soft: #f0eef8;
   --poca-danger: #b43c43;
   min-height: 100dvh;
   padding-top: 72px;
   background: var(--poca-bg);
   color: var(--poca-text);
-}
-
-.poca-ui-v2,
-.poca-ui-v2 * {
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
 }
 
 .poca-ui-v2 .user-topbar {
@@ -39,7 +36,7 @@
   border-bottom: 1px solid var(--poca-border);
   border-radius: 0;
   background: var(--poca-surface);
-  box-shadow: none;
+  box-shadow: 0 5px 18px rgba(31, 79, 130, 0.07);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
@@ -72,25 +69,26 @@
 
 .poca-ui-v2 .desktop-navbar-menu a {
   padding: 10px 11px;
-  border-radius: 0;
+  border-radius: 10px;
   color: #536174;
   font-size: 13px;
   font-weight: 600;
   transition:
     color 160ms ease,
-    box-shadow 160ms ease;
+    background 160ms ease,
+    transform 160ms ease;
 }
 
 .poca-ui-v2 .desktop-navbar-menu a:hover {
   color: var(--poca-brand);
-  background: transparent;
-  transform: none;
+  background: #f1f5f9;
+  transform: translateY(-1px);
 }
 
 .poca-ui-v2 .desktop-navbar-menu a.active {
   color: var(--poca-brand);
-  background: transparent;
-  box-shadow: inset 0 -2px 0 var(--poca-brand);
+  background: var(--poca-brand-soft);
+  box-shadow: none;
 }
 
 .poca-ui-v2 .desktop-navbar-profile {
@@ -99,26 +97,30 @@
 
 .poca-ui-v2 .desktop-absen-btn {
   padding: 10px 14px;
-  border-radius: 8px;
-  background: var(--poca-brand);
+  border-radius: 10px;
+  background: var(--poca-teal);
   color: #f8fafc;
   font-size: 13px;
   font-weight: 700;
-  box-shadow: none;
-  transition: background 160ms ease;
+  box-shadow: 0 6px 14px rgba(22, 133, 122, 0.18);
+  transition:
+    background 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
 }
 
 .poca-ui-v2 .desktop-absen-btn:hover {
-  background: var(--poca-brand-hover);
-  transform: none;
+  background: #116e66;
+  box-shadow: 0 8px 18px rgba(22, 133, 122, 0.24);
+  transform: translateY(-1px);
 }
 
 .poca-ui-v2 .desktop-user-mini {
   gap: 8px;
   padding: 4px 8px 4px 4px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
+  border: 1px solid var(--poca-border);
+  border-radius: 10px;
+  background: var(--poca-surface-muted);
 }
 
 .poca-ui-v2 .desktop-user-photo {
@@ -126,8 +128,8 @@
   height: 36px;
   flex-basis: 36px;
   border: 1px solid var(--poca-border);
-  border-radius: 8px;
-  background: var(--poca-surface-muted);
+  border-radius: 9px;
+  background: var(--poca-surface);
 }
 
 .poca-ui-v2 .desktop-user-text strong {
@@ -143,8 +145,8 @@
 .poca-ui-v2 .desktop-logout-btn {
   padding: 9px 11px;
   border: 1px solid #ecd4d6;
-  border-radius: 8px;
-  background: transparent;
+  border-radius: 10px;
+  background: #fff7f7;
   color: var(--poca-danger);
   font-size: 12px;
   font-weight: 700;
@@ -164,17 +166,22 @@
   width: 100%;
   max-width: 1120px;
   margin: 0 auto;
-  padding: 36px 16px 48px;
+  padding: 34px 16px 52px;
 }
 
 .poca-ui-v2 .user-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
-  align-items: center;
-  gap: 32px;
+  grid-template-columns: minmax(0, 1fr) 292px;
+  align-items: stretch;
+  gap: 0;
   margin: 0 0 34px;
-  padding: 28px 0 30px;
-  border-bottom: 1px solid var(--poca-border);
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--poca-border);
+  border-left: 6px solid var(--poca-brand);
+  border-radius: 18px;
+  background: var(--poca-surface);
+  box-shadow: 0 16px 38px rgba(31, 79, 130, 0.09);
 }
 
 .poca-ui-v2 .user-hero-left,
@@ -192,7 +199,8 @@
   display: grid;
   grid-template-columns: 48px minmax(0, 1fr);
   column-gap: 16px;
-  padding: 0;
+  align-content: center;
+  padding: 32px;
 }
 
 .poca-ui-v2 .user-hero-left > .user-menu-icon {
@@ -200,8 +208,9 @@
   width: 48px;
   height: 48px;
   border: 1px solid var(--poca-border);
-  border-radius: 10px;
-  background: var(--poca-surface);
+  border-color: #c9dced;
+  border-radius: 12px;
+  background: var(--poca-brand-soft);
 }
 
 .poca-ui-v2 .user-hero-left > .user-menu-icon img {
@@ -218,6 +227,10 @@
   letter-spacing: -0.025em;
 }
 
+.poca-ui-v2 .user-hero-left h1 span {
+  color: var(--poca-teal);
+}
+
 .poca-ui-v2 .user-hero-left p {
   margin: 7px 0 0;
   max-width: 680px;
@@ -227,30 +240,46 @@
 }
 
 .poca-ui-v2 .user-hero-right {
-  padding: 0;
+  display: flex;
+  align-items: center;
+  padding: 24px;
+  background: var(--poca-brand-hover);
 }
 
 .poca-ui-v2 .user-live-card {
   width: 100%;
-  padding: 17px 18px;
-  border: 1px solid var(--poca-border);
-  border-radius: 12px;
-  background: var(--poca-surface);
-  color: var(--poca-text);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #f8fbfe;
 }
 
 .poca-ui-v2 .user-live-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-bottom: 5px;
-  color: var(--poca-text-muted);
+  color: #bfe7e1;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
 }
 
+.poca-ui-v2 .user-live-label::before {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  background: #46c6b7;
+  box-shadow: 0 0 0 4px rgba(70, 198, 183, 0.16);
+  content: "";
+}
+
 .poca-ui-v2 .user-live-card strong {
   margin-bottom: 3px;
-  color: var(--poca-brand);
+  color: #f8fbfe;
   font-size: 28px;
   font-weight: 750;
   font-variant-numeric: tabular-nums;
@@ -259,7 +288,7 @@
 
 .poca-ui-v2 .user-live-card p {
   margin: 0;
-  color: var(--poca-text-muted);
+  color: #cbd8e5;
   font-size: 13px;
   line-height: 1.45;
 }
@@ -271,7 +300,11 @@
 }
 
 .poca-ui-v2 .user-section-heading {
-  margin-bottom: 18px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
 }
 
 .poca-ui-v2 .user-section-heading h2 {
@@ -292,37 +325,56 @@
 
 .poca-ui-v2 .user-menu-grid {
   display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: 18px;
 }
 
 .poca-ui-v2 .user-menu-card {
-  grid-column: span 6;
+  --card-accent: var(--poca-brand);
+  --card-soft: var(--poca-brand-soft);
+  grid-column: auto;
   display: flex;
   min-width: 0;
-  min-height: 178px;
+  min-height: 206px;
   flex-direction: column;
-  padding: 20px;
+  padding: 22px;
   overflow: hidden;
   border: 1px solid var(--poca-border);
-  border-radius: 12px;
+  border-top: 4px solid var(--card-accent);
+  border-radius: 16px;
   background: var(--poca-surface);
   color: var(--poca-text);
+  box-shadow: 0 7px 20px rgba(31, 79, 130, 0.06);
   transition:
-    border-color 160ms ease,
-    transform 160ms ease;
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
 }
 
 .poca-ui-v2 .user-menu-card:first-child {
-  grid-column: span 5;
+  grid-column: auto;
 }
 
 .poca-ui-v2 .user-menu-card.primary-menu {
-  grid-column: span 7;
-  order: -1;
-  border-color: var(--poca-brand);
-  background: var(--poca-brand);
-  color: #f8fafc;
+  --card-accent: var(--poca-teal);
+  --card-soft: var(--poca-teal-soft);
+  grid-column: auto;
+  order: 0;
+  border-color: #bcded9;
+  border-top-color: var(--card-accent);
+  background: #fbfefd;
+  color: var(--poca-text);
+}
+
+.poca-ui-v2 .user-menu-card:nth-child(3) {
+  --card-accent: var(--poca-amber);
+  --card-soft: var(--poca-amber-soft);
+}
+
+.poca-ui-v2 .user-menu-card:nth-child(4) {
+  --card-accent: var(--poca-violet);
+  --card-soft: var(--poca-violet-soft);
 }
 
 .poca-ui-v2 .user-menu-card::after {
@@ -330,18 +382,19 @@
 }
 
 .poca-ui-v2 .user-menu-card:hover {
-  border-color: var(--poca-border-strong);
-  box-shadow: none;
-  transform: translateY(-2px);
+  border-color: var(--card-accent);
+  border-top-color: var(--card-accent);
+  box-shadow: 0 14px 30px rgba(31, 79, 130, 0.12);
+  transform: translateY(-4px);
 }
 
 .poca-ui-v2 .user-menu-card.primary-menu:hover {
-  border-color: var(--poca-brand-hover);
-  background: var(--poca-brand-hover);
+  border-color: var(--poca-teal);
+  background: #f6fcfa;
 }
 
 .poca-ui-v2 .user-menu-card:active {
-  transform: translateY(0);
+  transform: translateY(-1px) scale(0.99);
 }
 
 .poca-ui-v2 .user-menu-top {
@@ -349,25 +402,41 @@
 }
 
 .poca-ui-v2 .user-menu-top .user-menu-icon {
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--poca-border);
-  border-radius: 10px;
-  background: var(--poca-surface-muted);
+  width: 48px;
+  height: 48px;
+  border: 1px solid color-mix(in srgb, var(--card-accent) 26%, transparent);
+  border-radius: 12px;
+  background: var(--card-soft);
 }
 
 .poca-ui-v2 .user-menu-top .user-menu-icon img {
   width: 28px;
   height: 28px;
+  transition: transform 180ms ease;
 }
 
 .poca-ui-v2 .primary-menu .user-menu-icon {
-  border-color: rgba(248, 250, 252, 0.28);
-  background: rgba(248, 250, 252, 0.12);
+  border-color: #bcded9;
+  background: var(--poca-teal-soft);
 }
 
 .poca-ui-v2 .user-menu-tag {
-  display: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 5px 10px;
+  border: 1px solid color-mix(in srgb, var(--card-accent) 22%, transparent);
+  border-radius: 999px;
+  background: var(--card-soft);
+  color: var(--card-accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.poca-ui-v2 .user-menu-card:hover .user-menu-icon img {
+  transform: scale(1.08) rotate(-3deg);
 }
 
 .poca-ui-v2 .user-menu-card h3 {
@@ -394,15 +463,14 @@
   position: relative;
   z-index: 1;
   margin-top: auto;
-  color: var(--poca-brand);
+  color: var(--card-accent);
   font-size: 13px;
   font-weight: 700;
+  transition: transform 180ms ease;
 }
 
-.poca-ui-v2 .primary-menu h3,
-.poca-ui-v2 .primary-menu p,
-.poca-ui-v2 .primary-menu .user-menu-link {
-  color: #f8fafc;
+.poca-ui-v2 .user-menu-card:hover .user-menu-link {
+  transform: translateX(4px);
 }
 
 .poca-ui-v2 a:focus-visible,
@@ -427,14 +495,14 @@
   .poca-ui-v2 .hamburger-btn {
     width: 40px;
     height: 40px;
-    border-radius: 8px;
+    border-radius: 10px;
     background: var(--poca-brand);
-    box-shadow: none;
+    box-shadow: 0 6px 14px rgba(31, 79, 130, 0.2);
   }
 
   .poca-ui-v2 .hamburger-btn:hover {
-    box-shadow: none;
-    transform: none;
+    box-shadow: 0 8px 18px rgba(31, 79, 130, 0.26);
+    transform: translateY(-1px);
   }
 
   .poca-ui-v2 .hamburger-btn span {
@@ -456,14 +524,15 @@
 
   .poca-ui-v2 .user-hero {
     grid-template-columns: 1fr;
-    gap: 18px;
+    gap: 0;
     margin-bottom: 28px;
-    padding: 18px 0 24px;
+    padding: 0;
   }
 
   .poca-ui-v2 .user-hero-left {
     grid-template-columns: 44px minmax(0, 1fr);
     column-gap: 13px;
+    padding: 26px 24px;
   }
 
   .poca-ui-v2 .user-hero-left > .user-menu-icon {
@@ -484,7 +553,11 @@
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     column-gap: 16px;
-    padding: 15px 16px;
+    padding: 0;
+  }
+
+  .poca-ui-v2 .user-hero-right {
+    padding: 17px 24px;
   }
 
   .poca-ui-v2 .user-live-label {
@@ -512,7 +585,7 @@
   .poca-ui-v2 .user-menu-card:first-child,
   .poca-ui-v2 .user-menu-card.primary-menu {
     grid-column: 1;
-    min-height: 0;
+    min-height: 184px;
     padding: 18px;
   }
 
@@ -528,21 +601,21 @@
   }
 
   .poca-ui-v2 .sidebar-mini-label {
-    border-radius: 6px;
-    background: var(--poca-surface-muted);
+    border-radius: 8px;
+    background: var(--poca-brand-soft);
     color: var(--poca-brand);
   }
 
   .poca-ui-v2 .user-sidebar-profile {
     border-color: var(--poca-border);
-    border-radius: 12px;
+    border-radius: 16px;
     background: var(--poca-bg);
     box-shadow: none;
   }
 
   .poca-ui-v2 .sidebar-avatar {
     border: 1px solid var(--poca-border);
-    border-radius: 9px;
+    border-radius: 10px;
     background: var(--poca-surface-muted);
   }
 
@@ -551,21 +624,21 @@
   }
 
   .poca-ui-v2 .user-sidebar-menu a {
-    border-radius: 8px;
+    border-radius: 10px;
     color: #465468;
     font-weight: 650;
   }
 
   .poca-ui-v2 .user-sidebar-menu a:hover,
   .poca-ui-v2 .user-sidebar-menu a.active {
-    background: #edf2f7;
+    background: var(--poca-brand-soft);
     color: var(--poca-brand);
     transform: none;
   }
 
   .poca-ui-v2 .sidebar-logout-btn {
     border: 1px solid #ecd4d6;
-    border-radius: 8px;
+    border-radius: 10px;
     background: #fbefef;
     color: var(--poca-danger);
     box-shadow: none;
@@ -583,21 +656,76 @@
   }
 
   .poca-ui-v2 .user-hero-left {
-    grid-template-columns: 1fr;
+    grid-template-columns: 42px minmax(0, 1fr);
+    padding: 22px 18px;
   }
 
   .poca-ui-v2 .user-hero-left > .user-menu-icon {
-    display: none;
+    display: flex;
+    width: 42px;
+    height: 42px;
   }
 
   .poca-ui-v2 .user-live-card {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 
   .poca-ui-v2 .user-live-card strong {
-    grid-column: 1;
-    grid-row: auto;
-    margin: 5px 0 2px;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    margin: 0;
+    font-size: 21px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .poca-ui-v2 .user-hero {
+    animation: poca-rise-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .poca-ui-v2 .user-menu-card {
+    animation: poca-rise-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .poca-ui-v2 .user-menu-card:nth-child(2) {
+    animation-delay: 70ms;
+  }
+
+  .poca-ui-v2 .user-menu-card:nth-child(3) {
+    animation-delay: 140ms;
+  }
+
+  .poca-ui-v2 .user-menu-card:nth-child(4) {
+    animation-delay: 210ms;
+  }
+
+  .poca-ui-v2 .user-live-label::before {
+    animation: poca-live-pulse 2.2s ease-in-out infinite;
+  }
+}
+
+@keyframes poca-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes poca-live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.72;
+    transform: scale(0.82);
   }
 }
 
