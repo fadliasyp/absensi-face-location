@@ -9001,3 +9001,74 @@ body.admin-sidebar-open {
   height: 30px; /* Samakan dengan width agar tetap proporsional */
   object-fit: contain; /* Memastikan gambar tidak gepeng/terdistorsi */
 }
+
+/* ================================
+   DESKTOP FACE CAMERA REFINEMENTS
+================================ */
+
+@media (min-width: 901px) {
+  /* Samakan lebar konten dengan navbar user. */
+  .verify-page,
+  .face-register-page {
+    max-width: 1120px;
+  }
+
+  /* Halaman verifikasi hanya memiliki satu kartu utama. */
+  .verify-main-grid-focus {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .verify-camera-focus-card .verify-video-frame {
+    aspect-ratio: 16 / 9;
+  }
+
+  .verify-video-frame {
+    border-width: 3px;
+    border-radius: 22px;
+  }
+
+  /* Kamera pendaftaran lebih lebar; panel panduan tetap mudah dibaca. */
+  .face-main-grid {
+    grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.7fr);
+    gap: 24px;
+    align-items: start;
+  }
+
+  .face-main-grid > .face-glass-card {
+    min-width: 0;
+  }
+
+  .face-video-frame {
+    border-width: 3px;
+    border-radius: 22px;
+  }
+
+  .face-video-frame video {
+    object-fit: cover;
+  }
+
+  .face-shape-img {
+    width: 35%;
+    max-width: 220px;
+    max-height: 70%;
+    object-fit: contain;
+  }
+
+  .face-camera-overlay {
+    right: 20px;
+    bottom: 16px;
+    left: 20px;
+  }
+
+  .face-icon-bubble img {
+    display: block;
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+  }
+
+  .face-guide-item {
+    align-items: center;
+    min-height: 82px;
+  }
+}
