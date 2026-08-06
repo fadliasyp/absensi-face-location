@@ -5,13 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard User</title>
     <link rel="stylesheet" href="../assets/css/style.css" />
-    <link
-      rel="stylesheet"
-      href="../assets/css/poca-ui-v2.css?v=20260806-dashboard-user-3"
-    />
   </head>
 
-  <body class="user-dashboard-body poca-ui-v2">
+  <body class="user-dashboard-body">
     <!-- OVERLAY SIDEBAR -->
     <div
       class="sidebar-overlay"
@@ -272,13 +268,11 @@
         const dateEl = document.getElementById("userLiveDate");
 
         if (clockEl) {
-          clockEl.textContent = now
-            .toLocaleTimeString("id-ID", {
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-            })
-            .replace(/\./g, ":");
+          clockEl.textContent = now.toLocaleTimeString("id-ID", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          });
         }
 
         if (dateEl) {

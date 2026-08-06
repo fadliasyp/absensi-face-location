@@ -6229,11 +6229,7 @@ button.danger:hover,
   padding-top: 92px;
   background:
     radial-gradient(circle at 8% 5%, rgba(15, 118, 110, 0.14), transparent 28%),
-    radial-gradient(
-      circle at 92% 35%,
-      rgba(220, 38, 38, 0.09),
-      transparent 26%
-    ),
+    radial-gradient(circle at 92% 35%, rgba(220, 38, 38, 0.09), transparent 26%),
     linear-gradient(180deg, #f0faf6 0%, #f8fafc 100%);
 }
 
@@ -6409,9 +6405,7 @@ button.danger:hover,
   padding: 12px 20px;
   font-weight: 850;
   cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    opacity 0.2s ease;
+  transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
 .storage-preview-btn {
@@ -6587,10 +6581,7 @@ button.danger:hover,
 
 .storage-history-item {
   display: grid;
-  grid-template-columns: minmax(190px, 1fr) minmax(280px, 1.25fr) minmax(
-      190px,
-      0.9fr
-    );
+  grid-template-columns: minmax(190px, 1fr) minmax(280px, 1.25fr) minmax(190px, 0.9fr);
   gap: 18px;
   align-items: center;
   padding: 16px;
