@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../assets/css/style.css" />
     <link
       rel="stylesheet"
-      href="../assets/css/poca-ui-v2.css?v=20260806-dashboard-user-2"
+      href="../assets/css/poca-ui-v2.css?v=20260806-dashboard-user-3"
     />
   </head>
 
@@ -272,11 +272,13 @@
         const dateEl = document.getElementById("userLiveDate");
 
         if (clockEl) {
-          clockEl.textContent = now.toLocaleTimeString("id-ID", {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-          });
+          clockEl.textContent = now
+            .toLocaleTimeString("id-ID", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            })
+            .replace(/\./g, ":");
         }
 
         if (dateEl) {
