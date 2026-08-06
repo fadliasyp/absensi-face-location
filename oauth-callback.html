@@ -18,6 +18,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/js/supabase-config.js"></script>
+    <script src="assets/js/session-routing.js?v=20260806-remember-session"></script>
 
     <script>
       const messageBox = document.getElementById("message");
@@ -129,12 +130,7 @@
           return;
         }
 
-        if (existingProfile.role === "admin") {
-          window.location.href = "admin/dashboard.html";
-          return;
-        }
-
-        window.location.href = "user/dashboard.html";
+        window.location.replace(getAuthenticatedDestination(existingProfile));
       }
 
       handleGoogleCallback();

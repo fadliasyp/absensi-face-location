@@ -255,11 +255,7 @@ if (loginForm) {
       "Login Berhasil",
       "Selamat datang, " + (profile.nama_lengkap || "User") + ".",
       () => {
-        if (profile.role === "admin") {
-          window.location.href = "admin/dashboard.html";
-        } else {
-          window.location.href = "user/dashboard.html";
-        }
+        window.location.replace(getAuthenticatedDestination(profile));
       },
     );
   });

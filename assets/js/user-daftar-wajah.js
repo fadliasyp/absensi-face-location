@@ -91,7 +91,7 @@ function showMessage(text, type = "error") {
 
 function showPopupSuccess(title, text) {
   if (window.Swal) {
-    Swal.fire({
+    return Swal.fire({
       icon: "success",
       title,
       text,
@@ -100,6 +100,7 @@ function showPopupSuccess(title, text) {
     });
   } else {
     alert(title + "\n" + text);
+    return Promise.resolve();
   }
 }
 
@@ -383,10 +384,12 @@ async function daftarkanWajah() {
 
   showMessage("Data wajah dan foto wajah berhasil disimpan.", "success");
 
-  showPopupSuccess(
+  await showPopupSuccess(
     "Data Wajah Berhasil Disimpan",
     "Data wajah dan foto wajah Anda berhasil disimpan. Pendaftaran wajah hanya dapat dilakukan satu kali. Jika ada kendala, silakan hubungi admin.",
   );
+
+  window.location.replace("verifikasi.html");
 }
 
 function tungguVideoSiap() {
