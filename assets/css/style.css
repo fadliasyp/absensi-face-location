@@ -9027,14 +9027,6 @@ body.admin-sidebar-open {
     border-radius: 22px;
   }
 
-  .verify-video-frame video,
-  .face-video-frame video {
-    max-width: none;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
   /* Kamera pendaftaran lebih lebar; panel panduan tetap mudah dibaca. */
   .face-main-grid {
     grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.7fr);
@@ -9049,6 +9041,10 @@ body.admin-sidebar-open {
   .face-video-frame {
     border-width: 3px;
     border-radius: 22px;
+  }
+
+  .face-video-frame video {
+    object-fit: cover;
   }
 
   .face-shape-img {
