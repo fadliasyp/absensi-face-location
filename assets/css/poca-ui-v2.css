@@ -1,0 +1,611 @@
+/* Poca UI v2 - tahap 1: Dashboard User */
+
+.poca-ui-v2 {
+  --poca-bg: #f3f5f7;
+  --poca-surface: #fdfefe;
+  --poca-surface-muted: #eef2f5;
+  --poca-border: #dce2e8;
+  --poca-border-strong: #c7d0da;
+  --poca-text: #172033;
+  --poca-text-muted: #647084;
+  --poca-brand: #244d7c;
+  --poca-brand-hover: #1c3e65;
+  --poca-danger: #b43c43;
+  min-height: 100dvh;
+  padding-top: 72px;
+  background: var(--poca-bg);
+  color: var(--poca-text);
+}
+
+.poca-ui-v2,
+.poca-ui-v2 * {
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+.poca-ui-v2 .user-topbar {
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-height: 72px;
+  padding: 10px max(16px, calc((100vw - 1120px) / 2));
+  transform: none;
+  gap: 18px;
+  border: 0;
+  border-bottom: 1px solid var(--poca-border);
+  border-radius: 0;
+  background: var(--poca-surface);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.poca-ui-v2 .navbar-brand-user {
+  min-width: 196px;
+  gap: 10px;
+}
+
+.poca-ui-v2 .logo-poca {
+  width: 82px;
+  height: 40px;
+}
+
+.poca-ui-v2 .navbar-brand-user strong {
+  color: var(--poca-text);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.poca-ui-v2 .navbar-brand-user small {
+  color: var(--poca-text-muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.poca-ui-v2 .desktop-navbar-menu {
+  gap: 2px;
+}
+
+.poca-ui-v2 .desktop-navbar-menu a {
+  padding: 10px 11px;
+  border-radius: 0;
+  color: #536174;
+  font-size: 13px;
+  font-weight: 600;
+  transition:
+    color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.poca-ui-v2 .desktop-navbar-menu a:hover {
+  color: var(--poca-brand);
+  background: transparent;
+  transform: none;
+}
+
+.poca-ui-v2 .desktop-navbar-menu a.active {
+  color: var(--poca-brand);
+  background: transparent;
+  box-shadow: inset 0 -2px 0 var(--poca-brand);
+}
+
+.poca-ui-v2 .desktop-navbar-profile {
+  gap: 8px;
+}
+
+.poca-ui-v2 .desktop-absen-btn {
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--poca-brand);
+  color: #f8fafc;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: none;
+  transition: background 160ms ease;
+}
+
+.poca-ui-v2 .desktop-absen-btn:hover {
+  background: var(--poca-brand-hover);
+  transform: none;
+}
+
+.poca-ui-v2 .desktop-user-mini {
+  gap: 8px;
+  padding: 4px 8px 4px 4px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+}
+
+.poca-ui-v2 .desktop-user-photo {
+  width: 36px;
+  height: 36px;
+  flex-basis: 36px;
+  border: 1px solid var(--poca-border);
+  border-radius: 8px;
+  background: var(--poca-surface-muted);
+}
+
+.poca-ui-v2 .desktop-user-text strong {
+  color: var(--poca-text);
+  font-weight: 700;
+}
+
+.poca-ui-v2 .desktop-user-text span {
+  color: var(--poca-text-muted);
+  font-weight: 500;
+}
+
+.poca-ui-v2 .desktop-logout-btn {
+  padding: 9px 11px;
+  border: 1px solid #ecd4d6;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--poca-danger);
+  font-size: 12px;
+  font-weight: 700;
+  transition:
+    color 160ms ease,
+    background 160ms ease;
+}
+
+.poca-ui-v2 .desktop-logout-btn:hover {
+  color: #8d2d33;
+  background: #fbefef;
+  transform: none;
+  box-shadow: none;
+}
+
+.poca-ui-v2 .user-dashboard-page {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 36px 16px 48px;
+}
+
+.poca-ui-v2 .user-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  align-items: center;
+  gap: 32px;
+  margin: 0 0 34px;
+  padding: 28px 0 30px;
+  border-bottom: 1px solid var(--poca-border);
+}
+
+.poca-ui-v2 .user-hero-left,
+.poca-ui-v2 .user-hero-right,
+.poca-ui-v2 .user-menu-section,
+.poca-ui-v2 .user-menu-card {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.poca-ui-v2 .user-hero-left {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  column-gap: 16px;
+  padding: 0;
+}
+
+.poca-ui-v2 .user-hero-left > .user-menu-icon {
+  grid-row: 1 / span 2;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--poca-border);
+  border-radius: 10px;
+  background: var(--poca-surface);
+}
+
+.poca-ui-v2 .user-hero-left > .user-menu-icon img {
+  width: 30px;
+  height: 30px;
+}
+
+.poca-ui-v2 .user-hero-left h1 {
+  margin: 0;
+  color: var(--poca-text);
+  font-size: clamp(27px, 3vw, 34px);
+  font-weight: 750;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.poca-ui-v2 .user-hero-left p {
+  margin: 7px 0 0;
+  max-width: 680px;
+  color: var(--poca-text-muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.poca-ui-v2 .user-hero-right {
+  padding: 0;
+}
+
+.poca-ui-v2 .user-live-card {
+  width: 100%;
+  padding: 17px 18px;
+  border: 1px solid var(--poca-border);
+  border-radius: 12px;
+  background: var(--poca-surface);
+  color: var(--poca-text);
+}
+
+.poca-ui-v2 .user-live-label {
+  margin-bottom: 5px;
+  color: var(--poca-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.poca-ui-v2 .user-live-card strong {
+  margin-bottom: 3px;
+  color: var(--poca-brand);
+  font-size: 28px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.poca-ui-v2 .user-live-card p {
+  margin: 0;
+  color: var(--poca-text-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.poca-ui-v2 .user-menu-section {
+  margin: 0 0 32px;
+  padding: 0;
+  border-radius: 0;
+}
+
+.poca-ui-v2 .user-section-heading {
+  margin-bottom: 18px;
+}
+
+.poca-ui-v2 .user-section-heading h2 {
+  margin: 0 0 5px;
+  color: var(--poca-text);
+  font-size: 22px;
+  font-weight: 730;
+  letter-spacing: -0.015em;
+}
+
+.poca-ui-v2 .user-section-heading p {
+  margin: 0;
+  max-width: 680px;
+  color: var(--poca-text-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.poca-ui-v2 .user-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.poca-ui-v2 .user-menu-card {
+  grid-column: span 6;
+  display: flex;
+  min-width: 0;
+  min-height: 178px;
+  flex-direction: column;
+  padding: 20px;
+  overflow: hidden;
+  border: 1px solid var(--poca-border);
+  border-radius: 12px;
+  background: var(--poca-surface);
+  color: var(--poca-text);
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.poca-ui-v2 .user-menu-card:first-child {
+  grid-column: span 5;
+}
+
+.poca-ui-v2 .user-menu-card.primary-menu {
+  grid-column: span 7;
+  order: -1;
+  border-color: var(--poca-brand);
+  background: var(--poca-brand);
+  color: #f8fafc;
+}
+
+.poca-ui-v2 .user-menu-card::after {
+  display: none;
+}
+
+.poca-ui-v2 .user-menu-card:hover {
+  border-color: var(--poca-border-strong);
+  box-shadow: none;
+  transform: translateY(-2px);
+}
+
+.poca-ui-v2 .user-menu-card.primary-menu:hover {
+  border-color: var(--poca-brand-hover);
+  background: var(--poca-brand-hover);
+}
+
+.poca-ui-v2 .user-menu-card:active {
+  transform: translateY(0);
+}
+
+.poca-ui-v2 .user-menu-top {
+  margin-bottom: 20px;
+}
+
+.poca-ui-v2 .user-menu-top .user-menu-icon {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--poca-border);
+  border-radius: 10px;
+  background: var(--poca-surface-muted);
+}
+
+.poca-ui-v2 .user-menu-top .user-menu-icon img {
+  width: 28px;
+  height: 28px;
+}
+
+.poca-ui-v2 .primary-menu .user-menu-icon {
+  border-color: rgba(248, 250, 252, 0.28);
+  background: rgba(248, 250, 252, 0.12);
+}
+
+.poca-ui-v2 .user-menu-tag {
+  display: none;
+}
+
+.poca-ui-v2 .user-menu-card h3 {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 7px;
+  color: var(--poca-text);
+  font-size: 19px;
+  font-weight: 720;
+  line-height: 1.3;
+}
+
+.poca-ui-v2 .user-menu-card p {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 18px;
+  max-width: 54ch;
+  color: var(--poca-text-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.poca-ui-v2 .user-menu-link {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  color: var(--poca-brand);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.poca-ui-v2 .primary-menu h3,
+.poca-ui-v2 .primary-menu p,
+.poca-ui-v2 .primary-menu .user-menu-link {
+  color: #f8fafc;
+}
+
+.poca-ui-v2 a:focus-visible,
+.poca-ui-v2 button:focus-visible {
+  outline: 3px solid #9bb8d5;
+  outline-offset: 3px;
+}
+
+@media (max-width: 900px) {
+  .poca-ui-v2 {
+    padding-top: 64px;
+  }
+
+  .poca-ui-v2 .user-topbar {
+    top: 0;
+    width: 100%;
+    min-height: 64px;
+    padding: 8px 14px;
+    border-radius: 0;
+  }
+
+  .poca-ui-v2 .hamburger-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: var(--poca-brand);
+    box-shadow: none;
+  }
+
+  .poca-ui-v2 .hamburger-btn:hover {
+    box-shadow: none;
+    transform: none;
+  }
+
+  .poca-ui-v2 .hamburger-btn span {
+    display: block;
+    width: 19px;
+    height: 2px;
+    flex: 0 0 2px;
+    background: #f8fafc;
+  }
+
+  .poca-ui-v2 .logo-poca {
+    width: 68px;
+    height: 34px;
+  }
+
+  .poca-ui-v2 .user-dashboard-page {
+    padding: 24px 16px 40px;
+  }
+
+  .poca-ui-v2 .user-hero {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    margin-bottom: 28px;
+    padding: 18px 0 24px;
+  }
+
+  .poca-ui-v2 .user-hero-left {
+    grid-template-columns: 44px minmax(0, 1fr);
+    column-gap: 13px;
+  }
+
+  .poca-ui-v2 .user-hero-left > .user-menu-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .poca-ui-v2 .user-hero-left h1 {
+    font-size: 27px;
+  }
+
+  .poca-ui-v2 .user-hero-left p {
+    font-size: 14px;
+  }
+
+  .poca-ui-v2 .user-live-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 16px;
+    padding: 15px 16px;
+  }
+
+  .poca-ui-v2 .user-live-label {
+    margin: 0;
+  }
+
+  .poca-ui-v2 .user-live-card strong {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    margin: 0;
+    font-size: 23px;
+  }
+
+  .poca-ui-v2 .user-live-card p {
+    grid-column: 1;
+    margin-top: 3px;
+  }
+
+  .poca-ui-v2 .user-menu-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .poca-ui-v2 .user-menu-card,
+  .poca-ui-v2 .user-menu-card:first-child,
+  .poca-ui-v2 .user-menu-card.primary-menu {
+    grid-column: 1;
+    min-height: 0;
+    padding: 18px;
+  }
+
+  .poca-ui-v2 .user-menu-top {
+    margin-bottom: 16px;
+  }
+
+  .poca-ui-v2 .user-sidebar {
+    padding: 18px;
+    border-right: 1px solid var(--poca-border);
+    background: var(--poca-surface);
+    box-shadow: 18px 0 44px rgba(23, 32, 51, 0.14);
+  }
+
+  .poca-ui-v2 .sidebar-mini-label {
+    border-radius: 6px;
+    background: var(--poca-surface-muted);
+    color: var(--poca-brand);
+  }
+
+  .poca-ui-v2 .user-sidebar-profile {
+    border-color: var(--poca-border);
+    border-radius: 12px;
+    background: var(--poca-bg);
+    box-shadow: none;
+  }
+
+  .poca-ui-v2 .sidebar-avatar {
+    border: 1px solid var(--poca-border);
+    border-radius: 9px;
+    background: var(--poca-surface-muted);
+  }
+
+  .poca-ui-v2 .user-sidebar-menu {
+    gap: 5px;
+  }
+
+  .poca-ui-v2 .user-sidebar-menu a {
+    border-radius: 8px;
+    color: #465468;
+    font-weight: 650;
+  }
+
+  .poca-ui-v2 .user-sidebar-menu a:hover,
+  .poca-ui-v2 .user-sidebar-menu a.active {
+    background: #edf2f7;
+    color: var(--poca-brand);
+    transform: none;
+  }
+
+  .poca-ui-v2 .sidebar-logout-btn {
+    border: 1px solid #ecd4d6;
+    border-radius: 8px;
+    background: #fbefef;
+    color: var(--poca-danger);
+    box-shadow: none;
+  }
+
+  .poca-ui-v2 .sidebar-logout-btn:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .poca-ui-v2 .navbar-brand-user div {
+    display: none;
+  }
+
+  .poca-ui-v2 .user-hero-left {
+    grid-template-columns: 1fr;
+  }
+
+  .poca-ui-v2 .user-hero-left > .user-menu-icon {
+    display: none;
+  }
+
+  .poca-ui-v2 .user-live-card {
+    grid-template-columns: 1fr;
+  }
+
+  .poca-ui-v2 .user-live-card strong {
+    grid-column: 1;
+    grid-row: auto;
+    margin: 5px 0 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poca-ui-v2 *,
+  .poca-ui-v2 *::before,
+  .poca-ui-v2 *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
