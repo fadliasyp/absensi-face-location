@@ -221,16 +221,7 @@ function setDefaultTanggal() {
 async function ambilDataAbsensi() {
   let query = supabaseClient
     .from("absensi")
-    .select(
-      `
-      *,
-      profiles (
-        nama_lengkap,
-        bagian,
-        email
-      )
-    `,
-    )
+    .select("*")
     .order("tanggal", { ascending: true })
     .order("waktu_masuk", { ascending: true });
 
@@ -256,7 +247,30 @@ async function ambilDataAbsensi() {
     throw error;
   }
 
-  return data || [];
+  const absensiList = data || [];
+  const userIds = [
+    ...new Set(absensiList.map((item) => item.user_id).filter(Boolean)),
+  ];
+
+  if (userIds.length === 0) return absensiList;
+
+  const { data: profiles, error: profileError } = await supabaseClient
+    .from("profiles")
+    .select("id, nama_lengkap, bagian, email")
+    .in("id", userIds);
+
+  if (profileError) {
+    throw profileError;
+  }
+
+  const profileById = new Map(
+    (profiles || []).map((profile) => [profile.id, profile]),
+  );
+
+  return absensiList.map((item) => ({
+    ...item,
+    profiles: profileById.get(item.user_id) || null,
+  }));
 }
 
 async function loadPreview() {
