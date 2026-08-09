@@ -346,16 +346,7 @@ async function loadAbsensi() {
 
   let query = supabaseClient
     .from("absensi")
-    .select(
-      `
-      *,
-      profiles (
-        nama_lengkap,
-        bagian,
-        email
-      )
-    `,
-    )
+    .select("*")
     .order("tanggal", { ascending: false })
     .order("waktu_masuk", { ascending: false });
 
@@ -375,7 +366,7 @@ async function loadAbsensi() {
     query = query.eq("status", filterStatus);
   }
 
-  const { data: absensiList, error } = await query;
+  const { data: absensiData, error } = await query;
 
   if (error) {
     console.error(error);
@@ -400,6 +391,52 @@ async function loadAbsensi() {
     showMessage("Gagal memuat data absensi.");
     return;
   }
+
+  const userIds = [
+    ...new Set((absensiData || []).map((item) => item.user_id).filter(Boolean)),
+  ];
+
+  let profileById = new Map();
+
+  if (userIds.length > 0) {
+    const { data: profiles, error: profileError } = await supabaseClient
+      .from("profiles")
+      .select("id, nama_lengkap, bagian, email")
+      .in("id", userIds);
+
+    if (profileError) {
+      console.error(profileError);
+
+      if (absenTableBody) {
+        absenTableBody.innerHTML = `
+          <tr>
+            <td colspan="14">Gagal memuat profil pengguna: ${profileError.message}</td>
+          </tr>
+        `;
+      }
+
+      if (absenCardList) {
+        absenCardList.innerHTML = `
+          <div class="empty-absen-card">
+            Gagal memuat profil pengguna: ${profileError.message}
+          </div>
+        `;
+      }
+
+      updateSummary([]);
+      showMessage("Gagal memuat profil pengguna.");
+      return;
+    }
+
+    profileById = new Map(
+      (profiles || []).map((profile) => [profile.id, profile]),
+    );
+  }
+
+  const absensiList = (absensiData || []).map((item) => ({
+    ...item,
+    profiles: profileById.get(item.user_id) || null,
+  }));
 
   if (!absensiList || absensiList.length === 0) {
     if (absenTableBody) {
