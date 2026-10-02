@@ -52,7 +52,6 @@ let currentProfile = null;
 let lokasiAbsenList = [];
 let lokasiTerdekat = null;
 let modelSiap = false;
-let pengaturanAbsen = null;
 
 const BATAS_KEMIRIPAN_WAJAH = 0.5;
 
@@ -251,39 +250,17 @@ async function cekUser() {
   return profile;
 }
 
-async function loadPengaturanAbsen() {
-  const { data, error } = await supabaseClient
-    .from("pengaturan_absen")
-    .select("*")
-    .order("id", { ascending: true })
-    .limit(1)
-    .single();
+async function cekJendelaAbsensiServer() {
+  const { data, error } = await supabaseClient.rpc("cek_jendela_absensi");
 
-  if (error || !data) {
-    console.warn("Pengaturan absen belum ada, memakai default.");
-    pengaturanAbsen = {
-      jam_masuk: "08:00",
-      batas_telat: "08:15",
-    };
-    return pengaturanAbsen;
+  if (error) {
+    console.error("Gagal memeriksa jendela absensi:", error);
+    throw new Error(
+      "Jadwal absensi tidak dapat diperiksa. Silakan coba beberapa saat lagi.",
+    );
   }
 
-  pengaturanAbsen = data;
   return data;
-}
-
-function tentukanStatusKehadiran(waktuSekarang) {
-  const batasTelat = pengaturanAbsen?.batas_telat
-    ? pengaturanAbsen.batas_telat.substring(0, 5)
-    : "08:15";
-
-  const waktuAbsen = waktuSekarang.substring(0, 5);
-
-  if (waktuAbsen > batasTelat) {
-    return "terlambat";
-  }
-
-  return "hadir";
 }
 
 async function loadModelFaceApi() {
@@ -628,6 +605,25 @@ async function verifikasiDanAbsen() {
   }
 
   try {
+    let jendelaAbsensi;
+
+    try {
+      jendelaAbsensi = await cekJendelaAbsensiServer();
+    } catch (error) {
+      showMessage(error.message);
+      showPopupError("Jadwal Tidak Dapat Diperiksa", error.message);
+      return;
+    }
+
+    if (!jendelaAbsensi?.allowed) {
+      if (heroStatusText) {
+        heroStatusText.innerText = jendelaAbsensi?.title || "Absensi ditolak";
+      }
+
+      showAttendanceRejectedPopup(jendelaAbsensi);
+      return;
+    }
+
     const gerakanBerhasil = await verifikasiGerakanSekali();
 
     if (!gerakanBerhasil) {
@@ -835,6 +831,72 @@ function showPopupError(title, text) {
   }
 }
 
+function escapePopupHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function showAttendanceRejectedPopup(result = {}) {
+  const title = result.title || "Absensi Ditolak";
+  const message =
+    result.message || "Absensi tidak dapat dilakukan pada waktu ini.";
+  const serverTime = result.server_time
+    ? `Waktu server: ${result.server_time} WIB`
+    : "Waktu absensi mengikuti server WIB.";
+  const icon = result.code === "too_early" ? "warning" : "error";
+
+  if (window.Swal) {
+    Swal.fire({
+      icon,
+      title,
+      html: `
+        <p style="margin:0 0 12px;color:#475569;line-height:1.6;">
+          ${escapePopupHtml(message)}
+        </p>
+        <small style="color:#64748b;">${escapePopupHtml(serverTime)}</small>
+      `,
+      confirmButtonText: "Mengerti",
+      confirmButtonColor: icon === "warning" ? "#d97706" : "#dc2626",
+    });
+  } else {
+    alert(`${title}\n${message}\n${serverTime}`);
+  }
+}
+
+function showLateAttendancePopup(monthlyLateCount, serverTime) {
+  const lateCount = Number(monthlyLateCount) || 0;
+  const recordedTime = serverTime || "-";
+
+  if (window.Swal) {
+    Swal.fire({
+      icon: "warning",
+      title: "Absensi Terlambat Tersimpan",
+      html: `
+        <p style="margin:0 0 14px;color:#475569;line-height:1.6;">
+          Wajah dan lokasi valid, tetapi Anda sudah melewati batas telat.
+        </p>
+        <div style="padding:14px;border-radius:14px;background:#fff7ed;color:#9a3412;">
+          <strong style="display:block;font-size:24px;">${lateCount} kali</strong>
+          <small>Total keterlambatan Anda pada bulan ini</small>
+        </div>
+        <small style="display:block;margin-top:12px;color:#64748b;">
+          Tercatat pukul ${escapePopupHtml(recordedTime)} WIB
+        </small>
+      `,
+      confirmButtonText: "Saya Mengerti",
+      confirmButtonColor: "#d97706",
+    });
+  } else {
+    alert(
+      `Absensi Terlambat Tersimpan\nAnda terlambat ${lateCount} kali bulan ini.`,
+    );
+  }
+}
+
 function getCurrentPositionPromise() {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
@@ -1035,39 +1097,6 @@ function derajatKeRadian(deg) {
   return deg * (Math.PI / 180);
 }
 
-function getTanggalHariIni() {
-  const now = new Date();
-  return now.toISOString().split("T")[0];
-}
-
-function getWaktuSekarang() {
-  const now = new Date();
-
-  const jam = String(now.getHours()).padStart(2, "0");
-  const menit = String(now.getMinutes()).padStart(2, "0");
-  const detik = String(now.getSeconds()).padStart(2, "0");
-
-  return `${jam}:${menit}:${detik}`;
-}
-
-async function cekSudahAbsenHariIni() {
-  const tanggalHariIni = getTanggalHariIni();
-
-  const { data, error } = await supabaseClient
-    .from("absensi")
-    .select("*")
-    .eq("user_id", currentUser.id)
-    .eq("tanggal", tanggalHariIni)
-    .in("status", ["hadir", "terlambat"]);
-
-  if (error) {
-    console.error(error);
-    return false;
-  }
-
-  return data && data.length > 0;
-}
-
 async function prosesAbsenSetelahValidasi() {
   if (!currentUser || !currentProfile) {
     showMessage("User belum terdeteksi. Silakan login ulang.");
@@ -1076,17 +1105,6 @@ async function prosesAbsenSetelahValidasi() {
 
   if (!lokasiAbsenList || lokasiAbsenList.length === 0) {
     showMessage("Lokasi absen belum tersedia.");
-    return;
-  }
-
-  const sudahAbsen = await cekSudahAbsenHariIni();
-
-  if (sudahAbsen) {
-    showMessage("Anda sudah melakukan absensi hadir hari ini.");
-    showPopupError(
-      "Sudah Absen",
-      "Anda sudah melakukan absensi hadir hari ini.",
-    );
     return;
   }
 
@@ -1143,9 +1161,21 @@ async function prosesAbsenSetelahValidasi() {
     return;
   }
 
-  const tanggalHariIni = getTanggalHariIni();
-  const waktuSekarang = getWaktuSekarang();
-  const statusKehadiran = tentukanStatusKehadiran(waktuSekarang);
+  let jendelaAbsensi;
+
+  try {
+    jendelaAbsensi = await cekJendelaAbsensiServer();
+  } catch (error) {
+    showMessage(error.message);
+    showPopupError("Jadwal Tidak Dapat Diperiksa", error.message);
+    return;
+  }
+
+  if (!jendelaAbsensi?.allowed) {
+    showMessage(jendelaAbsensi?.message || "Absensi ditolak.");
+    showAttendanceRejectedPopup(jendelaAbsensi);
+    return;
+  }
 
   let fotoAbsenKey = "";
 
@@ -1168,26 +1198,17 @@ async function prosesAbsenSetelahValidasi() {
     return;
   }
 
-  const keteranganKehadiran =
-    statusKehadiran === "terlambat"
-      ? "Absensi terlambat melalui face scan, liveness detection, geolocation, dan titik lokasi terdekat"
-      : "Absensi hadir melalui face scan, liveness detection, geolocation, dan titik lokasi terdekat";
-
-  const { error } = await supabaseClient.from("absensi").insert({
-    user_id: currentUser.id,
-    tanggal: tanggalHariIni,
-    waktu_masuk: waktuSekarang,
-    latitude: latitudeUser,
-    longitude: longitudeUser,
-    lokasi_absen_id: lokasiTerdekat.id,
-    nama_tempat: lokasiTerdekat.nama_lokasi,
-    jarak_meter: jarak,
-    status: statusKehadiran,
-    keterangan: keteranganKehadiran,
-    validasi_wajah: "valid",
-    validasi_lokasi: "valid",
-    foto_absen_key: fotoAbsenKey,
-  });
+  const { data: hasilAbsensi, error } = await supabaseClient.rpc(
+    "catat_absensi",
+    {
+      p_payload: {
+        latitude: latitudeUser,
+        longitude: longitudeUser,
+        lokasi_absen_id: lokasiTerdekat.id,
+        foto_absen_key: fotoAbsenKey,
+      },
+    },
+  );
 
   if (error) {
     showMessage("Gagal menyimpan absensi: " + error.message);
@@ -1196,20 +1217,35 @@ async function prosesAbsenSetelahValidasi() {
     return;
   }
 
+  if (!hasilAbsensi?.success) {
+    showMessage(hasilAbsensi?.message || "Absensi ditolak oleh server.");
+    showAttendanceRejectedPopup(hasilAbsensi);
+    return;
+  }
+
+  const statusKehadiran = hasilAbsensi.status;
+
+  if (Number.isFinite(Number(hasilAbsensi.jarak_meter))) {
+    jarakUserEl.innerText = `${Number(hasilAbsensi.jarak_meter).toFixed(2)} meter`;
+  }
+
   showMessage("Absensi berhasil. Wajah valid dan lokasi valid.", "success");
 
   if (heroStatusText) {
     heroStatusText.innerText = "Absensi berhasil";
   }
 
-  showPopupSuccess(
-    statusKehadiran === "terlambat"
-      ? "Absensi Terlambat Tersimpan"
-      : "Absensi Berhasil",
-    statusKehadiran === "terlambat"
-      ? "Wajah dan lokasi valid, tetapi waktu absen melewati batas telat."
-      : "Wajah, gerakan, dan lokasi valid. Kehadiran berhasil disimpan.",
-  );
+  if (statusKehadiran === "terlambat") {
+    showLateAttendancePopup(
+      hasilAbsensi.monthly_late_count,
+      hasilAbsensi.waktu_masuk,
+    );
+  } else {
+    showPopupSuccess(
+      "Absensi Berhasil",
+      `Wajah, gerakan, dan lokasi valid. Kehadiran tercatat pukul ${hasilAbsensi.waktu_masuk} WIB.`,
+    );
+  }
 }
 
 async function init() {
@@ -1217,7 +1253,9 @@ async function init() {
   await startCamera();
   await loadModelFaceApi();
   await loadLokasiAbsen();
-  await loadPengaturanAbsen();
+
+  const btn = document.getElementById("btnVerifikasiAbsen");
+  if (btn) btn.disabled = false;
 }
 
 init();

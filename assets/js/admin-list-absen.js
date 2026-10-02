@@ -467,11 +467,6 @@ async function loadAbsensi() {
   showMessage("Data absensi berhasil dimuat.", "success");
 }
 
-function getTanggalHariIni() {
-  const now = new Date();
-  return now.toISOString().split("T")[0];
-}
-
 async function generateAlfaHariIni() {
   const yakin = confirm(
     "Generate alfa untuk user yang tidak absen dan tidak izin hari ini?",
@@ -479,69 +474,30 @@ async function generateAlfaHariIni() {
 
   if (!yakin) return;
 
-  const tanggalHariIni = getTanggalHariIni();
-
   showMessage("Memproses data alfa...", "success");
 
-  const { data: users, error: userError } = await supabaseClient
-    .from("profiles")
-    .select("id, nama_lengkap")
-    .eq("role", "user")
-    .eq("status_akun", "aktif");
-
-  if (userError) {
-    showMessage("Gagal mengambil data user: " + userError.message);
-    return;
-  }
-
-  const { data: absensiHariIni, error: absenError } = await supabaseClient
-    .from("absensi")
-    .select("user_id, status")
-    .eq("tanggal", tanggalHariIni);
-
-  if (absenError) {
-    showMessage("Gagal mengambil data absensi: " + absenError.message);
-    return;
-  }
-
-  const userSudahAdaAbsensi = new Set(
-    (absensiHariIni || []).map((item) => item.user_id),
+  const { data: result, error } = await supabaseClient.rpc(
+    "generate_alfa_hari_ini_admin",
   );
 
-  const userAlfa = (users || []).filter((user) => {
-    return !userSudahAdaAbsensi.has(user.id);
-  });
-
-  if (userAlfa.length === 0) {
-    showMessage("Tidak ada user yang perlu ditandai alfa.", "success");
+  if (error) {
+    showMessage("Gagal generate alfa: " + error.message);
     return;
   }
 
-  const dataInsert = userAlfa.map((user) => ({
-    user_id: user.id,
-    tanggal: tanggalHariIni,
-    waktu_masuk: null,
-    latitude: null,
-    longitude: null,
-    nama_tempat: null,
-    jarak_meter: null,
-    status: "alfa",
-    keterangan:
-      "Alfa/tanpa keterangan karena tidak melakukan absensi seharian penuh.",
-    validasi_wajah: "tidak_valid",
-    validasi_lokasi: "tidak_valid",
-  }));
-
-  const { error: insertError } = await supabaseClient
-    .from("absensi")
-    .insert(dataInsert);
-
-  if (insertError) {
-    showMessage("Gagal generate alfa: " + insertError.message);
+  if (!result?.success) {
+    showMessage(result?.message || "Alfa belum dapat dibuat.");
     return;
   }
 
-  showMessage(`${userAlfa.length} user berhasil ditandai alfa.`, "success");
+  const jumlahAlfa = Number(result.generated_count) || 0;
+
+  showMessage(
+    jumlahAlfa > 0
+      ? `${jumlahAlfa} user berhasil ditandai alfa.`
+      : "Tidak ada user yang perlu ditandai alfa.",
+    "success",
+  );
   loadAbsensi();
 }
 

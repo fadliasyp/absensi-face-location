@@ -170,14 +170,14 @@
           <form id="formWaktu" class="modern-form">
             <div class="field-group">
               <label for="jamMasukInput">Jam Masuk Normal</label>
-              <input type="time" id="jamMasukInput" required />
-              <small>Contoh: 08:00</small>
+              <input type="time" id="jamMasukInput" max="11:59" required />
+              <small>Absensi dibuka satu jam sebelum waktu ini.</small>
             </div>
 
             <div class="field-group">
               <label for="batasTelatInput">Batas Telat</label>
-              <input type="time" id="batasTelatInput" required />
-              <small>Contoh: 08:30</small>
+              <input type="time" id="batasTelatInput" max="11:59" required />
+              <small>Setelah waktu ini, peserta tercatat terlambat.</small>
             </div>
 
             <button type="submit" class="btn-primary btn-full">
@@ -214,8 +214,10 @@
           </div>
 
           <div class="highlight-note">
-            <strong>Catatan:</strong> Karyawan yang absennya diatas jam tersebut
-            maka dihitung Terlambat.
+            <strong>Catatan:</strong> Absensi dibuka satu jam sebelum jam masuk.
+            Setelah batas telat sampai pukul 11.59 WIB dihitung terlambat.
+            Mulai pukul 12.00 WIB absensi ditutup dan peserta tanpa absensi atau
+            izin akan dibuat Alfa otomatis.
           </div>
         </div>
       </section>
@@ -224,6 +226,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../assets/js/supabase-config.js"></script>
     <script src="../assets/js/logout.js"></script>
-    <script src="../assets/js/admin-waktu.js"></script>
+    <script src="../assets/js/admin-waktu.js?v=20261003-attendance-window-v1"></script>
   </body>
 </html>

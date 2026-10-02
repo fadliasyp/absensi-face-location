@@ -184,6 +184,13 @@ async function simpanWaktu() {
     return;
   }
 
+  if (jam_masuk >= "12:00" || batas_telat >= "12:00") {
+    showMessage(
+      "Jam masuk dan batas telat harus sebelum pukul 12.00 WIB karena absensi ditutup otomatis pada siang hari.",
+    );
+    return;
+  }
+
   let result;
 
   if (idPengaturan) {
