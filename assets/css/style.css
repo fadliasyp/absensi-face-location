@@ -8407,6 +8407,14 @@ body.admin-sidebar-open {
   }
 }
 
+/* Navbar laptop/desktop tetap di awal halaman dan tidak mengikuti scroll. */
+@media (min-width: 901px) {
+  .user-topbar,
+  .admin-topbar {
+    position: absolute;
+  }
+}
+
 /* ================================
    ADMIN EXPORT PDF PAGE WITH NAVBAR
 ================================ */
