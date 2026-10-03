@@ -18,6 +18,7 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 ### Fixed
 
 - Wrapper `attendance_window_status` tiga parameter mempertahankan nama parameter legacy `p_batas_telat`, sehingga migration dapat memperbarui fungsi database lama tanpa error PostgreSQL `42P13`.
+- Navbar admin dan peserta tidak lagi keluar viewport pada laptop sempit; menu horizontal beralih ke hamburger/sidebar pada lebar `901–1280px`.
 
 ## 2026-10-03
 

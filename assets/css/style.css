@@ -8586,6 +8586,47 @@ body.admin-sidebar-open {
   }
 }
 
+/* Cegah menu desktop yang panjang keluar viewport pada laptop sempit. */
+@media (min-width: 901px) and (max-width: 1280px) {
+  .desktop-navbar-menu,
+  .desktop-admin-menu {
+    display: none;
+  }
+
+  .hamburger-btn,
+  .admin-hamburger-btn {
+    display: inline-flex;
+  }
+
+  .navbar-brand-user,
+  .admin-navbar-brand {
+    min-width: 0;
+    flex: 1;
+  }
+}
+
+/* Menu admin lengkap tetap muat di dalam batas navbar desktop 1280px. */
+@media (min-width: 1281px) {
+  .desktop-admin-menu {
+    gap: 3px;
+  }
+
+  .desktop-admin-menu a {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+
+  .desktop-admin-action,
+  .desktop-admin-logout {
+    padding: 10px 11px;
+    font-size: 12px;
+  }
+
+  .admin-navbar-brand {
+    min-width: 180px;
+  }
+}
+
 /* Popup absensi formal dan konsisten. */
 .attendance-swal-popup {
   width: min(92vw, 440px) !important;

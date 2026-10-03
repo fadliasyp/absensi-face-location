@@ -2,12 +2,12 @@
 
 ## Status
 
-Implementasi jadwal absensi dan Generate Alfa dinamis selesai di repository. Migration dan frontend belum diverifikasi pada Supabase/Vercel production.
+Perbaikan overflow navbar laptop/desktop selesai di repository. Migration database dan frontend terbaru belum diverifikasi pada Supabase/Vercel production.
 
 ## Last Completed Task
 
-- Task: memisahkan Jam Masuk, Batas Masuk, dan Jam Generate Alfa dinamis.
-- Goal: Hadir sampai Batas Masuk, Terlambat setelahnya, lalu tutup/generate Alfa pada waktu admin.
+- Task: mencegah navbar admin/peserta keluar viewport pada laptop sempit.
+- Goal: pertahankan menu penuh pada desktop lebar dan gunakan hamburger/sidebar pada lebar `901–1280px`.
 - Status repository: selesai pada 2026-10-04.
 - Status production: belum diterapkan/dikonfirmasi.
 
@@ -20,6 +20,8 @@ Implementasi jadwal absensi dan Generate Alfa dinamis selesai di repository. Mig
 - Popup berhasil, gagal, terlambat, dan penolakan memakai gaya SweetAlert formal yang konsisten.
 - Contract `tests/attendance-policy.test.cjs` diperbarui dengan deadline dinamis dan fallback ketika tabel pengaturan kosong.
 - Kegagalan deployment PostgreSQL `42P13` diperbaiki dengan mempertahankan nama parameter legacy pada wrapper tiga parameter; migration perlu dijalankan ulang di Supabase.
+- Navbar admin dan peserta memakai mode kompak pada laptop sempit tanpa mengubah perilaku posisi navbar saat scroll.
+- Contract `tests/navbar-layout.test.cjs` melindungi breakpoint, hamburger, dan kemampuan brand untuk menyusut.
 
 ## Operational Follow-up
 

@@ -45,14 +45,14 @@ Frontend berupa halaman statis. Supabase menjadi backend untuk Auth, Postgres, S
 | Foto absensi R2 dan public viewer untuk export | PROTECTED | R2 functions, keputusan eksplisit pengguna |
 | Penghapusan lokasi tanpa menghapus riwayat | STABLE pada contract | migration `003`, integrity test |
 | Cleanup foto R2 dengan audit | WORKING | `r2-cleanup`, `foto_cleanup_logs` migration |
-| Navbar desktop fixed | PROTECTED | commit `b66d574`, requirement pengguna |
+| Navbar desktop/laptop responsif | PROTECTED | Menu penuh pada desktop lebar dan hamburger/sidebar pada `901–1280px` untuk mencegah overflow. |
 | Icon statis ringan | PROTECTED | Snapshot `*-static.png` pada konten dan `*-nav.png` pada navigasi |
 
 `WORKING` berarti implementasi nyata ditemukan, tetapi belum memiliki bukti runtime/end-to-end pada sesi bootstrap ini. Status production tetap harus diverifikasi terpisah.
 
 ## Current Work
 
-Jadwal absensi tiga tahap telah diimplementasikan pada repository: Jam Masuk, Batas Masuk, dan Jam Generate Alfa dinamis. Popup absensi peserta juga memakai tampilan formal yang konsisten. Migration remote belum diverifikasi.
+Jadwal absensi tiga tahap telah diimplementasikan pada repository: Jam Masuk, Batas Masuk, dan Jam Generate Alfa dinamis. Popup absensi peserta memakai tampilan formal yang konsisten. Navbar admin/peserta pada laptop sempit menggunakan hamburger/sidebar agar tidak keluar viewport. Migration remote belum diverifikasi.
 
 ## Pending Work
 

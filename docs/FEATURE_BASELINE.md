@@ -206,6 +206,7 @@ PROTECTED
 ### Perilaku yang Harus Dipertahankan
 
 - Pada mode laptop/desktop, navbar tetap fixed dan tidak ikut turun saat scroll di halaman admin maupun peserta.
+- Pada lebar `901–1280px`, menu horizontal beralih ke hamburger/sidebar agar navbar tidak keluar viewport; pada desktop lebar menu horizontal tetap tampil.
 - Navigasi memakai asset `*-nav.png`.
 - Ikon konten memakai snapshot `*-static.png` dari visual animasi yang sama.
 - Halaman admin dan peserta tidak memuat GIF looping secara default.
@@ -215,10 +216,12 @@ PROTECTED
 - `assets/css/style.css`
 - Halaman di `admin/` dan `user/`
 - `assets/icons/`
+- `tests/navbar-layout.test.cjs`
 
 ### Cara Verifikasi
 
 - Jalankan `node tests/icon-performance.test.cjs`.
+- Jalankan `node tests/navbar-layout.test.cjs`.
 - Smoke test manual pada viewport laptop di seluruh halaman admin dan peserta.
 - Scroll halaman panjang dan pastikan navbar tetap pada posisi yang disepakati.
 - Periksa Network/Performance browser untuk memastikan halaman tidak kembali memuat GIF looping berat.
