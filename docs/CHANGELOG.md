@@ -13,9 +13,12 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 - RPC izin manual yang memvalidasi user, hari kerja, dan duplikasi.
 - Helper tanggal UI `Asia/Jakarta`.
 - Contract test integrity hardening.
+- Contract test performa ikon untuk mencegah GIF looping kembali ke halaman.
 
 ### Changed
 
+- Ikon konten admin dan peserta menggunakan snapshot PNG statis dari visual GIF yang sama.
+- Total aset ikon konten yang direferensikan halaman turun dari sekitar 4,00 MB menjadi 45,7 KB.
 - Aturan waktu absensi dipindahkan ke authority server WIB.
 - Absensi dibuka satu jam sebelum jam masuk dan ditutup pukul 12.00 WIB.
 - UI peserta memakai RPC untuk attendance dan manual leave.
@@ -24,6 +27,7 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 
 ### Fixed
 
+- Menghilangkan GIF looping ber-frame tinggi yang menyebabkan scroll dan respons tombol terasa patah-patah pada perangkat tertentu.
 - Absensi di luar jendela waktu ditolak.
 - Alfa melewati hari libur dan tidak menduplikasi record yang sudah ada.
 - Penghapusan lokasi tidak lagi terhalang FK tanpa mengorbankan riwayat.

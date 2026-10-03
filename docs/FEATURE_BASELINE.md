@@ -191,7 +191,7 @@ STABLE
 - `supabase/migrations/202610030003_location_history_integrity.sql`
 - `tests/integrity-hardening.test.cjs`
 
-## Desktop Navbar and Optimized Icons
+## Desktop Navbar and Lightweight Icons
 
 ### Status
 
@@ -200,7 +200,9 @@ PROTECTED
 ### Perilaku yang Harus Dipertahankan
 
 - Pada mode laptop/desktop, navbar tetap fixed dan tidak ikut turun saat scroll di halaman admin maupun peserta.
-- Navigasi memakai asset `*-nav.png` atau icon optimized yang sesuai untuk menghindari beban GIF besar pada navigasi.
+- Navigasi memakai asset `*-nav.png`.
+- Ikon konten memakai snapshot `*-static.png` dari visual animasi yang sama.
+- Halaman admin dan peserta tidak memuat GIF looping secara default.
 
 ### File Penting
 
@@ -210,9 +212,10 @@ PROTECTED
 
 ### Cara Verifikasi
 
+- Jalankan `node tests/icon-performance.test.cjs`.
 - Smoke test manual pada viewport laptop di seluruh halaman admin dan peserta.
 - Scroll halaman panjang dan pastikan navbar tetap pada posisi yang disepakati.
-- Periksa Network/Performance browser untuk memastikan navigasi tidak kembali memuat GIF berat.
+- Periksa Network/Performance browser untuk memastikan halaman tidak kembali memuat GIF looping berat.
 
 ### Bukti
 

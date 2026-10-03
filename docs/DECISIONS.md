@@ -170,3 +170,34 @@ Repository menjadi sumber handoff yang persisten.
 
 - Task signifikan harus memperbarui memory yang relevan.
 - Fakta yang tidak terbukti ditandai belum diketahui.
+
+## 2026-10-03 — Ikon Konten Menggunakan Snapshot Statis
+
+### Status
+
+ACCEPTED
+
+### Decision
+
+Halaman admin dan peserta menggunakan snapshot PNG `*-static.png` dari ikon animasi yang sama. GIF optimized lama tidak dimuat secara default.
+
+### Context
+
+Audit menemukan beberapa halaman menjalankan banyak GIF looping dengan gabungan frame tinggi. Beban decode dan komposisi tersebut membuat scroll serta respons tombol terasa patah-patah, terutama pada perangkat mobile.
+
+### Reason
+
+Snapshot mempertahankan bentuk, warna, dan identitas visual ikon sambil menghilangkan pekerjaan animasi terus-menerus.
+
+### Alternatives
+
+- Tetap menjalankan GIF looping: ditolak karena merupakan sumber beban yang terukur.
+- Mengganti seluruh desain ikon: ditolak karena tidak diperlukan.
+- Memuat GIF hanya saat hover: ditunda agar tahap pertama tetap sederhana dan konsisten pada perangkat sentuh.
+
+### Consequences
+
+- Konten memakai `*-static.png`; navigasi tetap memakai `*-nav.png`.
+- Snapshot transparan diregenerasi dari frame pertama melalui `scripts/generate-static-icons.ps1`.
+- GIF lama dipertahankan sebagai aset rollback, tetapi tidak direferensikan halaman.
+- Efek blur/transisi CSS baru dipertimbangkan pada tahap berikutnya jika pengukuran perangkat masih menunjukkan jank.

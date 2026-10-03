@@ -84,9 +84,10 @@ Setelah perubahan yang relevan, jalankan:
 node tests/session-routing.test.cjs
 node tests/attendance-policy.test.cjs
 node tests/integrity-hardening.test.cjs
+node tests/icon-performance.test.cjs
 ```
 
-Jalankan `node --check` pada setiap JavaScript browser yang diubah. Jika Edge Function berubah, gunakan Deno/Supabase tooling bila tersedia; jika tidak tersedia, nyatakan verification gap secara eksplisit.
+Jalankan `node --check` pada setiap JavaScript browser yang diubah. Jalankan contract ikon ketika HTML admin/user atau aset ikon berubah. Jika Edge Function berubah, gunakan Deno/Supabase tooling bila tersedia; jika tidak tersedia, nyatakan verification gap secara eksplisit.
 
 Jangan menyatakan production berhasil hanya dari static contract test. Migration dan Edge Function tetap perlu diverifikasi pada project Supabase remote.
 
@@ -109,7 +110,7 @@ Hal berikut dilindungi:
 - Absensi dibuka satu jam sebelum jam masuk, ditutup pukul 12.00 WIB, dan status ditentukan waktu server.
 - Peserta tanpa absensi/izin pada hari kerja mendapat Alfa setelah pukul 12.00 WIB.
 - Navbar mode laptop tetap fixed dan tidak ikut turun saat halaman di-scroll.
-- Gunakan icon optimized/nav pada UI; jangan mengembalikan icon GIF berat tanpa alasan terukur.
+- Gunakan icon statis `*-static.png` pada konten dan `*-nav.png` pada navigasi; jangan mengembalikan GIF looping berat tanpa alasan terukur.
 
 Sebelum mengubah salah satu area tersebut, baca `docs/FEATURE_BASELINE.md`, telusuri consumer, dan jalankan regression test terkait.
 

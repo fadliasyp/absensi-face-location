@@ -46,13 +46,13 @@ Frontend berupa halaman statis. Supabase menjadi backend untuk Auth, Postgres, S
 | Penghapusan lokasi tanpa menghapus riwayat | STABLE pada contract | migration `003`, integrity test |
 | Cleanup foto R2 dengan audit | WORKING | `r2-cleanup`, `foto_cleanup_logs` migration |
 | Navbar desktop fixed | PROTECTED | commit `b66d574`, requirement pengguna |
-| Icon optimized | PROTECTED | commit `b5798db`, asset optimized/nav |
+| Icon statis ringan | PROTECTED | Snapshot `*-static.png` pada konten dan `*-nav.png` pada navigasi |
 
 `WORKING` berarti implementasi nyata ditemukan, tetapi belum memiliki bukti runtime/end-to-end pada sesi bootstrap ini. Status production tetap harus diverifikasi terpisah.
 
 ## Current Work
 
-Bootstrap project memory dan dokumentasi sesuai `CODEX_PROJECT_SETUP.md` telah dilakukan. Tidak ada source code aplikasi yang diubah dalam task dokumentasi ini.
+Perbaikan performa ikon tahap pertama telah dilakukan. Seluruh GIF looping pada halaman admin dan peserta diganti referensinya dengan snapshot PNG dari visual yang sama. Logic aplikasi, CSS, database, dan Edge Function tidak diubah.
 
 ## Pending Work
 
@@ -61,6 +61,7 @@ Bootstrap project memory dan dokumentasi sesuai `CODEX_PROJECT_SETUP.md` telah d
 - Ambil schema dump production agar base schema, RLS policy, Storage policy, dan grants dapat terversi.
 - Buat atau nonaktifkan referensi `supabase/seed.sql`; file tersebut dirujuk config tetapi belum ada.
 - Tambahkan browser/runtime test untuk kamera, geolokasi, R2, export, dan email bila diperlukan.
+- Ukur ulang respons UI pada perangkat pengguna setelah deploy ikon statis. Kurangi efek blur/transisi mobile hanya jika jank masih terukur.
 
 ## Business Logic
 
