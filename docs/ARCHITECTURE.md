@@ -1,0 +1,179 @@
+# Architecture
+
+## High-Level Architecture
+
+```text
+Browser (HTML/CSS/JS statis)
+  |-- Supabase JS SDK ------------------------------+
+  |                                                 |
+  |   Auth / table reads / allowed mutations / RPC  v
+  +------------------------------------------- Supabase
+  |                                             |-- Auth
+  |                                             |-- Postgres + RLS/grants
+  |                                             |-- Storage (foto wajah, bukti izin)
+  |                                             |-- pg_cron
+  |                                             `-- Edge Functions (Deno)
+  |                                                   |-- Gmail SMTP
+  |                                                   `-- Cloudflare R2 (S3 API)
+  |
+  |-- face-api.js + model lokal
+  |-- MediaPipe Tasks Vision CDN/model
+  `-- jsPDF / ExcelJS / SweetAlert2 CDN
+
+Frontend deployment: Vercel
+Backend deployment: Supabase migration + Edge Function deploy (terpisah)
+```
+
+## Frontend
+
+Frontend adalah multi-page static application:
+
+- Public/auth: `index.html`, `login.html`, `register.html`, `oauth-callback.html`, `lengkapi-profil.html`.
+- Peserta: dashboard, daftar wajah, verifikasi/absen, izin, riwayat.
+- Admin: dashboard, user, waktu/kalender, lokasi, list absen, export, storage.
+
+Setiap halaman memuat Supabase JS dari CDN, config client, dan script halaman. Tidak ada bundler, framework, router SPA, atau build artifact.
+
+## Backend
+
+Backend terbagi menjadi:
+
+- Direct Supabase client calls yang tunduk pada RLS/grants.
+- Postgres RPC `security definer` untuk operasi absensi dan admin yang sensitif.
+- Trigger database sebagai defense-in-depth.
+- Edge Functions untuk operasi yang membutuhkan secret/service role atau integrasi eksternal.
+
+## Authentication and Authorization
+
+### Email/password
+
+```text
+Register -> Supabase Auth signUp -> insert profiles(status=pending)
+         -> send-approval-email(new_registration) -> admin notification
+         -> admin activates/updates -> notification email -> user login
+```
+
+### Google OAuth
+
+```text
+Google login -> oauth-callback.html
+  -> profile absent: create pending partial profile -> lengkapi-profil.html
+  -> profile pending/incomplete: complete profile / wait admin
+  -> active profile: route by role and face registration state
+```
+
+Authorization di UI melakukan redirect, tetapi keamanan data tetap harus ditegakkan oleh RLS, grants, RPC, dan Edge Function server checks.
+
+## Face Enrollment
+
+```text
+Active user -> camera -> face-api detection + landmarks + descriptor
+            -> JPEG snapshot -> Supabase Storage bucket foto-wajah
+            -> profiles.face_descriptor + profiles.foto_wajah_url
+```
+
+Pendaftaran ulang diblokir di UI sampai admin mereset descriptor/foto pada profil.
+
+## Attendance Data Flow
+
+```text
+User opens verification
+  -> RPC cek_hari_absensi (server date + work calendar)
+  -> RPC cek_jendela_absensi (server time + duplicate check)
+  -> camera + face match (threshold 0.5, browser)
+  -> randomized movement/liveness check (browser)
+  -> browser geolocation
+  -> choose nearest configured location (browser pre-check)
+  -> capture/compress photo
+  -> Edge Function r2-signed-url uploads to private R2
+  -> RPC catat_absensi
+       - auth + active user + face descriptor exists
+       - server WIB time/window/status
+       - per-user/date lock and duplicate check
+       - coordinate validation
+       - configured location lookup
+       - Haversine distance/radius validation
+       - insert attendance snapshot
+  -> success/late/rejected popup
+```
+
+Server tidak menerima hasil face matching/liveness sebagai proof tersendiri; tahap biometrik masih merupakan browser-side control.
+
+## Manual Leave Flow
+
+```text
+Active user -> choose date/description/image
+  -> client duplicate pre-check
+  -> upload public proof to Supabase Storage bucket bukti-izin
+  -> RPC catat_izin
+       - derives user from auth.uid()
+       - validates active role user
+       - validates date/description/HTTPS URL
+       - requires workday
+       - advisory lock + duplicate check
+       - inserts status izin
+  -> remove uploaded proof best-effort when RPC fails
+```
+
+## Work Calendar and Alfa
+
+- `attendance_day_info(date)` checks explicit `kalender_absen` override first.
+- Without override, ISO weekday 6/7 is holiday and 1–5 is workday.
+- `generate_alfa_harian(date)` exits on holiday, otherwise inserts Alfa for active users without a record.
+- `pg_cron` invokes it at 05:00 UTC / 12:00 WIB.
+- Admin can invoke `generate_alfa_hari_ini_admin()` after noon as fallback.
+
+## Photo Storage and Viewing
+
+- Face enrollment photo: Supabase Storage `foto-wajah`, public URL stored on profile.
+- Leave proof: Supabase Storage `bukti-izin`, public URL stored on attendance.
+- Attendance proof: private Cloudflare R2, object key stored in `absensi.foto_absen_key`.
+- Authenticated upload/private view: `r2-signed-url`.
+- Export/public view: `r2-public-view`, which validates object-key shape then creates a five-minute signed URL.
+- Cleanup: `r2-cleanup` deletes selected objects in batches, nulls photo references, and records audit history.
+
+## Reporting
+
+Admin selects a date range/status. Browser fetches attendance and related profiles, renders preview, then generates:
+
+- PDF via jsPDF + AutoTable.
+- Excel via ExcelJS.
+
+Photo references are links to `foto-absen.html?key=...`, not permanent R2 URLs.
+
+## Edge Functions
+
+| Function | Auth config | Purpose |
+| --- | --- | --- |
+| `send-approval-email` | JWT required | Registration, activation, role/status notification via Gmail SMTP |
+| `delete-user` | JWT required | Delete Supabase Auth user after active-admin validation |
+| `r2-signed-url` | JWT required | Upload/view R2 objects for active user/admin |
+| `r2-public-view` | JWT disabled | Public capability viewer for export links |
+| `r2-cleanup` | JWT disabled at gateway; function verifies bearer token itself | Admin preview/delete/history for R2 cleanup |
+
+## Deployment
+
+- Frontend deploy: Vercel.
+- Database deploy: Supabase migration/SQL.
+- Edge deploy: Supabase Edge Functions.
+- Secrets: Supabase Edge Function Secrets.
+
+Tidak ada CI/CD yang terversi. Deployment production saat ini merupakan proses manual berdasarkan bukti repository dan percakapan.
+
+## Architectural Rules
+
+- Server WIB adalah authority untuk tanggal/waktu/status kehadiran.
+- Sensitive writes menggunakan RPC/Edge Function dan harus fail closed.
+- Database menyimpan snapshot riwayat yang tidak bergantung pada keberadaan master location.
+- Private R2 credentials hanya boleh digunakan di Edge Function.
+- Public viewing hanya memberikan signed URL sementara, tidak membuka bucket.
+- UI checks tidak dianggap sebagai authorization boundary.
+
+## Risks
+
+- Initial schema/RLS/Storage policies tidak terversi lengkap.
+- Face/liveness tidak memiliki server-verifiable attestation.
+- Public viewer adalah capability link berbasis object key.
+- Direct browser admin mutations bergantung pada RLS remote.
+- CDN availability memengaruhi dependency browser.
+- Tidak ada automated E2E test atau deployment pipeline yang ditemukan.
