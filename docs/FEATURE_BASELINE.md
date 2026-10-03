@@ -50,8 +50,10 @@ Menentukan kapan peserta boleh absen serta status `hadir` atau `terlambat` memak
 
 - Buka satu jam sebelum jam masuk.
 - Tolak absensi terlalu awal.
-- `hadir` sampai batas telat, lalu `terlambat` hingga sebelum 12.00 WIB.
-- Tutup absensi mulai 12.00 WIB.
+- `hadir` sampai Batas Masuk.
+- Setelah Batas Masuk sampai satu detik sebelum Jam Generate Alfa berstatus `terlambat`.
+- Tutup absensi mulai Jam Generate Alfa dinamis.
+- Jika Jam Generate Alfa belum tersedia pada data lama, gunakan fallback 12.00 WIB.
 - Tanggal, waktu, status, dan jarak final dihitung server.
 - Popup keterlambatan menampilkan jumlah terlambat bulan berjalan.
 
@@ -64,6 +66,7 @@ Menentukan kapan peserta boleh absen serta status `hadir` atau `terlambat` memak
 ### File Penting
 
 - `supabase/migrations/202610030001_secure_attendance_window.sql`
+- `supabase/migrations/202610040001_dynamic_attendance_deadline.sql`
 - `supabase/migrations/202610030003_location_history_integrity.sql`
 - `assets/js/user-verifikasi.js`
 - `tests/attendance-policy.test.cjs`
@@ -88,13 +91,16 @@ STABLE
 - Sabtu–Minggu libur secara default.
 - Override admin per tanggal lebih kuat dari default dan dapat berupa `libur` atau `masuk`.
 - Generator Alfa melewati hari libur.
-- Alfa otomatis dijadwalkan pukul 12.00 WIB; admin memiliki fallback manual setelah pukul 12.00.
+- Alfa otomatis mengikuti Jam Generate Alfa yang diatur admin.
+- Default Jam Generate Alfa adalah pukul 12.00 WIB.
+- Admin memiliki fallback manual setelah deadline dinamis tersebut.
 
 ### Jangan Rusak
 
 - Jangan membuat Alfa pada hari libur.
 - Jangan menghilangkan kemampuan menjadikan akhir pekan sebagai hari masuk khusus.
 - Jangan menduplikasi peserta yang sudah hadir, terlambat, atau izin.
+- Jangan membuat Alfa sebelum Jam Generate Alfa server.
 
 ### File Penting
 

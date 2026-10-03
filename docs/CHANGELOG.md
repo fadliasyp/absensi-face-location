@@ -2,6 +2,23 @@
 
 Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history dan source saat bootstrap. Tanggal mengikuti metadata commit.
 
+## 2026-10-04
+
+### Added
+
+- Jam Generate Alfa dinamis dengan fallback pukul 12.00 WIB untuk data lama.
+- Field admin untuk Jam Masuk, Batas Masuk, dan Jam Generate Alfa.
+- Gaya SweetAlert formal yang konsisten pada alur absensi peserta.
+
+### Changed
+
+- Status Hadir berlaku sampai Batas Masuk; setelahnya berstatus Terlambat sampai sebelum Jam Generate Alfa.
+- Cron Alfa berubah dari jadwal tetap pukul 12.00 menjadi pemeriksaan idempoten setiap menit terhadap deadline server WIB.
+
+### Fixed
+
+- Wrapper `attendance_window_status` tiga parameter mempertahankan nama parameter legacy `p_batas_telat`, sehingga migration dapat memperbarui fungsi database lama tanpa error PostgreSQL `42P13`.
+
 ## 2026-10-03
 
 ### Added

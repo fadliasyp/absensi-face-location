@@ -80,6 +80,9 @@ Pendaftaran ulang diblokir di UI sampai admin mereset descriptor/foto pada profi
 User opens verification
   -> RPC cek_hari_absensi (server date + work calendar)
   -> RPC cek_jendela_absensi (server time + duplicate check)
+       - Hadir sampai Batas Masuk
+       - Terlambat setelah Batas Masuk sampai sebelum Jam Generate Alfa
+       - Closed mulai Jam Generate Alfa
   -> camera + face match (threshold 0.5, browser)
   -> randomized movement/liveness check (browser)
   -> browser geolocation
@@ -119,9 +122,10 @@ Active user -> choose date/description/image
 
 - `attendance_day_info(date)` checks explicit `kalender_absen` override first.
 - Without override, ISO weekday 6/7 is holiday and 1–5 is workday.
-- `generate_alfa_harian(date)` exits on holiday, otherwise inserts Alfa for active users without a record.
-- `pg_cron` invokes it at 05:00 UTC / 12:00 WIB.
-- Admin can invoke `generate_alfa_hari_ini_admin()` after noon as fallback.
+- `generate_alfa_harian(date)` keluar sebelum deadline atau pada hari libur; setelah deadline function memasukkan Alfa untuk peserta aktif tanpa record.
+- `pg_cron` memeriksa setiap menit agar deadline yang diatur admin dapat berlaku sampai ketelitian menit.
+- Jika belum tersedia pada data lama, Jam Generate Alfa menggunakan fallback 12.00 WIB.
+- Admin dapat memanggil `generate_alfa_hari_ini_admin()` setelah deadline dinamis sebagai fallback.
 
 ## Photo Storage and Viewing
 

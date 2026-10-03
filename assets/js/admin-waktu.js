@@ -3,9 +3,13 @@ const messageBox = document.getElementById("message");
 const formWaktu = document.getElementById("formWaktu");
 const jamMasukInput = document.getElementById("jamMasukInput");
 const batasTelatInput = document.getElementById("batasTelatInput");
+const jamGenerateAlfaInput = document.getElementById("jamGenerateAlfaInput");
 
 const currentJamMasuk = document.getElementById("currentJamMasuk");
 const currentBatasTelat = document.getElementById("currentBatasTelat");
+const currentJamGenerateAlfa = document.getElementById(
+  "currentJamGenerateAlfa",
+);
 const currentUpdatedAt = document.getElementById("currentUpdatedAt");
 
 const hariKhususForm = document.getElementById("hariKhususForm");
@@ -301,9 +305,11 @@ async function loadWaktu() {
 
     jamMasukInput.value = "08:00";
     batasTelatInput.value = "08:15";
+    jamGenerateAlfaInput.value = "12:00";
 
     currentJamMasuk.textContent = "-";
     currentBatasTelat.textContent = "-";
+    currentJamGenerateAlfa.textContent = "12:00";
     currentUpdatedAt.textContent = "Belum ada data";
 
     return;
@@ -315,29 +321,36 @@ async function loadWaktu() {
 
   jamMasukInput.value = formatTime(waktu.jam_masuk);
   batasTelatInput.value = formatTime(waktu.batas_telat);
+  jamGenerateAlfaInput.value = formatTime(
+    waktu.jam_generate_alfa || "12:00",
+  );
 
   currentJamMasuk.textContent = formatTime(waktu.jam_masuk);
   currentBatasTelat.textContent = formatTime(waktu.batas_telat);
+  currentJamGenerateAlfa.textContent = formatTime(
+    waktu.jam_generate_alfa || "12:00",
+  );
   currentUpdatedAt.textContent = formatTanggal(waktu.updated_at);
 }
 
 async function simpanWaktu() {
   const jam_masuk = jamMasukInput.value;
   const batas_telat = batasTelatInput.value;
+  const jam_generate_alfa = jamGenerateAlfaInput.value;
 
-  if (!jam_masuk || !batas_telat) {
-    showMessage("Jam masuk dan batas telat wajib diisi.");
+  if (!jam_masuk || !batas_telat || !jam_generate_alfa) {
+    showMessage("Jam Masuk, Batas Masuk, dan Jam Generate Alfa wajib diisi.");
     return;
   }
 
   if (batas_telat < jam_masuk) {
-    showMessage("Batas telat tidak boleh lebih awal dari jam masuk.");
+    showMessage("Batas Masuk tidak boleh lebih awal dari Jam Masuk.");
     return;
   }
 
-  if (jam_masuk >= "12:00" || batas_telat >= "12:00") {
+  if (jam_generate_alfa <= batas_telat) {
     showMessage(
-      "Jam masuk dan batas telat harus sebelum pukul 12.00 WIB karena absensi ditutup otomatis pada siang hari.",
+      "Jam Generate Alfa harus lebih akhir dari Batas Masuk.",
     );
     return;
   }
@@ -350,6 +363,7 @@ async function simpanWaktu() {
       .update({
         jam_masuk,
         batas_telat,
+        jam_generate_alfa,
         updated_at: new Date().toISOString(),
       })
       .eq("id", idPengaturan);
@@ -357,6 +371,7 @@ async function simpanWaktu() {
     result = await supabaseClient.from("pengaturan_absen").insert({
       jam_masuk,
       batas_telat,
+      jam_generate_alfa,
     });
   }
 

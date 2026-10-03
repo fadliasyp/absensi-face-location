@@ -6,7 +6,7 @@
     <title>Waktu Masuk</title>
     <link
       rel="stylesheet"
-      href="../assets/css/style.css?v=20261003-work-calendar-v1"
+      href="../assets/css/style.css?v=20261004-dynamic-deadline-v1"
     />
   </head>
 
@@ -146,7 +146,10 @@
         <div class="waktu-hero-text">
           <div class="mini-badge">⚙️ Panel Admin</div>
           <h1>Pengaturan Waktu Absensi</h1>
-          <p>Atur jam masuk normal dan batas keterlambatan absensi karyawan.</p>
+          <p>
+            Atur jam masuk, batas masuk berstatus hadir, dan waktu Alfa
+            otomatis.
+          </p>
         </div>
 
         <div class="waktu-live-box">
@@ -165,22 +168,30 @@
           <div class="card-heading">
             <div>
               <h2>Atur Waktu</h2>
-              <p>Pengaturan waktu masuk dan batas keterlambatan.</p>
+              <p>Tiga batas waktu absensi yang berlaku pada hari kerja.</p>
             </div>
             <div class="icon-bubble">⏰</div>
           </div>
 
           <form id="formWaktu" class="modern-form">
             <div class="field-group">
-              <label for="jamMasukInput">Jam Masuk Normal</label>
-              <input type="time" id="jamMasukInput" max="11:59" required />
+              <label for="jamMasukInput">Jam Masuk Hadir</label>
+              <input type="time" id="jamMasukInput" required />
               <small>Absensi dibuka satu jam sebelum waktu ini.</small>
             </div>
 
             <div class="field-group">
-              <label for="batasTelatInput">Batas Telat</label>
-              <input type="time" id="batasTelatInput" max="11:59" required />
-              <small>Setelah waktu ini, peserta tercatat terlambat.</small>
+              <label for="batasTelatInput">Batas Masuk</label>
+              <input type="time" id="batasTelatInput" required />
+              <small>Setelah waktu ini, peserta tercatat Terlambat.</small>
+            </div>
+
+            <div class="field-group">
+              <label for="jamGenerateAlfaInput">Jam Generate Alfa</label>
+              <input type="time" id="jamGenerateAlfaInput" required />
+              <small>
+                Mulai waktu ini, absensi ditutup dan Alfa dibuat otomatis.
+              </small>
             </div>
 
             <button type="submit" class="btn-primary btn-full">
@@ -206,8 +217,13 @@
             </div>
 
             <div class="stat-box">
-              <span class="stat-label">Batas Telat</span>
+              <span class="stat-label">Batas Masuk</span>
               <strong id="currentBatasTelat">-</strong>
+            </div>
+
+            <div class="stat-box">
+              <span class="stat-label">Generate Alfa</span>
+              <strong id="currentJamGenerateAlfa">-</strong>
             </div>
 
             <div class="stat-box stat-wide">
@@ -218,9 +234,9 @@
 
           <div class="highlight-note">
             <strong>Catatan:</strong> Absensi dibuka satu jam sebelum jam masuk.
-            Setelah batas telat sampai pukul 11.59 WIB dihitung terlambat.
-            Mulai pukul 12.00 WIB absensi ditutup dan peserta tanpa absensi atau
-            izin akan dibuat Alfa otomatis.
+            Setelah Batas Masuk, peserta tercatat Terlambat sampai sebelum Jam
+            Generate Alfa. Mulai Jam Generate Alfa, absensi ditutup dan peserta
+            tanpa absensi atau izin dibuatkan Alfa otomatis.
           </div>
         </div>
       </section>
@@ -284,6 +300,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../assets/js/supabase-config.js"></script>
     <script src="../assets/js/logout.js"></script>
-    <script src="../assets/js/admin-waktu.js?v=20261003-work-calendar-v1"></script>
+    <script src="../assets/js/admin-waktu.js?v=20261004-dynamic-deadline-v1"></script>
   </body>
 </html>

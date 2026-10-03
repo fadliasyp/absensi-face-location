@@ -84,7 +84,7 @@ Mengurangi manipulasi client dan menyatukan aturan waktu.
 ### Consequences
 
 - Browser melakukan UX pre-check, tetapi RPC/trigger menjadi enforcement.
-- Absensi dibuka satu jam sebelum jam masuk dan ditutup pukul 12.00 WIB.
+- Absensi dibuka satu jam sebelum Jam Masuk; batas status dan penutupan mengikuti pengaturan dinamis yang tetap dihitung server.
 - UI harus menampilkan error server secara ramah.
 
 ## 2026-10-03 — Kalender Kerja Default dan Override
@@ -201,3 +201,40 @@ Snapshot mempertahankan bentuk, warna, dan identitas visual ikon sambil menghila
 - Snapshot transparan diregenerasi dari frame pertama melalui `scripts/generate-static-icons.ps1`.
 - GIF lama dipertahankan sebagai aset rollback, tetapi tidak direferensikan halaman.
 - Efek blur/transisi CSS baru dipertimbangkan pada tahap berikutnya jika pengukuran perangkat masih menunjukkan jank.
+
+## 2026-10-04 — Tiga Batas Waktu Absensi Dinamis
+
+### Status
+
+ACCEPTED
+
+### Decision
+
+Admin mengatur tiga waktu dalam satu hari kerja:
+
+- Jam Masuk menentukan waktu acuan dan pembukaan satu jam sebelumnya.
+- Batas Masuk adalah batas terakhir status Hadir.
+- Jam Generate Alfa menutup absensi dan memulai pembuatan Alfa otomatis.
+
+Rentang setelah Batas Masuk sampai sebelum Jam Generate Alfa berstatus Terlambat. Jika data lama belum memiliki Jam Generate Alfa, server memakai fallback 12.00 WIB.
+
+### Context
+
+Pengguna membutuhkan contoh alur Jam Masuk 09.00, Batas Masuk 11.00, dan Jam Generate Alfa 17.00. Dengan alur tersebut, absensi setelah 11.00 sampai 16.59 tercatat Terlambat dan mulai 17.00 ditolak/diproses Alfa.
+
+### Reason
+
+Memisahkan Batas Masuk dari waktu pembuatan Alfa membuat periode keterlambatan dapat diatur secara eksplisit tanpa mengandalkan penutupan tetap pukul 12.00.
+
+### Alternatives
+
+- Penutupan tetap pukul 12.00: ditolak karena tidak memenuhi jadwal dinamis.
+- Memakai Batas Masuk sekaligus sebagai deadline Alfa: ditolak karena menghilangkan rentang Terlambat.
+- Menjadwalkan ulang cron setiap admin menyimpan waktu: tidak dipilih karena lebih rapuh dibanding pemeriksaan idempoten per menit.
+
+### Consequences
+
+- Tabel `pengaturan_absen` memiliki `jam_generate_alfa`.
+- Cron memeriksa setiap menit, sedangkan function server menolak eksekusi sebelum deadline.
+- Perubahan deadline setelah Alfa hari tersebut terbentuk tidak menghapus record Alfa yang sudah ada.
+- Migration database harus diterapkan sebelum frontend pengaturan waktu baru dideploy.

@@ -107,8 +107,8 @@ Hal berikut dilindungi:
 - Foto absensi tetap dapat dibuka oleh penerima hasil export melalui public viewer yang menghasilkan signed URL sementara.
 - Peserta tetap dapat mengirim izin manual untuk sakit/berhalangan.
 - Sabtu dan Minggu libur secara default, dengan override `libur` atau `masuk` per tanggal oleh admin.
-- Absensi dibuka satu jam sebelum jam masuk, ditutup pukul 12.00 WIB, dan status ditentukan waktu server.
-- Peserta tanpa absensi/izin pada hari kerja mendapat Alfa setelah pukul 12.00 WIB.
+- Absensi dibuka satu jam sebelum Jam Masuk, berstatus Hadir sampai Batas Masuk, Terlambat setelahnya, lalu ditutup pada Jam Generate Alfa; seluruh keputusan memakai waktu server.
+- Peserta tanpa absensi/izin pada hari kerja mendapat Alfa pada Jam Generate Alfa dinamis; fallback jika belum dikonfigurasi adalah pukul 12.00 WIB.
 - Navbar mode laptop tetap fixed dan tidak ikut turun saat halaman di-scroll.
 - Gunakan icon statis `*-static.png` pada konten dan `*-nav.png` pada navigasi; jangan mengembalikan GIF looping berat tanpa alasan terukur.
 

@@ -99,13 +99,21 @@ Kolom yang terkonfirmasi:
 - `id`
 - `jam_masuk`
 - `batas_telat`
+- `jam_generate_alfa` (default `12:00:00` setelah migration `202610040001`)
 
 Logic server membaca baris pertama berdasarkan `id ASC LIMIT 1`. Konfigurasi dianggap invalid jika:
 
 - Nilai waktu kosong.
-- Jam masuk pukul 12.00 atau lebih.
-- Batas telat lebih awal dari jam masuk.
-- Batas telat pukul 12.00 atau lebih.
+- Batas Masuk (`batas_telat`) lebih awal dari Jam Masuk.
+- Jam Generate Alfa sama dengan atau lebih awal dari Batas Masuk.
+
+Nama kolom `batas_telat` dipertahankan untuk kompatibilitas, tetapi label produk dan maknanya adalah **Batas Masuk**: peserta masih berstatus Hadir sampai waktu tersebut.
+
+Constraint `pengaturan_absen_urutan_waktu_check` menegakkan urutan
+`jam_masuk <= batas_telat < jam_generate_alfa` untuk data baru/perubahan.
+Constraint ditambahkan sebagai `NOT VALID` agar migration tidak merusak deployment
+yang mungkin memiliki data legacy invalid; function server tetap fail closed sampai
+baris tersebut diperbaiki admin.
 
 ### `kalender_absen`
 
@@ -149,11 +157,12 @@ RLS diaktifkan. Policy detail belum tersedia di repository; Edge Function memaka
 
 | Function | Caller | Peran |
 | --- | --- | --- |
-| `attendance_window_status(time,time,time)` | Internal DB | Pure classification waktu |
+| `attendance_window_status(time,time,time,time)` | Internal DB | Klasifikasi Hadir/Terlambat/Closed dengan deadline dinamis |
+| `attendance_window_status(time,time,time)` | Internal DB | Wrapper kompatibilitas dengan fallback Alfa pukul 12.00 |
 | `cek_jendela_absensi()` | User authenticated | Server window/status pre-check |
 | `catat_absensi(jsonb)` | User authenticated | Atomic attendance insert dan radius validation |
 | `generate_alfa_harian(date)` | Internal cron/admin wrapper | Insert Alfa idempotent berdasarkan existing rows |
-| `generate_alfa_hari_ini_admin()` | Admin authenticated | Fallback Alfa setelah 12.00 WIB |
+| `generate_alfa_hari_ini_admin()` | Admin authenticated | Fallback Alfa setelah Jam Generate Alfa dinamis |
 | `attendance_day_info(date)` | Internal DB | Default weekday/weekend + override |
 | `cek_hari_absensi()` | User authenticated | Workday status dari tanggal server |
 | `daftar_hari_khusus()` | Admin authenticated | List calendar overrides |
@@ -174,13 +183,13 @@ Migration `004` juga mencabut `insert`, `update`, dan `delete` pada `absensi` da
 ## Scheduled Job
 
 ```text
-Name: generate-alfa-1200-wib
-Cron: 0 5 * * *
-Meaning: 05:00 UTC / 12:00 WIB setiap hari
+Name: generate-alfa-dinamis-wib
+Cron: * * * * *
+Meaning: periksa deadline setiap menit; keputusan memakai waktu server Asia/Jakarta
 Command: select public.generate_alfa_harian();
 ```
 
-Function kalender membuat job tidak menghasilkan Alfa pada hari libur.
+Function mengembalikan tanpa mutasi sebelum Jam Generate Alfa, pada hari libur, dan untuk tanggal mendatang. Insert Alfa tetap idempoten karena hanya memilih peserta yang belum mempunyai record.
 
 ## Storage
 
@@ -206,6 +215,7 @@ Definisi bucket serta Storage policies tidak tersedia di repository.
 4. `202610030002_work_calendar_overrides.sql`
 5. `202610030003_location_history_integrity.sql`
 6. `202610030004_secure_manual_leave.sql`
+7. `202610040001_dynamic_attendance_deadline.sql`
 
 Migration ini merupakan delta atas schema yang sudah ada, bukan bootstrap database lengkap.
 
@@ -219,6 +229,6 @@ Migration ini merupakan delta atas schema yang sudah ada, bukan bootstrap databa
 - Audit duplicate attendance sebelum unique index.
 - Jangan reset database remote.
 - Jangan menjalankan seed pada production tanpa review eksplisit.
-- Pastikan `pg_cron` tersedia dan job tidak terduplikasi jika migration dijalankan ulang.
+- Pastikan `pg_cron` tersedia, job lama `generate-alfa-1200-wib` sudah dilepas, dan hanya satu job `generate-alfa-dinamis-wib` aktif.
 - Verifikasi grants/RLS setelah migration, bukan hanya keberadaan function.
 - Status schema/policy remote tetap **Belum diketahui / perlu dikonfirmasi** sampai ada dump atau inspection resmi.

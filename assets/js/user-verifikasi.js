@@ -629,7 +629,10 @@ async function verifikasiDanAbsen() {
       jendelaAbsensi = await cekJendelaAbsensiServer();
     } catch (error) {
       showMessage(error.message);
-      showPopupError("Jadwal Tidak Dapat Diperiksa", error.message);
+      showPopupError(
+        "Jadwal Tidak Dapat Diperiksa",
+        "Sistem belum dapat memeriksa jadwal absensi. Silakan coba kembali.",
+      );
       return;
     }
 
@@ -821,13 +824,25 @@ function tungguVideoSiap() {
   });
 }
 
+function getAttendancePopupStyle() {
+  return {
+    customClass: {
+      popup: "attendance-swal-popup",
+      title: "attendance-swal-title",
+      htmlContainer: "attendance-swal-content",
+      confirmButton: "attendance-swal-confirm",
+    },
+  };
+}
+
 function showPopupSuccess(title, text) {
   if (window.Swal) {
     Swal.fire({
+      ...getAttendancePopupStyle(),
       icon: "success",
       title,
       text,
-      confirmButtonText: "Oke",
+      confirmButtonText: "Selesai",
       confirmButtonColor: "#315aa8",
     });
   } else {
@@ -838,10 +853,11 @@ function showPopupSuccess(title, text) {
 function showPopupError(title, text) {
   if (window.Swal) {
     Swal.fire({
+      ...getAttendancePopupStyle(),
       icon: "error",
       title,
       text,
-      confirmButtonText: "Coba Lagi",
+      confirmButtonText: "Periksa Kembali",
       confirmButtonColor: "#d33",
     });
   } else {
@@ -874,6 +890,7 @@ function showAttendanceRejectedPopup(result = {}) {
 
   if (window.Swal) {
     Swal.fire({
+      ...getAttendancePopupStyle(),
       icon,
       title,
       html: `
@@ -882,7 +899,7 @@ function showAttendanceRejectedPopup(result = {}) {
         </p>
         <small style="color:#64748b;">${escapePopupHtml(serverTime)}</small>
       `,
-      confirmButtonText: "Mengerti",
+      confirmButtonText: "Saya Mengerti",
       confirmButtonColor:
         icon === "info" ? "#2563eb" : icon === "warning" ? "#d97706" : "#dc2626",
     });
@@ -897,11 +914,13 @@ function showLateAttendancePopup(monthlyLateCount, serverTime) {
 
   if (window.Swal) {
     Swal.fire({
+      ...getAttendancePopupStyle(),
       icon: "warning",
-      title: "Absensi Terlambat Tersimpan",
+      title: "Absensi Tercatat sebagai Terlambat",
       html: `
         <p style="margin:0 0 14px;color:#475569;line-height:1.6;">
-          Wajah dan lokasi valid, tetapi Anda sudah melewati batas telat.
+          Verifikasi wajah dan lokasi berhasil. Berdasarkan waktu server,
+          absensi dilakukan setelah Batas Masuk.
         </p>
         <div style="padding:14px;border-radius:14px;background:#fff7ed;color:#9a3412;">
           <strong style="display:block;font-size:24px;">${lateCount} kali</strong>
@@ -1141,7 +1160,10 @@ async function prosesAbsenSetelahValidasi() {
   } catch (error) {
     console.error(error);
     showMessage("Gagal mengambil lokasi. Pastikan izin lokasi diaktifkan.");
-    showPopupError("Lokasi Gagal", "Pastikan izin lokasi aktif pada browser.");
+    showPopupError(
+      "Lokasi Tidak Dapat Diakses",
+      "Aktifkan izin lokasi pada browser, kemudian ulangi proses absensi.",
+    );
     return;
   }
 
@@ -1191,7 +1213,10 @@ async function prosesAbsenSetelahValidasi() {
     jendelaAbsensi = await cekJendelaAbsensiServer();
   } catch (error) {
     showMessage(error.message);
-    showPopupError("Jadwal Tidak Dapat Diperiksa", error.message);
+    showPopupError(
+      "Jadwal Tidak Dapat Diperiksa",
+      "Sistem belum dapat memeriksa jadwal absensi. Silakan coba kembali.",
+    );
     return;
   }
 
@@ -1214,7 +1239,7 @@ async function prosesAbsenSetelahValidasi() {
     showMessage("Gagal menyimpan foto bukti absen: " + error.message);
 
     showPopupError(
-      "Foto Absen Gagal",
+      "Foto Absensi Tidak Dapat Disimpan",
       error.message ||
         "Sistem gagal mengambil atau menyimpan foto bukti absen. Silakan coba lagi.",
     );
@@ -1237,7 +1262,10 @@ async function prosesAbsenSetelahValidasi() {
   if (error) {
     showMessage("Gagal menyimpan absensi: " + error.message);
     console.error(error);
-    showPopupError("Absensi Gagal", "Data absensi gagal disimpan.");
+    showPopupError(
+      "Absensi Tidak Dapat Disimpan",
+      "Data absensi belum berhasil disimpan. Silakan periksa koneksi dan ulangi proses.",
+    );
     return;
   }
 

@@ -24,7 +24,7 @@ Frontend berupa halaman statis. Supabase menjadi backend untuk Auth, Postgres, S
 - Commit terbaru saat bootstrap: `51d0995` (2026-10-03).
 - Source code berada dalam kondisi bersih saat bootstrap; `CODEX_PROJECT_SETUP.md` adalah file bootstrap yang belum dilacak Git.
 - Contract tests tersedia untuk routing sesi, kebijakan absensi, kalender kerja, dan integrity hardening.
-- Status deployment production untuk migration `202610030003`, `202610030004`, serta Edge Function `delete-user` terbaru: **Belum diketahui / perlu dikonfirmasi**.
+- Status deployment production untuk migration `202610030003`, `202610030004`, `202610040001`, serta Edge Function `delete-user` terbaru: **Belum diketahui / perlu dikonfirmasi**.
 
 ## Completed Features
 
@@ -36,9 +36,9 @@ Frontend berupa halaman statis. Supabase menjadi backend untuk Auth, Postgres, S
 | Approval/status/role user dan email notifikasi | WORKING | `admin-users.js`, `send-approval-email` |
 | Daftar wajah dan reset wajah | WORKING | `user-daftar-wajah.js`, `admin-users.js` |
 | Absensi wajah + liveness + geolokasi | WORKING | `user-verifikasi.js`, `catat_absensi` |
-| Jendela absensi berbasis waktu server WIB | STABLE | migration `001`, `attendance-policy.test.cjs` |
+| Jendela absensi dinamis berbasis waktu server WIB | STABLE pada contract | migration `202610040001`, `attendance-policy.test.cjs` |
 | Kalender kerja dan override admin | STABLE | migration `002`, `attendance-policy.test.cjs` |
-| Alfa otomatis dan fallback admin | STABLE pada contract | migration `001/002`, contract test |
+| Alfa otomatis dinamis dan fallback admin | STABLE pada contract | migration `001/002/202610040001`, contract test |
 | Izin manual dengan bukti | STABLE pada contract | migration `004`, `integrity-hardening.test.cjs` |
 | Riwayat dan monitoring absensi | WORKING | `user-riwayat.js`, `admin-list-absen.js` |
 | Export PDF/Excel | WORKING | `admin-export-pdf.js`, Git history 2026-08-09 |
@@ -52,11 +52,12 @@ Frontend berupa halaman statis. Supabase menjadi backend untuk Auth, Postgres, S
 
 ## Current Work
 
-Perbaikan performa ikon tahap pertama telah dilakukan. Seluruh GIF looping pada halaman admin dan peserta diganti referensinya dengan snapshot PNG dari visual yang sama. Logic aplikasi, CSS, database, dan Edge Function tidak diubah.
+Jadwal absensi tiga tahap telah diimplementasikan pada repository: Jam Masuk, Batas Masuk, dan Jam Generate Alfa dinamis. Popup absensi peserta juga memakai tampilan formal yang konsisten. Migration remote belum diverifikasi.
 
 ## Pending Work
 
 - Konfirmasi apakah migration `003` dan `004` telah diterapkan ke Supabase production.
+- Terapkan dan verifikasi migration `202610040001_dynamic_attendance_deadline.sql` pada Supabase production sebelum deploy frontend terkait.
 - Konfirmasi/deploy ulang Edge Function `delete-user` jika versi remote belum memuat validasi admin aktif.
 - Ambil schema dump production agar base schema, RLS policy, Storage policy, dan grants dapat terversi.
 - Buat atau nonaktifkan referensi `supabase/seed.sql`; file tersebut dirujuk config tetapi belum ada.
@@ -69,11 +70,13 @@ Perbaikan performa ikon tahap pertama telah dilakukan. Seluruh GIF looping pada 
 - User tanpa data wajah diarahkan ke dashboard/pendaftaran wajah; user dengan wajah terdaftar diarahkan ke verifikasi absensi.
 - Absensi hanya berlaku pada hari kerja.
 - Sabtu dan Minggu libur default; admin dapat menetapkan tanggal khusus sebagai `libur` atau `masuk`.
-- Jendela absensi dibuka satu jam sebelum `jam_masuk` dan ditutup pukul 12.00 WIB.
-- Waktu sampai `batas_telat` berstatus `hadir`; setelahnya hingga sebelum 12.00 berstatus `terlambat`.
+- Jendela absensi dibuka satu jam sebelum `jam_masuk`.
+- Waktu sampai `batas_telat` (ditampilkan sebagai Batas Masuk) berstatus `hadir`.
+- Setelah Batas Masuk hingga sebelum `jam_generate_alfa` berstatus `terlambat`.
+- Mulai `jam_generate_alfa`, absensi ditolak.
 - Status/tanggal/waktu/jarak absensi dihitung ulang oleh server; browser tidak menentukan status final.
 - Maksimal satu data `absensi` per peserta per tanggal.
-- Peserta aktif tanpa hadir/terlambat/izin pada hari kerja dibuatkan `alfa` setelah pukul 12.00 WIB.
+- Peserta aktif tanpa hadir/terlambat/izin pada hari kerja dibuatkan `alfa` mulai Jam Generate Alfa. Nilai default data lama adalah pukul 12.00 WIB.
 - Izin manual tetap diperbolehkan untuk sakit/berhalangan, tetapi hanya pada hari kerja dan dicatat melalui RPC.
 - Penghapusan lokasi melepaskan FK lokasi aktif, bukan menghapus riwayat absensi.
 
@@ -82,7 +85,7 @@ Perbaikan performa ikon tahap pertama telah dilakukan. Seluruh GIF looping pada 
 - Tidak ada frontend build step atau `package.json` yang ditemukan.
 - Library browser dimuat dari CDN; model face-api berada lokal di `assets/models/`.
 - Tanggal default UI menggunakan helper `Asia/Jakarta` pada halaman sensitif tanggal.
-- `pg_cron` menjadwalkan Alfa pukul `05:00 UTC`, setara `12:00 WIB`.
+- `pg_cron` memeriksa deadline setiap menit; function server hanya membuat Alfa setelah Jam Generate Alfa WIB.
 - R2 object key foto mengikuti prefix `foto-absen/{user_id}/...`.
 - Public viewer tidak membuat bucket R2 publik; function menghasilkan signed URL sementara dari object key.
 
@@ -132,7 +135,7 @@ Perbaikan performa ikon tahap pertama telah dilakukan. Seluruh GIF looping pada 
 ## Things We Must Not Break
 
 - Lihat daftar lengkap di `docs/FEATURE_BASELINE.md`.
-- Secara khusus: public photo viewing untuk export, izin manual, waktu server WIB, kalender akhir pekan/override, unique attendance per day, riwayat lokasi, fixed desktop navbar, dan icon optimized.
+- Secara khusus: public photo viewing untuk export, izin manual, jadwal dinamis berbasis waktu server WIB, kalender akhir pekan/override, unique attendance per day, riwayat lokasi, fixed desktop navbar, dan icon statis ringan.
 
 ## Session Handoff
 

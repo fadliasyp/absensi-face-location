@@ -22,9 +22,9 @@ Tidak ada framework frontend atau proses build yang ditemukan. `package-lock.jso
 - Role `admin` dan `user`, dengan status `pending`, `aktif`, atau `ditolak`
 - Pendaftaran wajah satu kali dan reset wajah oleh admin
 - Face matching, pemeriksaan gerakan/liveness, geolokasi, dan foto bukti saat absen
-- Jadwal masuk, batas telat, jendela absensi, serta popup keterlambatan/penolakan
+- Jam Masuk, Batas Masuk, Jam Generate Alfa, serta popup absensi formal
 - Sabtu–Minggu libur default dan override tanggal khusus oleh admin
-- Alfa otomatis setelah pukul 12.00 WIB pada hari kerja
+- Alfa otomatis pada waktu dinamis yang diatur admin, dengan fallback pukul 12.00 WIB
 - Izin manual dengan bukti gambar
 - Riwayat dan monitoring absensi
 - Export PDF/Excel dengan tautan foto absensi
