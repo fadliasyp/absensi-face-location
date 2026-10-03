@@ -10,6 +10,7 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 - Field admin untuk Jam Masuk, Batas Masuk, dan Jam Generate Alfa.
 - Gaya SweetAlert formal yang konsisten pada alur absensi peserta.
 - Penolakan izin berbasis Jam Generate Alfa server WIB dengan respons khusus saat Alfa sudah tercatat.
+- Pemulihan atomik Alfa hari ini menjadi Izin ketika admin memundurkan deadline dan batas terbaru masih terbuka.
 
 ### Changed
 

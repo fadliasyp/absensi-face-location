@@ -169,7 +169,7 @@ RLS diaktifkan. Policy detail belum tersedia di repository; Edge Function memaka
 | `simpan_hari_khusus(date,text,text)` | Admin authenticated | Upsert override |
 | `hapus_hari_khusus(date)` | Admin authenticated | Remove override |
 | `hapus_lokasi_absen(text)` | Admin authenticated | Delete master location, preserve history |
-| `catat_izin(date,text,text)` | User authenticated | Secure manual leave insert sebelum Jam Generate Alfa; menolak tanggal lampau/deadline lewat dan Alfa yang sudah tercatat |
+| `catat_izin(date,text,text)` | User authenticated | Secure manual leave sebelum deadline; dapat mengubah Alfa hari ini menjadi Izin jika deadline terbaru masih terbuka |
 
 Function `security definer` melakukan schema qualification dan memakai `set search_path = ''` pada migration terbaru.
 
@@ -217,6 +217,7 @@ Definisi bucket serta Storage policies tidak tersedia di repository.
 6. `202610030004_secure_manual_leave.sql`
 7. `202610040001_dynamic_attendance_deadline.sql`
 8. `202610040002_reject_late_manual_leave.sql`
+9. `202610040003_reopen_alfa_after_deadline_extension.sql`
 
 Migration ini merupakan delta atas schema yang sudah ada, bukan bootstrap database lengkap.
 

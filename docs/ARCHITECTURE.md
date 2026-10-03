@@ -116,7 +116,8 @@ Active user -> choose date/description/image
        - reads dynamic Jam Generate Alfa with 12.00 fallback
        - advisory lock + duplicate/Alfa check
        - rejects today at/after deadline and rejects past dates
-       - inserts status izin
+       - atomically changes today's Alfa to Izin when a later deadline is still open
+       - otherwise inserts status izin
   -> formal success/rejection popup
   -> remove uploaded proof best-effort when RPC rejects/fails
 ```

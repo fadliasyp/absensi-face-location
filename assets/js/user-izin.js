@@ -334,12 +334,10 @@ if (izinForm) {
 
     const dataTercatat = await cekDataAbsensi(tanggalIzin);
 
-    if (dataTercatat) {
-      const isAlfa = dataTercatat.status === "alfa";
-      const title = isAlfa ? "Izin Ditolak" : "Data Sudah Tercatat";
-      const message = isAlfa
-        ? "Status Alfa untuk tanggal tersebut sudah tercatat sehingga pengajuan izin tidak dapat dilakukan."
-        : "Anda sudah memiliki data absensi atau izin pada tanggal tersebut.";
+    if (dataTercatat && dataTercatat.status !== "alfa") {
+      const title = "Data Sudah Tercatat";
+      const message =
+        "Anda sudah memiliki data absensi atau izin pada tanggal tersebut.";
 
       showMessage(message);
       showPopupError(title, message);
@@ -391,9 +389,15 @@ if (izinForm) {
 
     showMessage("Izin berhasil dikirim.", "success");
 
+    const successTitle =
+      hasilIzin.code === "alfa_replaced_with_leave"
+        ? "Status Berhasil Diperbarui"
+        : "Izin Berhasil Dikirim";
+
     showPopupSuccess(
-      "Izin Berhasil Dikirim",
-      "Data izin Anda berhasil dikirim dan akan tampil pada riwayat absensi.",
+      successTitle,
+      hasilIzin.message ||
+        "Data izin Anda berhasil dikirim dan akan tampil pada riwayat absensi.",
     );
 
     izinForm.reset();

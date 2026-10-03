@@ -75,7 +75,8 @@ Pengguna menetapkan bahwa peserta yang baru mengajukan izin setelah proses Alfa 
 ### Consequences
 
 - RPC `catat_izin` menjadi authority deadline dan tidak mempercayai waktu perangkat.
-- Alfa yang sudah tercatat tidak dapat diganti menjadi izin melalui formulir peserta.
+- Alfa tanggal lampau atau Alfa hari ini setelah deadline terbaru tidak dapat diganti melalui formulir peserta.
+- Alfa hari ini dari deadline lama dapat diubah secara atomik menjadi Izin ketika admin memundurkan deadline dan waktu server masih sebelum batas baru.
 - UI menampilkan popup formal dan membersihkan bukti yang telanjur diunggah ketika server menolak.
 
 ## 2026-10-03 — Server WIB Menjadi Authority Absensi
@@ -256,5 +257,5 @@ Memisahkan Batas Masuk dari waktu pembuatan Alfa membuat periode keterlambatan d
 
 - Tabel `pengaturan_absen` memiliki `jam_generate_alfa`.
 - Cron memeriksa setiap menit, sedangkan function server menolak eksekusi sebelum deadline.
-- Perubahan deadline setelah Alfa hari tersebut terbentuk tidak menghapus record Alfa yang sudah ada.
+- Perubahan deadline tidak menghapus Alfa secara massal; khusus pengajuan izin hari ini, RPC dapat mengubah Alfa peserta menjadi Izin jika deadline terbaru masih terbuka.
 - Migration database harus diterapkan sebelum frontend pengaturan waktu baru dideploy.

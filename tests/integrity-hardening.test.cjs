@@ -33,6 +33,12 @@ const lateLeaveMigrationPath = path.join(
   "migrations",
   "202610040002_reject_late_manual_leave.sql",
 );
+const reopenedLeaveMigrationPath = path.join(
+  root,
+  "supabase",
+  "migrations",
+  "202610040003_reopen_alfa_after_deadline_extension.sql",
+);
 
 assert.match(
   locationMigration,
@@ -73,9 +79,17 @@ assert.ok(
   fs.existsSync(lateLeaveMigrationPath),
   "migrasi penolakan izin setelah Jam Generate Alfa harus tersedia",
 );
+assert.ok(
+  fs.existsSync(reopenedLeaveMigrationPath),
+  "migrasi pemulihan Alfa setelah deadline dimundurkan harus tersedia",
+);
 
 const leaveMigration = fs.readFileSync(leaveMigrationPath, "utf8");
 const lateLeaveMigration = fs.readFileSync(lateLeaveMigrationPath, "utf8");
+const reopenedLeaveMigration = fs.readFileSync(
+  reopenedLeaveMigrationPath,
+  "utf8",
+);
 const userLeaveScript = fs.readFileSync(
   path.join(root, "assets", "js", "user-izin.js"),
   "utf8",
@@ -133,6 +147,26 @@ assert.match(
   "Alfa yang sudah tercatat harus menghasilkan penolakan izin khusus",
 );
 assert.match(
+  reopenedLeaveMigration,
+  /v_status_tercatat = 'alfa'[\s\S]*p_tanggal = v_tanggal_hari_ini[\s\S]*v_waktu < v_jam_generate_alfa/i,
+  "Alfa hari ini hanya boleh dipulihkan sebelum deadline dinamis terbaru",
+);
+assert.match(
+  reopenedLeaveMigration,
+  /update public\.absensi[\s\S]*status = 'izin'[\s\S]*status = 'alfa'/i,
+  "pemulihan harus mengubah Alfa menjadi Izin secara atomik",
+);
+assert.match(
+  reopenedLeaveMigration,
+  /'code', 'alfa_replaced_with_leave'[\s\S]*'status', 'izin'/i,
+  "pemulihan Alfa harus mengembalikan hasil sukses Izin yang eksplisit",
+);
+assert.match(
+  reopenedLeaveMigration,
+  /p_tanggal = v_tanggal_hari_ini[\s\S]*v_waktu >= v_jam_generate_alfa[\s\S]*'code', 'alfa_recorded'/i,
+  "Alfa tetap harus ditolak tepat pada atau setelah deadline terbaru",
+);
+assert.match(
   userLeaveScript,
   /\.rpc\(\s*"catat_izin"/,
   "form izin harus menggunakan RPC server",
@@ -154,8 +188,8 @@ assert.match(
 );
 assert.match(
   userLeaveScript,
-  /status === "alfa"[\s\S]*showPopupError\(title, message\)/,
-  "Alfa dari pre-check harus ditampilkan sebagai popup penolakan",
+  /if \(dataTercatat && dataTercatat\.status !== "alfa"\)/,
+  "pre-check browser harus meneruskan Alfa ke RPC agar deadline terbaru dinilai server",
 );
 
 assert.ok(

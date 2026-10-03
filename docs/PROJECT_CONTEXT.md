@@ -52,7 +52,7 @@ Frontend berupa halaman statis. Supabase menjadi backend untuk Auth, Postgres, S
 
 ## Current Work
 
-Jadwal absensi tiga tahap telah diimplementasikan pada repository: Jam Masuk, Batas Masuk, dan Jam Generate Alfa dinamis. Pengajuan izin hari ini ditolak mulai Jam Generate Alfa server WIB dan menampilkan popup formal. Navbar admin/peserta pada laptop sempit menggunakan hamburger/sidebar agar tidak keluar viewport. Migration remote belum diverifikasi.
+Jadwal absensi tiga tahap telah diimplementasikan pada repository: Jam Masuk, Batas Masuk, dan Jam Generate Alfa dinamis. Pengajuan izin hari ini ditolak mulai deadline terbaru; Alfa dari deadline lama dapat diubah menjadi Izin jika admin memundurkan deadline dan waktu server masih sebelum batas baru. Navbar admin/peserta pada laptop sempit menggunakan hamburger/sidebar agar tidak keluar viewport. Migration remote belum diverifikasi.
 
 ## Pending Work
 
