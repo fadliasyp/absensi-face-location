@@ -251,6 +251,24 @@ async function cekUser() {
 }
 
 async function cekJendelaAbsensiServer() {
+  const { data: hariAbsensi, error: hariError } = await supabaseClient.rpc(
+    "cek_hari_absensi",
+  );
+
+  if (hariError) {
+    console.error("Gagal memeriksa kalender kerja:", hariError);
+    throw new Error(
+      "Kalender hari kerja tidak dapat diperiksa. Silakan coba beberapa saat lagi.",
+    );
+  }
+
+  if (!hariAbsensi?.is_workday) {
+    return {
+      allowed: false,
+      ...hariAbsensi,
+    };
+  }
+
   const { data, error } = await supabaseClient.rpc("cek_jendela_absensi");
 
   if (error) {
@@ -847,7 +865,12 @@ function showAttendanceRejectedPopup(result = {}) {
   const serverTime = result.server_time
     ? `Waktu server: ${result.server_time} WIB`
     : "Waktu absensi mengikuti server WIB.";
-  const icon = result.code === "too_early" ? "warning" : "error";
+  const icon =
+    result.code === "holiday"
+      ? "info"
+      : result.code === "too_early"
+        ? "warning"
+        : "error";
 
   if (window.Swal) {
     Swal.fire({
@@ -860,7 +883,8 @@ function showAttendanceRejectedPopup(result = {}) {
         <small style="color:#64748b;">${escapePopupHtml(serverTime)}</small>
       `,
       confirmButtonText: "Mengerti",
-      confirmButtonColor: icon === "warning" ? "#d97706" : "#dc2626",
+      confirmButtonColor:
+        icon === "info" ? "#2563eb" : icon === "warning" ? "#d97706" : "#dc2626",
     });
   } else {
     alert(`${title}\n${message}\n${serverTime}`);

@@ -803,6 +803,149 @@ button.danger:hover,
   background: #fff;
 }
 
+.kalender-kerja-card {
+  margin-top: 18px;
+}
+
+.hari-khusus-form {
+  display: grid;
+  grid-template-columns: 170px 170px minmax(220px, 1fr) auto;
+  gap: 14px;
+  align-items: end;
+}
+
+.hari-khusus-form .field-group {
+  margin-bottom: 0;
+}
+
+.hari-khusus-form input[type="date"],
+.hari-khusus-form input[type="text"],
+.hari-khusus-form select {
+  width: 100%;
+  min-height: 50px;
+  border: 1px solid #d7dfef;
+  background: #f9fbff;
+  border-radius: 16px;
+  padding: 13px 15px;
+  font-size: 15px;
+  color: #1f2f4b;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.hari-khusus-form input[type="date"]:focus,
+.hari-khusus-form input[type="text"]:focus,
+.hari-khusus-form select:focus {
+  border-color: #4c73c2;
+  box-shadow: 0 0 0 4px rgba(76, 115, 194, 0.12);
+  background: #fff;
+}
+
+.hari-khusus-submit {
+  min-height: 50px;
+  white-space: nowrap;
+}
+
+.kalender-note {
+  margin-top: 20px;
+}
+
+.hari-khusus-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0 12px;
+}
+
+.hari-khusus-heading h3 {
+  margin: 0;
+  color: #274682;
+  font-size: 18px;
+}
+
+.hari-khusus-heading span {
+  color: #71809b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.hari-khusus-list {
+  display: grid;
+  gap: 10px;
+}
+
+.hari-khusus-item {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) auto auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid #e3eaf5;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fff, #f9fbff);
+}
+
+.hari-khusus-date strong,
+.hari-khusus-date small {
+  display: block;
+}
+
+.hari-khusus-date strong {
+  color: #293f6b;
+  margin-bottom: 4px;
+}
+
+.hari-khusus-date small {
+  color: #71809b;
+  line-height: 1.5;
+}
+
+.hari-khusus-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 76px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.hari-khusus-badge.libur {
+  color: #be123c;
+  background: #fff1f2;
+}
+
+.hari-khusus-badge.masuk {
+  color: #166534;
+  background: #eafaf0;
+}
+
+.hari-khusus-delete {
+  border: 1px solid #fecdd3;
+  border-radius: 12px;
+  background: #fff;
+  color: #be123c;
+  padding: 9px 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hari-khusus-delete:hover {
+  background: #fff1f2;
+}
+
+.hari-khusus-empty {
+  padding: 22px;
+  border: 1px dashed #cbd8ea;
+  border-radius: 18px;
+  color: #71809b;
+  text-align: center;
+  background: rgba(249, 251, 255, 0.75);
+}
+
 .modern-form small {
   display: block;
   margin-top: 6px;
@@ -931,6 +1074,15 @@ button.danger:hover,
     gap: 14px;
   }
 
+  .hari-khusus-form {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .hari-khusus-keterangan,
+  .hari-khusus-submit {
+    grid-column: 1 / -1;
+  }
+
   .glass-card {
     padding: 20px;
   }
@@ -953,6 +1105,14 @@ button.danger:hover,
     border-radius: 14px;
     font-size: 20px;
   }
+
+  .hari-khusus-item {
+    grid-template-columns: 1fr auto;
+  }
+
+  .hari-khusus-delete {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 420px) {
@@ -966,6 +1126,17 @@ button.danger:hover,
 
   .live-clock {
     font-size: 30px;
+  }
+
+  .hari-khusus-form,
+  .hari-khusus-item {
+    grid-template-columns: 1fr;
+  }
+
+  .hari-khusus-keterangan,
+  .hari-khusus-submit,
+  .hari-khusus-delete {
+    grid-column: auto;
   }
 
   .card-heading {

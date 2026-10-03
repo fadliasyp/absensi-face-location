@@ -8,6 +8,15 @@ const currentJamMasuk = document.getElementById("currentJamMasuk");
 const currentBatasTelat = document.getElementById("currentBatasTelat");
 const currentUpdatedAt = document.getElementById("currentUpdatedAt");
 
+const hariKhususForm = document.getElementById("hariKhususForm");
+const tanggalHariKhusus = document.getElementById("tanggalHariKhusus");
+const tipeHariKhusus = document.getElementById("tipeHariKhusus");
+const keteranganHariKhusus = document.getElementById(
+  "keteranganHariKhusus",
+);
+const hariKhususList = document.getElementById("hariKhususList");
+const jumlahHariKhusus = document.getElementById("jumlahHariKhusus");
+
 const liveClock = document.getElementById("liveClock");
 const liveDate = document.getElementById("liveDate");
 
@@ -106,6 +115,148 @@ function formatTanggal(dateString) {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function formatTanggalHariKhusus(dateString) {
+  if (!dateString) return "-";
+
+  const date = new Date(`${dateString}T00:00:00`);
+
+  return date.toLocaleDateString("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function renderHariKhusus(items = []) {
+  if (!hariKhususList) return;
+
+  if (jumlahHariKhusus) {
+    jumlahHariKhusus.textContent = `${items.length} tanggal`;
+  }
+
+  if (items.length === 0) {
+    hariKhususList.innerHTML = `
+      <div class="hari-khusus-empty">
+        Belum ada tanggal khusus. Kalender masih mengikuti aturan default.
+      </div>
+    `;
+    return;
+  }
+
+  hariKhususList.innerHTML = items
+    .map((item) => {
+      const tipe = item.tipe === "masuk" ? "masuk" : "libur";
+      const label = tipe === "masuk" ? "Masuk" : "Libur";
+      const keterangan = item.keterangan || "Tanpa keterangan";
+
+      return `
+        <div class="hari-khusus-item">
+          <div class="hari-khusus-date">
+            <strong>${escapeHtml(formatTanggalHariKhusus(item.tanggal))}</strong>
+            <small>${escapeHtml(keterangan)}</small>
+          </div>
+          <span class="hari-khusus-badge ${tipe}">${label}</span>
+          <button
+            type="button"
+            class="hari-khusus-delete"
+            data-tanggal="${escapeHtml(item.tanggal)}"
+          >
+            Hapus
+          </button>
+        </div>
+      `;
+    })
+    .join("");
+
+  hariKhususList.querySelectorAll(".hari-khusus-delete").forEach((button) => {
+    button.addEventListener("click", () => {
+      hapusHariKhusus(button.dataset.tanggal);
+    });
+  });
+}
+
+async function loadHariKhusus() {
+  if (!hariKhususList) return;
+
+  const { data, error } = await supabaseClient.rpc("daftar_hari_khusus");
+
+  if (error) {
+    hariKhususList.innerHTML = `
+      <div class="hari-khusus-empty">Kalender khusus gagal dimuat.</div>
+    `;
+    showMessage("Gagal memuat kalender hari kerja: " + error.message);
+    return;
+  }
+
+  renderHariKhusus(Array.isArray(data) ? data : []);
+}
+
+async function simpanHariKhusus() {
+  const tanggal = tanggalHariKhusus?.value;
+  const tipe = tipeHariKhusus?.value;
+  const keterangan = keteranganHariKhusus?.value.trim() || null;
+
+  if (!tanggal || !["libur", "masuk"].includes(tipe)) {
+    showMessage("Tanggal dan jenis hari wajib dipilih.");
+    return;
+  }
+
+  const { data, error } = await supabaseClient.rpc("simpan_hari_khusus", {
+    p_tanggal: tanggal,
+    p_tipe: tipe,
+    p_keterangan: keterangan,
+  });
+
+  if (error || !data?.success) {
+    showMessage(
+      "Gagal menyimpan tanggal: " +
+        (data?.message || error?.message || "Kesalahan tidak diketahui."),
+    );
+    return;
+  }
+
+  showMessage(data.message, "success");
+  hariKhususForm.reset();
+  tipeHariKhusus.value = "libur";
+  await loadHariKhusus();
+}
+
+async function hapusHariKhusus(tanggal) {
+  if (!tanggal) return;
+
+  const tanggalLabel = formatTanggalHariKhusus(tanggal);
+  const disetujui = window.confirm(
+    `Hapus pengaturan ${tanggalLabel}? Tanggal akan kembali mengikuti aturan default.`,
+  );
+
+  if (!disetujui) return;
+
+  const { data, error } = await supabaseClient.rpc("hapus_hari_khusus", {
+    p_tanggal: tanggal,
+  });
+
+  if (error || !data?.success) {
+    showMessage(
+      "Gagal menghapus tanggal: " +
+        (data?.message || error?.message || "Kesalahan tidak diketahui."),
+    );
+    return;
+  }
+
+  showMessage(data.message, "success");
+  await loadHariKhusus();
 }
 
 function updateLiveClock() {
@@ -225,6 +376,14 @@ if (formWaktu) {
   });
 }
 
+if (hariKhususForm) {
+  hariKhususForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    simpanHariKhusus();
+  });
+}
+
 updateLiveClock();
 setInterval(updateLiveClock, 1000);
 loadWaktu();
+loadHariKhusus();

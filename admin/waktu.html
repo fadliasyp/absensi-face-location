@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Waktu Masuk</title>
-    <link rel="stylesheet" href="../assets/css/style.css" />
+    <link
+      rel="stylesheet"
+      href="../assets/css/style.css?v=20261003-work-calendar-v1"
+    />
   </head>
 
   <body class="page-waktu-body">
@@ -221,11 +224,66 @@
           </div>
         </div>
       </section>
+
+      <section class="glass-card kalender-kerja-card">
+        <div class="card-heading">
+          <div>
+            <h2>Kalender Hari Kerja</h2>
+            <p>
+              Sabtu dan Minggu otomatis libur. Tambahkan tanggal khusus untuk
+              membuat hari libur atau hari masuk pengganti.
+            </p>
+          </div>
+          <div class="icon-bubble">📅</div>
+        </div>
+
+        <form id="hariKhususForm" class="modern-form hari-khusus-form">
+          <div class="field-group">
+            <label for="tanggalHariKhusus">Tanggal</label>
+            <input type="date" id="tanggalHariKhusus" required />
+          </div>
+
+          <div class="field-group">
+            <label for="tipeHariKhusus">Jadikan Sebagai</label>
+            <select id="tipeHariKhusus" required>
+              <option value="libur">Libur</option>
+              <option value="masuk">Masuk</option>
+            </select>
+          </div>
+
+          <div class="field-group hari-khusus-keterangan">
+            <label for="keteranganHariKhusus">Keterangan</label>
+            <input
+              type="text"
+              id="keteranganHariKhusus"
+              maxlength="120"
+              placeholder="Contoh: Hari Kemerdekaan atau masuk pengganti"
+            />
+          </div>
+
+          <button type="submit" class="btn-primary hari-khusus-submit">
+            Simpan Tanggal
+          </button>
+        </form>
+
+        <div class="highlight-note kalender-note">
+          <strong>Cara kerja:</strong> tanggal yang tidak ada di daftar tetap
+          mengikuti aturan normal: Senin–Jumat masuk, Sabtu–Minggu libur.
+        </div>
+
+        <div class="hari-khusus-heading">
+          <h3>Tanggal Khusus</h3>
+          <span id="jumlahHariKhusus">0 tanggal</span>
+        </div>
+        <div id="hariKhususList" class="hari-khusus-list">
+          <div class="hari-khusus-empty">Memuat kalender...</div>
+        </div>
+      </section>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../assets/js/supabase-config.js"></script>
     <script src="../assets/js/logout.js"></script>
-    <script src="../assets/js/admin-waktu.js?v=20261003-attendance-window-v1"></script>
+    <script src="../assets/js/admin-waktu.js?v=20261003-work-calendar-v1"></script>
   </body>
 </html>
