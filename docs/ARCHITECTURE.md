@@ -113,9 +113,12 @@ Active user -> choose date/description/image
        - validates active role user
        - validates date/description/HTTPS URL
        - requires workday
-       - advisory lock + duplicate check
+       - reads dynamic Jam Generate Alfa with 12.00 fallback
+       - advisory lock + duplicate/Alfa check
+       - rejects today at/after deadline and rejects past dates
        - inserts status izin
-  -> remove uploaded proof best-effort when RPC fails
+  -> formal success/rejection popup
+  -> remove uploaded proof best-effort when RPC rejects/fails
 ```
 
 ## Work Calendar and Alfa

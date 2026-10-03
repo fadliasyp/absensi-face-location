@@ -58,6 +58,26 @@ Kondisi sakit/berhalangan tidak selalu dapat direpresentasikan sebagai absensi h
 - Identitas/status record ditentukan RPC server.
 - Izin mengikuti kalender kerja dan invariant satu record per tanggal.
 
+## 2026-10-04 — Deadline Izin Mengikuti Jam Generate Alfa
+
+### Status
+
+ACCEPTED
+
+### Decision
+
+Pengajuan izin untuk tanggal hari ini ditutup tepat pada Jam Generate Alfa berdasarkan waktu server WIB. Tanggal lampau tidak dapat diajukan melalui formulir izin, sedangkan izin tanggal mendatang tetap diperbolehkan.
+
+### Context
+
+Pengguna menetapkan bahwa peserta yang baru mengajukan izin setelah proses Alfa dimulai, misalnya pukul 17.30 untuk deadline 17.00, harus ditolak.
+
+### Consequences
+
+- RPC `catat_izin` menjadi authority deadline dan tidak mempercayai waktu perangkat.
+- Alfa yang sudah tercatat tidak dapat diganti menjadi izin melalui formulir peserta.
+- UI menampilkan popup formal dan membersihkan bukti yang telanjur diunggah ketika server menolak.
+
 ## 2026-10-03 — Server WIB Menjadi Authority Absensi
 
 ### Status

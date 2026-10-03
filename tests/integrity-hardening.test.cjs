@@ -27,6 +27,12 @@ const leaveMigrationPath = path.join(
   "migrations",
   "202610030004_secure_manual_leave.sql",
 );
+const lateLeaveMigrationPath = path.join(
+  root,
+  "supabase",
+  "migrations",
+  "202610040002_reject_late_manual_leave.sql",
+);
 
 assert.match(
   locationMigration,
@@ -63,8 +69,13 @@ assert.ok(
   fs.existsSync(leaveMigrationPath),
   "migrasi izin manual aman harus tersedia",
 );
+assert.ok(
+  fs.existsSync(lateLeaveMigrationPath),
+  "migrasi penolakan izin setelah Jam Generate Alfa harus tersedia",
+);
 
 const leaveMigration = fs.readFileSync(leaveMigrationPath, "utf8");
+const lateLeaveMigration = fs.readFileSync(lateLeaveMigrationPath, "utf8");
 const userLeaveScript = fs.readFileSync(
   path.join(root, "assets", "js", "user-izin.js"),
   "utf8",
@@ -97,6 +108,31 @@ assert.match(
   "browser tidak boleh memutasi tabel absensi secara langsung",
 );
 assert.match(
+  lateLeaveMigration,
+  /timezone\('Asia\/Jakarta', statement_timestamp\(\)\)/i,
+  "deadline izin harus memakai waktu server WIB",
+);
+assert.match(
+  lateLeaveMigration,
+  /select jam_generate_alfa::time[\s\S]*time '12:00:00'/i,
+  "deadline izin harus mengikuti Jam Generate Alfa dengan fallback pukul 12.00",
+);
+assert.match(
+  lateLeaveMigration,
+  /p_tanggal < v_tanggal_hari_ini[\s\S]*p_tanggal = v_tanggal_hari_ini[\s\S]*v_waktu >= v_jam_generate_alfa/i,
+  "izin untuk tanggal yang deadline-nya lewat harus ditolak server",
+);
+assert.match(
+  lateLeaveMigration,
+  /'code', 'leave_deadline_passed'[\s\S]*'title', 'Izin Ditolak'/i,
+  "penolakan setelah deadline harus memiliki respons formal khusus",
+);
+assert.match(
+  lateLeaveMigration,
+  /v_status_tercatat = 'alfa'[\s\S]*'code', 'alfa_recorded'/i,
+  "Alfa yang sudah tercatat harus menghasilkan penolakan izin khusus",
+);
+assert.match(
   userLeaveScript,
   /\.rpc\(\s*"catat_izin"/,
   "form izin harus menggunakan RPC server",
@@ -110,6 +146,16 @@ assert.match(
   userLeaveScript,
   /hapusBuktiIzin[\s\S]*storage[\s\S]*\.remove/,
   "foto izin harus dibersihkan jika pencatatan database gagal",
+);
+assert.match(
+  userLeaveScript,
+  /popup: "attendance-swal-popup"[\s\S]*confirmButtonText: "Saya Mengerti"/,
+  "penolakan izin harus memakai popup formal yang konsisten",
+);
+assert.match(
+  userLeaveScript,
+  /status === "alfa"[\s\S]*showPopupError\(title, message\)/,
+  "Alfa dari pre-check harus ditampilkan sebagai popup penolakan",
 );
 
 assert.ok(

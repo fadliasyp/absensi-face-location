@@ -52,7 +52,7 @@ Frontend berupa halaman statis. Supabase menjadi backend untuk Auth, Postgres, S
 
 ## Current Work
 
-Jadwal absensi tiga tahap telah diimplementasikan pada repository: Jam Masuk, Batas Masuk, dan Jam Generate Alfa dinamis. Popup absensi peserta memakai tampilan formal yang konsisten. Navbar admin/peserta pada laptop sempit menggunakan hamburger/sidebar agar tidak keluar viewport. Migration remote belum diverifikasi.
+Jadwal absensi tiga tahap telah diimplementasikan pada repository: Jam Masuk, Batas Masuk, dan Jam Generate Alfa dinamis. Pengajuan izin hari ini ditolak mulai Jam Generate Alfa server WIB dan menampilkan popup formal. Navbar admin/peserta pada laptop sempit menggunakan hamburger/sidebar agar tidak keluar viewport. Migration remote belum diverifikasi.
 
 ## Pending Work
 
@@ -77,7 +77,7 @@ Jadwal absensi tiga tahap telah diimplementasikan pada repository: Jam Masuk, Ba
 - Status/tanggal/waktu/jarak absensi dihitung ulang oleh server; browser tidak menentukan status final.
 - Maksimal satu data `absensi` per peserta per tanggal.
 - Peserta aktif tanpa hadir/terlambat/izin pada hari kerja dibuatkan `alfa` mulai Jam Generate Alfa. Nilai default data lama adalah pukul 12.00 WIB.
-- Izin manual tetap diperbolehkan untuk sakit/berhalangan, tetapi hanya pada hari kerja dan dicatat melalui RPC.
+- Izin manual tetap diperbolehkan untuk sakit/berhalangan, tetapi hanya pada hari kerja, sebelum deadline tanggal terkait, dan dicatat melalui RPC.
 - Penghapusan lokasi melepaskan FK lokasi aktif, bukan menghapus riwayat absensi.
 
 ## Technical Facts

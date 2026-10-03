@@ -9,11 +9,13 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 - Jam Generate Alfa dinamis dengan fallback pukul 12.00 WIB untuk data lama.
 - Field admin untuk Jam Masuk, Batas Masuk, dan Jam Generate Alfa.
 - Gaya SweetAlert formal yang konsisten pada alur absensi peserta.
+- Penolakan izin berbasis Jam Generate Alfa server WIB dengan respons khusus saat Alfa sudah tercatat.
 
 ### Changed
 
 - Status Hadir berlaku sampai Batas Masuk; setelahnya berstatus Terlambat sampai sebelum Jam Generate Alfa.
 - Cron Alfa berubah dari jadwal tetap pukul 12.00 menjadi pemeriksaan idempoten setiap menit terhadap deadline server WIB.
+- Popup pengajuan izin menggunakan gaya formal yang sama dengan popup absensi.
 
 ### Fixed
 

@@ -125,6 +125,9 @@ Peserta dapat mengirim izin manual ketika sakit atau berhalangan, disertai keter
 - Bukti menerima JPEG, PNG, atau WebP pada UI.
 - Record dibuat melalui RPC `catat_izin`, bukan direct insert browser.
 - Izin mengikuti kalender hari kerja dan invariant satu record per tanggal.
+- Izin tanggal hari ini hanya dapat dikirim sebelum Jam Generate Alfa berdasarkan waktu server WIB.
+- Tepat pada atau setelah Jam Generate Alfa, pengajuan hari ini ditolak; tanggal lampau juga ditolak, sedangkan tanggal mendatang tetap dapat diajukan.
+- Jika Alfa sudah tercatat, UI menampilkan popup formal `Izin Ditolak`.
 - Upload bukti dibersihkan secara best-effort bila RPC gagal.
 
 ### Jangan Rusak
@@ -136,6 +139,7 @@ Peserta dapat mengirim izin manual ketika sakit atau berhalangan, disertai keter
 
 - `assets/js/user-izin.js`
 - `supabase/migrations/202610030004_secure_manual_leave.sql`
+- `supabase/migrations/202610040002_reject_late_manual_leave.sql`
 - `tests/integrity-hardening.test.cjs`
 
 ## Attendance Photo Access in Exports

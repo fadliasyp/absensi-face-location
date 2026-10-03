@@ -82,24 +82,45 @@ function isiNavbarUser(profile) {
   }
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 function showMessage(text, type = "error") {
   if (!messageBox) return;
 
   messageBox.innerHTML = `
     <div class="alert ${type === "success" ? "alert-success" : "alert-error"}">
-      ${text}
+      ${escapeHtml(text)}
     </div>
   `;
+}
+
+function getLeavePopupStyle() {
+  return {
+    customClass: {
+      popup: "attendance-swal-popup",
+      title: "attendance-swal-title",
+      htmlContainer: "attendance-swal-content",
+      confirmButton: "attendance-swal-confirm",
+    },
+  };
 }
 
 function showPopupSuccess(title, text) {
   if (window.Swal) {
     Swal.fire({
+      ...getLeavePopupStyle(),
       icon: "success",
       title,
       text,
-      confirmButtonText: "Oke",
-      confirmButtonColor: "#2563eb",
+      confirmButtonText: "Selesai",
+      confirmButtonColor: "#315aa8",
     });
   } else {
     alert(title + "\n" + text);
@@ -109,11 +130,12 @@ function showPopupSuccess(title, text) {
 function showPopupError(title, text) {
   if (window.Swal) {
     Swal.fire({
+      ...getLeavePopupStyle(),
       icon: "error",
       title,
       text,
-      confirmButtonText: "Coba Lagi",
-      confirmButtonColor: "#d33",
+      confirmButtonText: "Saya Mengerti",
+      confirmButtonColor: "#dc2626",
     });
   } else {
     alert(title + "\n" + text);
@@ -192,19 +214,20 @@ const ekstensiBuktiIzin = {
   "image/webp": "webp",
 };
 
-async function cekSudahAdaAbsensi(tanggal) {
+async function cekDataAbsensi(tanggal) {
   const { data, error } = await supabaseClient
     .from("absensi")
-    .select("*")
+    .select("status")
     .eq("user_id", currentUser.id)
-    .eq("tanggal", tanggal);
+    .eq("tanggal", tanggal)
+    .limit(1);
 
   if (error) {
     console.error(error);
-    return false;
+    return null;
   }
 
-  return data && data.length > 0;
+  return data?.[0] || null;
 }
 
 async function uploadBuktiIzin(file, tanggal) {
@@ -309,10 +332,17 @@ if (izinForm) {
       return;
     }
 
-    const sudahAda = await cekSudahAdaAbsensi(tanggalIzin);
+    const dataTercatat = await cekDataAbsensi(tanggalIzin);
 
-    if (sudahAda) {
-      showMessage("Anda sudah memiliki data absensi pada tanggal tersebut.");
+    if (dataTercatat) {
+      const isAlfa = dataTercatat.status === "alfa";
+      const title = isAlfa ? "Izin Ditolak" : "Data Sudah Tercatat";
+      const message = isAlfa
+        ? "Status Alfa untuk tanggal tersebut sudah tercatat sehingga pengajuan izin tidak dapat dilakukan."
+        : "Anda sudah memiliki data absensi atau izin pada tanggal tersebut.";
+
+      showMessage(message);
+      showPopupError(title, message);
       submitButton.disabled = false;
       submitButton.innerText = "Kirim Izin";
       return;
