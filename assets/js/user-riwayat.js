@@ -86,7 +86,7 @@ function showMessage(text, type = "error") {
 
   messageBox.innerHTML = `
     <div class="alert ${type === "success" ? "alert-success" : "alert-error"}">
-      ${text}
+      ${escapeHtml(text)}
     </div>
   `;
 }
@@ -150,10 +150,37 @@ async function cekUser() {
   return profile;
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 function safeText(value) {
   return value !== null && value !== undefined && value !== ""
-    ? String(value)
+    ? escapeHtml(value)
     : "-";
+}
+
+function renderBuktiIzinLink(url, className = "") {
+  let parsedUrl;
+
+  try {
+    parsedUrl = new URL(String(url));
+  } catch {
+    return "";
+  }
+
+  if (parsedUrl.protocol !== "https:") return "";
+
+  const classAttribute = className
+    ? ` class="${escapeHtml(className)}"`
+    : "";
+
+  return `<a${classAttribute} href="${escapeHtml(parsedUrl.href)}" target="_blank" rel="noopener noreferrer">Lihat Bukti Izin</a>`;
 }
 
 function formatTanggal(tanggal) {
@@ -213,6 +240,7 @@ function setTanggalHariIniText() {
   const now = new Date();
 
   riwayatTodayText.textContent = now.toLocaleDateString("id-ID", {
+    timeZone: "Asia/Jakarta",
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -221,7 +249,7 @@ function setTanggalHariIniText() {
 }
 
 function setDefaultTanggal() {
-  const today = new Date().toISOString().split("T")[0];
+  const today = getJakartaDateString();
 
   if (!tanggalAwalInput.value) {
     tanggalAwalInput.value = today;
@@ -266,11 +294,7 @@ function renderDesktopTable(riwayatList) {
         <td>${badgeValidasi(item.validasi_wajah)}</td>
         <td>${safeText(item.keterangan)}</td>
         <td>
-          ${
-            item.bukti_izin_url
-              ? `<a href="${item.bukti_izin_url}" target="_blank">Lihat Bukti</a>`
-              : "-"
-          }
+          ${renderBuktiIzinLink(item.bukti_izin_url) || "-"}
         </td>
       </tr>
     `;
@@ -329,11 +353,7 @@ function renderMobileCards(riwayatList) {
           ${safeText(item.keterangan)}
         </div>
 
-        ${
-          item.bukti_izin_url
-            ? `<a class="riwayat-proof-link" href="${item.bukti_izin_url}" target="_blank">Lihat Bukti Izin</a>`
-            : ""
-        }
+        ${renderBuktiIzinLink(item.bukti_izin_url, "riwayat-proof-link")}
       </div>
     `;
     })

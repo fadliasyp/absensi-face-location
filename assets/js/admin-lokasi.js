@@ -11,6 +11,7 @@ const radiusInput = document.getElementById("radius_meter");
 const previewLokasiNama = document.getElementById("previewLokasiNama");
 const previewKoordinat = document.getElementById("previewKoordinat");
 const previewRadius = document.getElementById("previewRadius");
+let lokasiById = new Map();
 
 function openAdminSidebar() {
   const sidebar = document.getElementById("adminSidebar");
@@ -58,7 +59,7 @@ function showMessage(text, type = "error") {
 
   messageBox.innerHTML = `
     <div class="alert ${type === "success" ? "alert-success" : "alert-error"}">
-      ${text}
+      ${escapeHtml(text)}
     </div>
   `;
 }
@@ -88,14 +89,19 @@ async function cekAdmin() {
   return profile;
 }
 
-function safeText(value) {
-  return value !== null && value !== undefined && value !== ""
-    ? String(value)
-    : "-";
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
-function escapeQuotes(text) {
-  return String(text).replace(/'/g, "\\'");
+function safeText(value) {
+  return value !== null && value !== undefined && value !== ""
+    ? escapeHtml(value)
+    : "-";
 }
 
 function updatePreview(nama, latitude, longitude, radius) {
@@ -124,6 +130,9 @@ function renderDesktopTable(lokasiList) {
 
   lokasiTableBody.innerHTML = lokasiList
     .map((lokasi) => {
+      const lokasiId = Number(lokasi.id);
+      if (!Number.isSafeInteger(lokasiId)) return "";
+
       return `
       <tr>
         <td>${safeText(lokasi.nama_lokasi)}</td>
@@ -132,10 +141,10 @@ function renderDesktopTable(lokasiList) {
         <td>${safeText(lokasi.radius_meter)} meter</td>
         <td>
           <div class="action-stack">
-            <button onclick="editLokasi(${lokasi.id}, '${escapeQuotes(lokasi.nama_lokasi)}', ${lokasi.latitude}, ${lokasi.longitude}, ${lokasi.radius_meter})">
+            <button onclick="editLokasi(${lokasiId})">
               Edit
             </button>
-            <button onclick="hapusLokasi(${lokasi.id})" class="danger">
+            <button onclick="hapusLokasi(${lokasiId})" class="danger">
               Hapus
             </button>
           </div>
@@ -151,6 +160,9 @@ function renderMobileCards(lokasiList) {
 
   lokasiCardList.innerHTML = lokasiList
     .map((lokasi) => {
+      const lokasiId = Number(lokasi.id);
+      if (!Number.isSafeInteger(lokasiId)) return "";
+
       return `
       <div class="lokasi-mobile-card">
         <h3>${safeText(lokasi.nama_lokasi)}</h3>
@@ -174,10 +186,10 @@ function renderMobileCards(lokasiList) {
         </div>
 
         <div class="lokasi-card-actions">
-          <button onclick="editLokasi(${lokasi.id}, '${escapeQuotes(lokasi.nama_lokasi)}', ${lokasi.latitude}, ${lokasi.longitude}, ${lokasi.radius_meter})">
+          <button onclick="editLokasi(${lokasiId})">
             Edit Lokasi
           </button>
-          <button onclick="hapusLokasi(${lokasi.id})" class="danger">
+          <button onclick="hapusLokasi(${lokasiId})" class="danger">
             Hapus Lokasi
           </button>
         </div>
@@ -198,10 +210,12 @@ async function loadLokasi() {
     .order("id", { ascending: true });
 
   if (error) {
+    lokasiById = new Map();
+
     if (lokasiTableBody) {
       lokasiTableBody.innerHTML = `
         <tr>
-          <td colspan="5">Gagal memuat lokasi: ${error.message}</td>
+          <td colspan="5">Gagal memuat lokasi: ${safeText(error.message)}</td>
         </tr>
       `;
     }
@@ -209,7 +223,7 @@ async function loadLokasi() {
     if (lokasiCardList) {
       lokasiCardList.innerHTML = `
         <div class="empty-location-card">
-          Gagal memuat lokasi: ${error.message}
+          Gagal memuat lokasi: ${safeText(error.message)}
         </div>
       `;
     }
@@ -218,6 +232,8 @@ async function loadLokasi() {
   }
 
   if (!lokasiList || lokasiList.length === 0) {
+    lokasiById = new Map();
+
     if (lokasiTableBody) {
       lokasiTableBody.innerHTML = `
         <tr>
@@ -238,6 +254,7 @@ async function loadLokasi() {
     return;
   }
 
+  lokasiById = new Map(lokasiList.map((lokasi) => [String(lokasi.id), lokasi]));
   renderDesktopTable(lokasiList);
   renderMobileCards(lokasiList);
 
@@ -250,7 +267,19 @@ async function loadLokasi() {
   );
 }
 
-function editLokasi(id, nama, latitude, longitude, radius) {
+function editLokasi(id) {
+  const lokasi = lokasiById.get(String(id));
+
+  if (!lokasi) {
+    showMessage("Data lokasi tidak ditemukan. Silakan muat ulang halaman.");
+    return;
+  }
+
+  const nama = lokasi.nama_lokasi;
+  const latitude = lokasi.latitude;
+  const longitude = lokasi.longitude;
+  const radius = lokasi.radius_meter;
+
   idLokasiInput.value = id;
   namaLokasiInput.value = nama;
   latitudeInput.value = latitude;
@@ -332,21 +361,25 @@ function resetForm() {
 }
 
 async function hapusLokasi(id) {
-  const yakin = confirm("Yakin ingin menghapus lokasi ini?");
+  const yakin = confirm(
+    "Yakin ingin menghapus lokasi ini? Riwayat absensi lama akan tetap tersimpan.",
+  );
 
   if (!yakin) return;
 
-  const { error } = await supabaseClient
-    .from("lokasi_absen")
-    .delete()
-    .eq("id", id);
+  const { data, error } = await supabaseClient.rpc("hapus_lokasi_absen", {
+    p_lokasi_id: String(id),
+  });
 
-  if (error) {
-    showMessage("Gagal menghapus lokasi: " + error.message);
+  if (error || !data?.success) {
+    showMessage(
+      "Gagal menghapus lokasi: " +
+        (data?.message || error?.message || "Kesalahan tidak diketahui."),
+    );
     return;
   }
 
-  showMessage("Lokasi berhasil dihapus.", "success");
+  showMessage(data.message || "Lokasi berhasil dihapus.", "success");
   loadLokasi();
 }
 

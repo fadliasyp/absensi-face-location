@@ -81,13 +81,20 @@ serve(async (req) => {
 
     const { data: adminProfile, error: adminProfileError } = await supabaseAdmin
       .from("profiles")
-      .select("role")
+      .select("role, status_akun")
       .eq("id", callerId)
       .single();
 
-    if (adminProfileError || !adminProfile || adminProfile.role !== "admin") {
+    if (
+      adminProfileError ||
+      !adminProfile ||
+      adminProfile.role !== "admin" ||
+      adminProfile.status_akun !== "aktif"
+    ) {
       return new Response(
-        JSON.stringify({ error: "Akses ditolak. Hanya admin yang boleh menghapus user." }),
+        JSON.stringify({
+          error: "Akses ditolak. Hanya admin aktif yang boleh menghapus user.",
+        }),
         {
           status: 403,
           headers: { ...corsHeaders, "Content-Type": "application/json" },

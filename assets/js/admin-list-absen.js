@@ -59,7 +59,7 @@ function showMessage(text, type = "error") {
 
   messageBox.innerHTML = `
     <div class="alert ${type === "success" ? "alert-success" : "alert-error"}">
-      ${text}
+      ${escapeAttribute(text)}
     </div>
   `;
 }
@@ -91,7 +91,7 @@ async function cekAdmin() {
 
 function safeText(value) {
   return value !== null && value !== undefined && value !== ""
-    ? String(value)
+    ? escapeAttribute(value)
     : "-";
 }
 
@@ -102,6 +102,24 @@ function escapeAttribute(value) {
     .replaceAll("'", "&#039;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;");
+}
+
+function renderBuktiIzinLink(url, className = "") {
+  let parsedUrl;
+
+  try {
+    parsedUrl = new URL(String(url));
+  } catch {
+    return "";
+  }
+
+  if (parsedUrl.protocol !== "https:") return "";
+
+  const classAttribute = className
+    ? ` class="${escapeAttribute(className)}"`
+    : "";
+
+  return `<a${classAttribute} href="${escapeAttribute(parsedUrl.href)}" target="_blank" rel="noopener noreferrer">Lihat Bukti Izin</a>`;
 }
 
 function getFotoAbsenHref(absen) {
@@ -188,6 +206,7 @@ function setTanggalHariIniText() {
   const now = new Date();
 
   todayText.textContent = now.toLocaleDateString("id-ID", {
+    timeZone: "Asia/Jakarta",
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -196,7 +215,7 @@ function setTanggalHariIniText() {
 }
 
 function setDefaultTanggal() {
-  const today = new Date().toISOString().split("T")[0];
+  const today = getJakartaDateString();
 
   if (!tanggalAwalInput.value) {
     tanggalAwalInput.value = today;
@@ -248,11 +267,7 @@ function renderDesktopTable(absensiList) {
   ${renderFotoAbsenLink(absen)}
 </td>
         <td>
-          ${
-            absen.bukti_izin_url
-              ? `<a href="${absen.bukti_izin_url}" target="_blank">Lihat Bukti</a>`
-              : "-"
-          }
+          ${renderBuktiIzinLink(absen.bukti_izin_url) || "-"}
         </td>
       </tr>
     `;
@@ -326,11 +341,7 @@ function renderMobileCards(absensiList) {
 
         
 
-        ${
-          absen.bukti_izin_url
-            ? `<a class="absen-proof-link" href="${absen.bukti_izin_url}" target="_blank">Lihat Bukti Izin</a>`
-            : ""
-        }
+        ${renderBuktiIzinLink(absen.bukti_izin_url, "absen-proof-link")}
       </div>
     `;
     })

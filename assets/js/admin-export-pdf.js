@@ -207,7 +207,7 @@ function renderPreview(list) {
 }
 
 function setDefaultTanggal() {
-  const today = new Date().toISOString().split("T")[0];
+  const today = getJakartaDateString();
 
   if (!tanggalAwalInput.value) {
     tanggalAwalInput.value = today;

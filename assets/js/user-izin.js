@@ -182,13 +182,15 @@ document.addEventListener("keydown", function (event) {
 });
 
 function setTanggalHariIni() {
-  const today = new Date().toISOString().split("T")[0];
+  const today = getJakartaDateString();
   tanggalIzinInput.value = today;
 }
 
-function getFileExtension(filename) {
-  return filename.split(".").pop();
-}
+const ekstensiBuktiIzin = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+};
 
 async function cekSudahAdaAbsensi(tanggal) {
   const { data, error } = await supabaseClient
@@ -206,7 +208,12 @@ async function cekSudahAdaAbsensi(tanggal) {
 }
 
 async function uploadBuktiIzin(file, tanggal) {
-  const extension = getFileExtension(file.name);
+  const extension = ekstensiBuktiIzin[file.type];
+
+  if (!extension) {
+    throw new Error("Format foto harus JPEG, PNG, atau WebP.");
+  }
+
   const fileName = `${currentUser.id}/${tanggal}-${Date.now()}.${extension}`;
 
   const { error: uploadError } = await supabaseClient.storage
@@ -224,7 +231,22 @@ async function uploadBuktiIzin(file, tanggal) {
     .from("bukti-izin")
     .getPublicUrl(fileName);
 
-  return publicData.publicUrl;
+  return {
+    path: fileName,
+    url: publicData.publicUrl,
+  };
+}
+
+async function hapusBuktiIzin(filePath) {
+  if (!filePath) return;
+
+  const { error } = await supabaseClient.storage
+    .from("bukti-izin")
+    .remove([filePath]);
+
+  if (error) {
+    console.error("Gagal membersihkan bukti izin yang tidak terpakai:", error);
+  }
 }
 
 if (buktiIzinInput && previewBuktiIzin) {
@@ -273,8 +295,8 @@ if (izinForm) {
       return;
     }
 
-    if (!file.type.startsWith("image/")) {
-      showMessage("File bukti harus berupa gambar.");
+    if (!ekstensiBuktiIzin[file.type]) {
+      showMessage("File bukti harus berupa JPEG, PNG, atau WebP.");
       submitButton.disabled = false;
       submitButton.innerText = "Kirim Izin";
       return;
@@ -298,10 +320,10 @@ if (izinForm) {
 
     showMessage("Mengupload bukti izin...", "success");
 
-    let buktiUrl = "";
+    let buktiIzin = null;
 
     try {
-      buktiUrl = await uploadBuktiIzin(file, tanggalIzin);
+      buktiIzin = await uploadBuktiIzin(file, tanggalIzin);
     } catch (error) {
       console.error(error);
       showMessage("Gagal upload bukti izin: " + error.message);
@@ -312,24 +334,26 @@ if (izinForm) {
 
     showMessage("Menyimpan data izin...", "success");
 
-    const { error: insertError } = await supabaseClient.from("absensi").insert({
-      user_id: currentUser.id,
-      tanggal: tanggalIzin,
-      waktu_masuk: null,
-      latitude: null,
-      longitude: null,
-      nama_tempat: null,
-      jarak_meter: null,
-      status: "izin",
-      keterangan: keterangan,
-      bukti_izin_url: buktiUrl,
-      validasi_wajah: "tidak_valid",
-      validasi_lokasi: "tidak_valid",
-    });
+    const { data: hasilIzin, error: insertError } = await supabaseClient.rpc(
+      "catat_izin",
+      {
+        p_tanggal: tanggalIzin,
+        p_keterangan: keterangan,
+        p_bukti_izin_url: buktiIzin.url,
+      },
+    );
 
-    if (insertError) {
-      console.error(insertError);
-      showMessage("Gagal menyimpan izin: " + insertError.message);
+    if (insertError || !hasilIzin?.success) {
+      console.error(insertError || hasilIzin);
+      await hapusBuktiIzin(buktiIzin.path);
+
+      const pesan =
+        hasilIzin?.message ||
+        insertError?.message ||
+        "Izin ditolak oleh server.";
+
+      showMessage("Gagal menyimpan izin: " + pesan);
+      showPopupError(hasilIzin?.title || "Izin Tidak Tersimpan", pesan);
       submitButton.disabled = false;
       submitButton.innerText = "Kirim Izin";
       return;
