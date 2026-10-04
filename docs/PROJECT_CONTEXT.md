@@ -52,7 +52,7 @@ Frontend berupa halaman statis. Supabase menjadi backend untuk Auth, Postgres, S
 
 ## Current Work
 
-Active liveness dipertahankan pada Tahap 1: browser membuat urutan acak kedip, tengok kanan, dan tengok kiri dengan target satu/dua kedipan serta jeda prompt acak. Baseline pose dan bukaan mata diambil dari frame wajah valid pertama tanpa tahap stabilisasi awal; kestabilan aksi, kembali netral, pemeriksaan identitas awal/akhir, dan fail-closed pada gangguan kamera tetap berlaku. Kedip mengutamakan blendshape MediaPipe dengan EAR sebagai fallback. Tahap 2 server-bound telah dibatalkan atas keputusan pengguna; migration `202610040006` memulihkan RPC `catat_absensi` dan menghapus sesi/proof server jika Tahap 2 pernah diterapkan. Deployment rollback dan frontend v6 terbaru belum diverifikasi.
+Active liveness dipertahankan pada Tahap 1: browser membuat urutan acak kedip, tengok kanan, dan tengok kiri dengan target satu/dua kedipan serta jeda prompt acak. Baseline pose dan bukaan mata diambil dari frame wajah valid pertama tanpa tahap stabilisasi awal; kestabilan aksi, kembali netral, pemeriksaan identitas awal/akhir, dan fail-closed pada gangguan kamera tetap berlaku. Kedip cepat dapat dikenali oleh MediaPipe atau EAR face-api dengan transisi kedua mata tutup–buka yang konsisten; sampel MediaPipe lama tidak boleh menutupi EAR terbaru. Tahap 2 server-bound telah dibatalkan atas keputusan pengguna; migration `202610040006` memulihkan RPC `catat_absensi` dan menghapus sesi/proof server jika Tahap 2 pernah diterapkan. Deployment rollback dan frontend v7 terbaru belum diverifikasi.
 
 ## Pending Work
 
@@ -63,7 +63,7 @@ Active liveness dipertahankan pada Tahap 1: browser membuat urutan acak kedip, t
 - Buat atau nonaktifkan referensi `supabase/seed.sql`; file tersebut dirujuk config tetapi belum ada.
 - Tambahkan browser/runtime test untuk kamera, geolokasi, R2, export, dan email bila diperlukan.
 - Uji active liveness pada beberapa ponsel, kondisi cahaya, kacamata, dan bentuk mata sebelum menetapkan threshold sebagai final production.
-- Jika migration Tahap 2 (`202610040004`/`202610040005`) pernah diterapkan, jalankan `202610040006_rollback_server_bound_liveness.sql` sebelum deploy frontend liveness v4.
+- Jika migration Tahap 2 (`202610040004`/`202610040005`) pernah diterapkan, jalankan `202610040006_rollback_server_bound_liveness.sql` sebelum deploy frontend liveness v7.
 - Ukur ulang respons UI pada perangkat pengguna setelah deploy ikon statis. Kurangi efek blur/transisi mobile hanya jika jank masih terukur.
 
 ## Business Logic

@@ -120,16 +120,16 @@ function frame(timestamp, overrides = {}) {
   );
 }
 
-function prepareAction(session, startAt = 0) {
+function prepareAction(session, startAt = 0, overrides = {}) {
   let timestamp = startAt;
 
   for (let index = 0; index < testConfig.calibrationFrames; index += 1) {
-    session.ingest(frame(timestamp));
+    session.ingest(frame(timestamp, overrides));
     timestamp += 150;
   }
 
   for (let index = 0; index < testConfig.neutralFrames; index += 1) {
-    session.ingest(frame(timestamp));
+    session.ingest(frame(timestamp, overrides));
     timestamp += 150;
   }
 
@@ -176,6 +176,112 @@ function prepareAction(session, startAt = 0) {
     session.getState().actionIndex,
     0,
     "Gerakan sebelum prompt tidak boleh memenuhi challenge.",
+  );
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.BLINK],
+    config: testConfig,
+  });
+  let timestamp = prepareAction(session);
+
+  session.ingest(frame(timestamp, { leftEAR: 0.1, rightEAR: 0.1 }));
+  timestamp += 35;
+  session.ingest(frame(timestamp));
+  timestamp += 35;
+  session.ingest(frame(timestamp));
+  timestamp += 35;
+  session.ingest(frame(timestamp));
+  timestamp += 35;
+  session.ingest(frame(timestamp));
+
+  assert.equal(
+    session.getState().complete,
+    true,
+    "Kedipan normal yang cepat harus dikenali dari transisi tutup-buka kedua mata.",
+  );
+}
+
+{
+  const mediaPipeOpen = { blinkLeft: 0.08, blinkRight: 0.09 };
+  const session = createLivenessSession({
+    sequence: [ACTIONS.BLINK],
+    config: testConfig,
+  });
+  let timestamp = prepareAction(session, 0, mediaPipeOpen);
+
+  session.ingest(
+    frame(timestamp, {
+      ...mediaPipeOpen,
+      leftEAR: 0.1,
+      rightEAR: 0.1,
+    }),
+  );
+  timestamp += 35;
+  session.ingest(frame(timestamp, mediaPipeOpen));
+  timestamp += 35;
+  session.ingest(frame(timestamp, mediaPipeOpen));
+  timestamp += 35;
+  session.ingest(frame(timestamp, mediaPipeOpen));
+  timestamp += 35;
+  session.ingest(frame(timestamp, mediaPipeOpen));
+
+  assert.equal(
+    session.getState().complete,
+    true,
+    "EAR harus tetap dapat menangkap kedipan cepat saat sampel MediaPipe masih menunjukkan mata terbuka.",
+  );
+}
+
+{
+  const mediaPipeOpen = { blinkLeft: 0.08, blinkRight: 0.09 };
+  const session = createLivenessSession({
+    sequence: [ACTIONS.BLINK],
+    config: testConfig,
+  });
+  let timestamp = prepareAction(session, 0, mediaPipeOpen);
+
+  session.ingest(
+    frame(timestamp, {
+      ...mediaPipeOpen,
+      blinkLeft: 0.55,
+      blinkRight: 0.56,
+    }),
+  );
+  timestamp += 35;
+  session.ingest(frame(timestamp, mediaPipeOpen));
+  timestamp += 35;
+  session.ingest(frame(timestamp, mediaPipeOpen));
+  timestamp += 35;
+  session.ingest(frame(timestamp, mediaPipeOpen));
+  timestamp += 35;
+  session.ingest(frame(timestamp, mediaPipeOpen));
+
+  assert.equal(
+    session.getState().complete,
+    true,
+    "Kedipan cepat dari blendshape MediaPipe harus dikenali tanpa memerlukan mata tertutup lama.",
+  );
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.BLINK],
+    config: testConfig,
+  });
+  let timestamp = prepareAction(session);
+
+  session.ingest(frame(timestamp, { leftEAR: 0.1, rightEAR: 0.3 }));
+  timestamp += 35;
+  session.ingest(frame(timestamp));
+  timestamp += 35;
+  session.ingest(frame(timestamp));
+
+  assert.equal(
+    session.getState().complete,
+    false,
+    "Satu mata tertutup tidak boleh dianggap sebagai kedipan valid.",
   );
 }
 
@@ -556,9 +662,9 @@ assert.match(
   "Engine liveness harus dimuat sebelum controller verifikasi.",
 );
 assert.equal(
-  (verificationPage.match(/active-liveness-v6/g) || []).length,
+  (verificationPage.match(/active-liveness-v7/g) || []).length,
   3,
-  "Ketiga asset liveness harus memakai versi cache v6 yang sama.",
+  "Ketiga asset liveness harus memakai versi cache v7 yang sama.",
 );
 assert.match(
   verificationScript,
@@ -618,6 +724,11 @@ assert.match(
   verificationScript,
   /AttendanceFaceGuide[^]*getLatestLivenessSample/,
   "Controller verifikasi harus menggabungkan sinyal kedip MediaPipe.",
+);
+assert.match(
+  verificationScript,
+  /Math\.abs\(sampleAge\)\s*<=\s*200/,
+  "Sampel MediaPipe yang sudah terlalu lama tidak boleh menutupi EAR frame terbaru.",
 );
 assert.ok(
   /function waitForNextLivenessFrame\(delayMs = 35\)/.test(

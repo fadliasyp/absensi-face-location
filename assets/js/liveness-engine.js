@@ -36,7 +36,7 @@
     blinkBlendshapeClosedDelta: 0.18,
     blinkBlendshapeOpenFallback: 0.3,
     blinkBlendshapeReopenDelta: 0.1,
-    minBlinkClosedMs: 60,
+    minBlinkClosedMs: 25,
     maxBlinkClosedMs: 1400,
     maxMissingFaceMs: 2200,
     minPromptDelayMs: 700,
@@ -135,6 +135,7 @@
       turnCount: 0,
       wrongActionCount: 0,
       blinkStage: "awaiting_closed",
+      blinkSignalSource: null,
       blinkClosedAt: null,
       blinkReopenCount: 0,
       blinkTarget: blinkTarget === 2 ? 2 : 1,
@@ -159,6 +160,7 @@
       state.turnCount = 0;
       state.wrongActionCount = 0;
       state.blinkStage = "awaiting_closed";
+      state.blinkSignalSource = null;
       state.blinkClosedAt = null;
       state.blinkReopenCount = 0;
 
@@ -218,6 +220,7 @@
       state.turnCount = 0;
       state.wrongActionCount = 0;
       state.blinkStage = "awaiting_closed";
+      state.blinkSignalSource = null;
       state.blinkClosedAt = null;
       state.blinkReopenCount = 0;
       state.blinkCompletedCount = 0;
@@ -415,21 +418,27 @@
             state.baseline.blinkRight + settings.blinkBlendshapeReopenDelta,
           )
         : settings.blinkBlendshapeOpenFallback;
-      const bothEyesClosed = hasBlendshapeSignal
-        ? sample.blinkLeft >= leftClosedThreshold &&
-          sample.blinkRight >= rightClosedThreshold
-        : sample.leftEAR <=
-            state.baseline.leftEAR * settings.blinkClosedRatio &&
-          sample.rightEAR <=
-            state.baseline.rightEAR * settings.blinkClosedRatio;
-      const bothEyesReopened = hasBlendshapeSignal
-        ? sample.blinkLeft <= leftOpenThreshold &&
-          sample.blinkRight <= rightOpenThreshold
-        : eyesAreOpen(sample, settings.blinkReopenRatio);
+      const blendshapeEyesClosed =
+        hasBlendshapeSignal &&
+        sample.blinkLeft >= leftClosedThreshold &&
+        sample.blinkRight >= rightClosedThreshold;
+      const earEyesClosed =
+        sample.leftEAR <=
+          state.baseline.leftEAR * settings.blinkClosedRatio &&
+        sample.rightEAR <=
+          state.baseline.rightEAR * settings.blinkClosedRatio;
+      const blendshapeEyesReopened =
+        hasBlendshapeSignal &&
+        sample.blinkLeft <= leftOpenThreshold &&
+        sample.blinkRight <= rightOpenThreshold;
+      const earEyesReopened = eyesAreOpen(sample, settings.blinkReopenRatio);
 
       if (state.blinkStage === "awaiting_closed") {
-        if (bothEyesClosed) {
+        if (blendshapeEyesClosed || earEyesClosed) {
           state.blinkStage = "awaiting_reopen";
+          state.blinkSignalSource = blendshapeEyesClosed
+            ? "blendshape"
+            : "ear";
           state.blinkClosedAt = sample.timestamp;
           state.blinkReopenCount = 0;
           state.message = "Kedipan terbaca. Buka kembali kedua mata.";
@@ -439,9 +448,14 @@
       }
 
       const closedDuration = sample.timestamp - state.blinkClosedAt;
+      const bothEyesReopened =
+        state.blinkSignalSource === "blendshape" && hasBlendshapeSignal
+          ? blendshapeEyesReopened
+          : earEyesReopened;
 
       if (closedDuration > settings.maxBlinkClosedMs) {
         state.blinkStage = "awaiting_closed";
+        state.blinkSignalSource = null;
         state.blinkClosedAt = null;
         state.blinkReopenCount = 0;
         state.message = `${actionProgressText()}: kedip perlahan atau pejamkan kedua mata sesaat, lalu buka kembali.`;
@@ -455,6 +469,7 @@
 
       if (closedDuration < settings.minBlinkClosedMs) {
         state.blinkStage = "awaiting_closed";
+        state.blinkSignalSource = null;
         state.blinkClosedAt = null;
         state.blinkReopenCount = 0;
         return;
@@ -467,6 +482,7 @@
 
         if (state.blinkCompletedCount < state.blinkTarget) {
           state.blinkStage = "awaiting_closed";
+          state.blinkSignalSource = null;
           state.blinkClosedAt = null;
           state.blinkReopenCount = 0;
           state.message = `${actionProgressText()}: kedipkan kedua mata sekali lagi.`;

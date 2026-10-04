@@ -1,5 +1,22 @@
 # Decision Log
 
+## 2026-10-04 - Kedipan Cepat Menggunakan Fusi Sinyal Konsisten
+
+### Status
+
+ACCEPTED
+
+### Decision
+
+Siklus kedip dapat dimulai ketika kedua mata tertutup menurut MediaPipe atau EAR face-api. Pembukaan kembali diverifikasi dengan sumber yang memulai siklus. Durasi tertutup minimum adalah 25 ms dan sampel MediaPipe hanya dianggap baru selama 200 ms.
+
+### Consequences
+
+- Kedipan manusia yang cepat dan hanya tertangkap satu frame tertutup lebih mudah dikenali.
+- Sampel MediaPipe mata terbuka yang sudah lama tidak lagi menutupi kedipan yang tertangkap EAR terbaru.
+- Kedipan tetap membutuhkan kedua mata, pembukaan kembali, dan beberapa frame lanjutan; kedipan satu mata serta perubahan kecil tetap ditolak.
+- Ambang lebih toleran dapat meningkatkan sensitivitas terhadap satu frame deteksi buruk, tetapi syarat dua mata, sumber konsisten, urutan acak, dan pemeriksaan identitas tetap membatasi false positive.
+
 ## 2026-10-04 - Hapus Stabilisasi Awal Active Liveness
 
 ### Status

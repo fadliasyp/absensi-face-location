@@ -851,7 +851,7 @@ function getRecentMediaPipeBlinkSample(timestamp) {
 
   const sample = faceGuide.getLatestLivenessSample();
   const sampleAge = timestamp - Number(sample?.timestamp);
-  const isRecent = Number.isFinite(sampleAge) && Math.abs(sampleAge) <= 650;
+  const isRecent = Number.isFinite(sampleAge) && Math.abs(sampleAge) <= 200;
 
   if (
     !isRecent ||
