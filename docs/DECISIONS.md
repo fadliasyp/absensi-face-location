@@ -31,11 +31,27 @@ Teks instruksi tengok kanan menyertakan `➡️`, sedangkan tengok kiri menyerta
 - Peserta memperoleh petunjuk teks dan visual yang konsisten.
 - Mapping yaw dan aturan deteksi gerakan tidak diubah oleh penambahan panah.
 
+## 2026-10-04 - Koordinat Deteksi Mengikuti Video Mentah
+
+### Status
+
+Accepted. Menggantikan keputusan pemetaan arah berdasarkan preview mirror.
+
+### Decision
+
+Mirror kamera depan diterapkan hanya melalui CSS pada elemen preview dan tidak mengubah piksel video yang dianalisis face-api. Engine karena itu mengenali tengok kanan peserta sebagai delta yaw negatif dan tengok kiri sebagai delta yaw positif. Panah dan teks instruksi tetap mengikuti perspektif peserta.
+
+### Consequences
+
+- Deteksi cocok dengan gerakan fisik peserta, bukan hasil visual transformasi CSS.
+- Regression test mengunci yaw negatif untuk kanan, yaw positif untuk kiri, dan penolakan arah sebaliknya.
+- Perubahan memerlukan cache key frontend baru agar JavaScript lama tidak digunakan browser.
+
 ## 2026-10-04 - Arah Tengok Mengikuti Preview Kamera Depan
 
 ### Status
 
-Accepted.
+Superseded oleh keputusan koordinat video mentah di atas.
 
 ### Decision
 

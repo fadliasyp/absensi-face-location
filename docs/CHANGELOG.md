@@ -16,6 +16,8 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 
 ### Changed
 
+- Pemetaan tengok dikoreksi berdasarkan input video mentah face-api: kanan peserta memakai delta yaw negatif dan kiri memakai delta yaw positif; mirror CSS hanya memengaruhi preview.
+- Cache asset liveness dinaikkan ke `active-liveness-v13` agar koreksi arah tidak tertahan cache browser/Vercel.
 - Instruksi tengok kini menampilkan panah kanan/kiri langsung pada teks agar arah gerakan tidak ambigu.
 - MediaPipe liveness kini mengambil sampel setiap 35 ms dan menahan puncak tutup kedua mata sampai sekali dikonsumsi, sehingga kedipan cepat tidak hilang ketika sampel terbaru sudah terbuka.
 - Cache asset liveness dinaikkan ke `active-liveness-v12` untuk memuat instruksi panah dan perbaikan kedipan cepat.
