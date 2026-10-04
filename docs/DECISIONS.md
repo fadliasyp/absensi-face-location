@@ -1,5 +1,21 @@
 # Decision Log
 
+## 2026-10-04 - Satu Gerakan per Langkah Challenge Acak
+
+### Status
+
+Accepted. Menggantikan aturan urutan yang selalu memuat ketiga jenis gerakan tepat sekali dan target satu/dua kedipan dalam satu langkah.
+
+### Decision
+
+Challenge tetap memiliki tiga langkah, tetapi setiap langkah dipilih acak dari kedip, tengok kanan, dan tengok kiri dengan pengulangan diperbolehkan. Setiap langkah kedip hanya meminta satu kedipan. Jika tiga pilihan awal tidak memuat kedip, satu posisi acak diganti menjadi kedip agar minimal satu pemeriksaan tutup-buka mata tetap berlangsung.
+
+### Consequences
+
+- Peserta tidak perlu menyelesaikan dua kedipan dalam satu batas waktu langkah.
+- Kedipan atau gerakan tengok dapat muncul lagi sebagai langkah kedua/ketiga, misalnya kanan, kedip, kanan.
+- Minimal satu kedip tetap wajib sehingga tantangan tidak kembali menjadi gerakan kepala saja yang lebih mudah dilewati dengan foto.
+
 ## 2026-10-04 - Instruksi Kedip Menggunakan Gerakan Normal
 
 ### Status
@@ -13,7 +29,7 @@ UI liveness hanya meminta peserta mengedipkan kedua mata secara normal. Peserta 
 ### Consequences
 
 - Instruksi lebih sesuai dengan gerakan alami peserta dan tidak mendorong mata ditutup terlalu lama.
-- Target acak satu atau dua kedipan serta seluruh perlindungan Tahap 1 tetap dipertahankan.
+- Seluruh perlindungan Tahap 1 tetap dipertahankan; target dua kedipan dalam satu langkah kemudian digantikan oleh keputusan satu gerakan per langkah di atas.
 - Contract test mencegah istilah `pejam` dan `perlahan` kembali ke engine liveness.
 
 ## 2026-10-04 - Tengok Cepat Memakai Pendekatan dan Puncak
@@ -125,7 +141,7 @@ Tantangan kanan-kiri tetap sebelumnya dapat dilewati dengan foto wajah yang dige
 - State machine dipisahkan agar threshold dan transisi dapat diuji tanpa kamera.
 - Pemrosesan face-api tetap sekuensial. MediaPipe mempertahankan inferensi blendshape selama challenge dengan interval dinamis; hanya rendering panduan yang dipause.
 - Koefisien MediaPipe `eyeBlinkLeft`/`eyeBlinkRight` menjadi sinyal kedip utama yang dikalibrasi terhadap baseline peserta, dengan EAR face-api sebagai fallback.
-- Tahap anti-replay lokal menggunakan prompt tertunda acak, target satu/dua kedipan, deadline respons, dan penolakan arah salah untuk menghambat video rekaman biasa.
+- Tahap anti-replay lokal menggunakan prompt tertunda acak, tiga langkah yang boleh berulang, satu kedipan per langkah, deadline respons, dan penolakan arah salah untuk menghambat video rekaman biasa.
 - Kontrol ini ditujukan memperkuat pertahanan terhadap foto diam.
 - Karena hasil biometrik masih berasal dari JavaScript browser, sistem tidak mengklaim server-verifiable attestation atau perlindungan penuh terhadap replay interaktif, virtual camera, deepfake real-time, atau browser termodifikasi. Tahap server-bound tetap keputusan terpisah.
 

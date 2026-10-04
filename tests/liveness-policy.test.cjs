@@ -32,24 +32,54 @@ const {
 } = require(enginePath);
 
 assert.deepEqual(
-  new Set(createRandomSequence(() => 0.5)),
-  new Set([ACTIONS.BLINK, ACTIONS.TURN_RIGHT, ACTIONS.TURN_LEFT]),
-  "Setiap tantangan harus memuat kedip, tengok kanan, dan tengok kiri tepat sekali.",
+  createRandomSequence(() => 0.5),
+  [ACTIONS.TURN_RIGHT, ACTIONS.BLINK, ACTIONS.TURN_RIGHT],
+  "Tiga langkah acak harus boleh mengulang gerakan sambil tetap memuat minimal satu kedipan.",
 );
 
-{
-  const values = [0.2, 0.8, 0.9];
-  const challenge = createRandomChallenge(() => values.shift());
+for (const randomValue of [0, 0.2, 0.34, 0.5, 0.67, 0.999]) {
+  const sequence = createRandomSequence(() => randomValue);
 
-  assert.deepEqual(
-    new Set(challenge.sequence),
-    new Set([ACTIONS.BLINK, ACTIONS.TURN_RIGHT, ACTIONS.TURN_LEFT]),
-    "Challenge acak tetap harus memuat ketiga jenis gerakan.",
+  assert.equal(sequence.length, 3, "Setiap challenge harus memiliki tiga langkah.");
+  assert.ok(
+    sequence.includes(ACTIONS.BLINK),
+    "Setiap hasil acak harus tetap memiliki minimal satu langkah kedip.",
+  );
+  assert.ok(
+    sequence.every((action) => Object.values(ACTIONS).includes(action)),
+    "Generator hanya boleh menghasilkan gerakan liveness yang dikenal.",
+  );
+}
+
+{
+  const challenge = createRandomChallenge(() => 0.999);
+
+  assert.equal(
+    challenge.sequence.length,
+    3,
+    "Challenge acak harus tetap memiliki tiga langkah.",
+  );
+  assert.ok(
+    challenge.sequence.includes(ACTIONS.BLINK),
+    "Challenge acak harus tetap memiliki minimal satu langkah kedip untuk menolak foto diam.",
   );
   assert.equal(
-    challenge.blinkTarget,
-    2,
-    "Challenge harus dapat meminta dua kedipan secara acak.",
+    Object.hasOwn(challenge, "blinkTarget"),
+    false,
+    "Challenge tidak lagi memerlukan target kedip variabel karena setiap langkah selalu satu kedipan.",
+  );
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.BLINK],
+    blinkTarget: 2,
+  });
+
+  assert.equal(
+    session.getState().blinkTarget,
+    1,
+    "Engine harus mengunci satu kedipan per langkah meskipun caller lama mengirim target dua.",
   );
 }
 
@@ -322,8 +352,7 @@ function prepareAction(session, startAt = 0, overrides = {}) {
 
 {
   const session = createLivenessSession({
-    sequence: [ACTIONS.BLINK],
-    blinkTarget: 2,
+    sequence: [ACTIONS.BLINK, ACTIONS.BLINK],
     config: testConfig,
   });
   let timestamp = prepareAction(session);
@@ -335,11 +364,27 @@ function prepareAction(session, startAt = 0, overrides = {}) {
   session.ingest(frame(timestamp));
 
   assert.equal(
-    session.getState().phase,
-    "action",
-    "Satu kedipan belum boleh menyelesaikan instruksi dua kedipan.",
+    session.getState().complete,
+    false,
+    "Kedipan pertama tidak boleh menyelesaikan challenge yang memiliki langkah kedip kedua.",
   );
   assert.equal(session.getState().blinkCompletedCount, 1);
+
+  timestamp += 150;
+  session.ingest(frame(timestamp));
+  timestamp += 150;
+  session.ingest(frame(timestamp));
+
+  assert.equal(
+    session.getState().actionIndex,
+    1,
+    "Kedipan berikutnya harus tampil sebagai langkah challenge terpisah.",
+  );
+  assert.equal(
+    session.getState().blinkTarget,
+    1,
+    "Setiap langkah kedip terpisah harus tetap meminta satu kedipan.",
+  );
 
   timestamp += 150;
   session.ingest(frame(timestamp, { leftEAR: 0.1, rightEAR: 0.1 }));
@@ -355,7 +400,7 @@ function prepareAction(session, startAt = 0, overrides = {}) {
   assert.equal(
     session.getState().complete,
     true,
-    "Instruksi dua kedipan harus selesai hanya setelah dua siklus tutup-buka.",
+    "Dua langkah kedip harus selesai melalui dua instruksi terpisah.",
   );
 }
 
@@ -739,9 +784,9 @@ assert.match(
   "Engine liveness harus dimuat sebelum controller verifikasi.",
 );
 assert.equal(
-  (verificationPage.match(/active-liveness-v9/g) || []).length,
+  (verificationPage.match(/active-liveness-v10/g) || []).length,
   3,
-  "Ketiga asset liveness harus memakai versi cache v9 yang sama.",
+  "Ketiga asset liveness harus memakai versi cache v10 yang sama.",
 );
 assert.match(
   verificationScript,
@@ -753,9 +798,10 @@ assert.match(
   /AttendanceLiveness\.createRandomChallenge/,
   "Controller Tahap 1 harus membuat challenge acak di browser.",
 );
-assert.ok(
-  /blinkTarget/.test(verificationScript),
-  "Target kedip acak harus diteruskan ke sesi liveness.",
+assert.doesNotMatch(
+  verificationScript,
+  /blinkTarget/,
+  "Controller tidak boleh lagi meneruskan target kedip ganda.",
 );
 assert.match(
   verificationScript,

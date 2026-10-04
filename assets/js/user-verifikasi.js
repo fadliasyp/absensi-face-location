@@ -940,7 +940,6 @@ async function verifikasiGerakanSekali() {
   );
   const session = window.AttendanceLiveness.createLivenessSession({
     sequence: challenge.sequence,
-    blinkTarget: challenge.blinkTarget,
     promptDelayRandom: secureChallengeRandom,
   });
   let state = session.getState();
@@ -1019,7 +1018,6 @@ async function verifikasiGerakanSekali() {
     return {
       success: true,
       sequence: challenge.sequence,
-      blinkTarget: challenge.blinkTarget,
     };
   } finally {
     window.__attendanceLivenessActive = false;

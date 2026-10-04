@@ -50,9 +50,10 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 
 - Identitas wajah dicocokkan sebelum dan sesudah tantangan.
 - Baseline posisi netral dan bukaan mata diambil dari frame wajah valid pertama tanpa tahap stabilisasi awal.
-- Setiap sesi memuat langkah kedip, tengok kanan, dan tengok kiri dalam urutan acak; langkah kedip meminta satu atau dua siklus secara acak.
+- Setiap sesi memuat tiga langkah acak dari kedip, tengok kanan, dan tengok kiri; gerakan boleh berulang, tetapi minimal satu langkah kedip wajib ada.
+- Setiap langkah kedip hanya meminta satu siklus tutup-buka; kedipan berikutnya, jika terpilih, menjadi langkah challenge tersendiri.
 - Teks instruksi meminta peserta mengedipkan kedua mata secara normal, tanpa perintah pejam/merem atau menahan mata tertutup.
-- Urutan gerakan dan target satu/dua kedipan dibuat lokal menggunakan Web Crypto bila tersedia.
+- Pilihan tiga langkah gerakan dibuat lokal menggunakan Web Crypto bila tersedia.
 - Instruksi gerakan hanya aktif setelah jeda prompt acak; gerakan sebelumnya tidak boleh dihitung.
 - Gerakan harus dilakukan sesuai urutan dan kembali ke posisi netral.
 - Tengok cepat memerlukan dua frame searah: sedikitnya satu frame pendekatan dan satu frame yang mencapai ambang penuh.
@@ -70,6 +71,7 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 ### Jangan Rusak
 
 - Jangan kembali ke tantangan kanan-kiri tetap tanpa kedip.
+- Jangan meminta dua kedipan dalam satu langkah atau menghapus jaminan minimal satu langkah kedip.
 - Jangan menerima satu frame arah sebagai gerakan valid.
 - Jangan mewajibkan seluruh frame tengok mencapai ambang penuh karena gerakan manusia normal dapat berlangsung cepat.
 - Jangan kembali mengabaikan arah berlawanan atau menghitung gerakan sebelum prompt.

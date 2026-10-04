@@ -2,19 +2,19 @@
 
 ## Status
 
-Instruksi kedip Tahap 1 kini hanya meminta peserta mengedipkan kedua mata secara normal, tanpa arahan pejam/merem atau kedip perlahan. Deteksi tutup-buka kedua mata, deteksi tengok cepat, dan perlindungan anti-replay lainnya tidak berubah. Deployment rollback/Vercel dan uji perangkat nyata belum dikonfirmasi.
+Challenge Tahap 1 tetap terdiri dari tiga langkah acak, tetapi gerakan kini boleh berulang. Setiap langkah kedip hanya meminta satu kedipan dan generator tetap menjamin minimal satu langkah kedip agar foto diam tidak dapat lolos hanya dengan digerakkan. Deployment rollback/Vercel dan uji perangkat nyata belum dikonfirmasi.
 
 ## Last Completed Task
 
-- Task: menyederhanakan instruksi kedip agar hanya meminta kedipan normal.
-- Goal: menghilangkan arahan pejam/merem tanpa melemahkan validasi kedipan penuh.
+- Task: memisahkan kedipan ganda menjadi langkah acak tersendiri.
+- Goal: setiap langkah kedip cukup satu kali, sementara tiga langkah challenge boleh mengulang gerakan tanpa menghapus kewajiban minimal satu kedip.
 - Status repository: selesai pada 2026-10-04.
 - Status production: belum diterapkan/dikonfirmasi.
 
 ## Completed
 
 - Menambahkan `assets/js/liveness-engine.js` sebagai state machine murni yang dapat diuji deterministik.
-- Tantangan selalu memuat kedip, tengok kanan, dan tengok kiri tepat sekali dengan urutan acak berbasis Web Crypto bila tersedia.
+- Tantangan selalu berisi tiga langkah acak berbasis Web Crypto bila tersedia; gerakan boleh berulang dan minimal satu langkah kedip selalu ada.
 - Baseline pose, EAR, dan blendshape diambil dari frame wajah valid pertama; tahap stabilisasi awal dan penantian netral awal dihapus.
 - Gerakan tetap memakai threshold relatif, beberapa frame stabil, serta wajib kembali netral setelah setiap aksi.
 - Tengok cepat memakai dua frame searah; salah satunya harus mencapai ambang penuh dan frame pendukung minimal 65% dari ambang.
@@ -32,13 +32,13 @@ Instruksi kedip Tahap 1 kini hanya meminta peserta mengedipkan kedua mata secara
 - Instruksi kedip hanya meminta peserta mengedipkan kedua mata secara normal; tidak ada lagi perintah untuk pejam/merem atau menahan mata tertutup.
 - Kedip sekarang mengutamakan blendshape MediaPipe yang dibandingkan dengan baseline peserta; EAR face-api tetap menjadi fallback bila sampel MediaPipe belum tersedia/terlalu lama.
 - Polling MediaPipe berubah dinamis menjadi 80 ms saat challenge dan 400 ms di luar challenge; pemrosesan frame tetap berurutan.
-- Ketiga script liveness memakai query versi `active-liveness-v9` untuk mencegah browser/Vercel memakai JavaScript lama dari cache.
-- Challenge lokal kini memakai jeda prompt acak 700–1700 ms, batas respons 6 detik, serta target kedip satu atau dua kali yang dipilih melalui Web Crypto.
+- Ketiga script liveness memakai query versi `active-liveness-v10` untuk mencegah browser/Vercel memakai JavaScript lama dari cache.
+- Challenge lokal memakai jeda prompt acak 700–1700 ms dan batas respons 6 detik per langkah; setiap langkah kedip hanya meminta satu kedipan.
 - Gerakan kepala yang dilakukan sebelum prompt atau berlawanan dengan instruksi selama dua frame menggagalkan sesi; kedip alami saat instruksi menoleh tidak diperlakukan sebagai pelanggaran.
 - Tahap 1 hanya memperkuat browser terhadap foto diam dan video rekaman biasa; tidak ada proof liveness server.
 - Frontend kembali membuat challenge melalui `AttendanceLiveness.createRandomChallenge` dan mencatat absensi melalui `catat_absensi`.
 - Telemetry event Tahap 2 telah dihapus dari `liveness-engine.js`.
-- Setelah rollback Tahap 2, cache key terbaru adalah `active-liveness-v9` untuk instruksi kedip normal, deteksi kedip dan tengok cepat, serta penghapusan stabilisasi awal.
+- Setelah rollback Tahap 2, cache key terbaru adalah `active-liveness-v10` untuk challenge tiga langkah acak yang boleh berulang dan hanya satu gerakan per langkah.
 - Migration `202610040006_rollback_server_bound_liveness.sql` menghapus function/table Tahap 2 dan memulihkan execute `catat_absensi(jsonb)` untuk `authenticated`.
 - Migration `202610040004` dan `202610040005` dipertahankan sebagai histori karena status penerapannya pada remote belum diketahui.
 - Contract `tests/liveness-stage1-rollback.test.cjs` melindungi hasil akhir rollback.
@@ -68,7 +68,7 @@ Ini bukan task aktif sampai pengguna memintanya:
 - Terapkan migration `202610040003_reopen_alfa_after_deadline_extension.sql` setelah migration `202610040002`.
 - Jika `202610040004` atau `202610040005` pernah diterapkan, jalankan `202610040006_rollback_server_bound_liveness.sql` sebelum deploy frontend Tahap 1.
 - Deploy frontend ke Vercel setelah migration berhasil.
-- Deploy frontend liveness v8 ke Vercel lalu uji kamera nyata dan video replay pada Android/iOS serta laptop.
+- Deploy frontend liveness v10 ke Vercel lalu uji kamera nyata dan video replay pada Android/iOS serta laptop.
 - Konfirmasi penerapan migration `202610030003` dan `202610030004` di Supabase remote.
 - Konfirmasi versi deployment Edge Function `delete-user`.
 - Ambil schema/RLS/Storage policy production untuk melengkapi reproducibility database.
@@ -80,7 +80,7 @@ Ini bukan task aktif sampai pengguna memintanya:
 
 ## Notes for Next Session
 
-1. Terapkan migration rollback `202610040006` bila Tahap 2 pernah diterapkan; setelah itu deploy frontend ke Vercel dan lakukan hard refresh. Pastikan Network memuat asset dengan query `active-liveness-v9`.
+1. Terapkan migration rollback `202610040006` bila Tahap 2 pernah diterapkan; setelah itu deploy frontend ke Vercel dan lakukan hard refresh. Pastikan Network memuat asset dengan query `active-liveness-v10`.
 2. Uji wajah asli pada cahaya terang/redup, dengan/tanpa kacamata, dan kamera depan beberapa ponsel.
 3. Pastikan satu foto diam dengan mata terbuka tidak dapat menyelesaikan langkah kedip.
 4. Pastikan popup formal muncul untuk multi-face, kamera berhenti, tab berpindah, dan timeout.

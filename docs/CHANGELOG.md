@@ -16,6 +16,8 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 
 ### Changed
 
+- Challenge liveness kini memilih tiga langkah acak dengan pengulangan diperbolehkan, menjamin minimal satu langkah kedip, dan membatasi setiap langkah kedip menjadi satu kedipan.
+- Cache asset liveness dinaikkan ke `active-liveness-v10` agar generator challenge terbaru dimuat setelah deploy frontend.
 - Instruksi liveness kedip kini hanya meminta peserta mengedipkan kedua mata secara normal; arahan pejam/merem dan kedip perlahan dihapus tanpa mengubah validasi tutup-buka kedua mata.
 - Cache asset liveness dinaikkan ke `active-liveness-v9` agar instruksi kedip terbaru segera dimuat setelah deploy frontend.
 - Tengok kanan/kiri cepat kini dikenali dari dua frame searah dengan satu puncak penuh; satu frame lonjakan tetap ditolak.

@@ -72,14 +72,17 @@
   }
 
   function createRandomSequence(random = Math.random) {
-    const sequence = [ACTIONS.BLINK, ACTIONS.TURN_RIGHT, ACTIONS.TURN_LEFT];
+    const availableActions = Object.values(ACTIONS);
+    const sequence = Array.from({ length: 3 }, () => {
+      const actionIndex = Math.floor(
+        clampRandom(random()) * availableActions.length,
+      );
+      return availableActions[actionIndex];
+    });
 
-    for (let index = sequence.length - 1; index > 0; index -= 1) {
-      const swapIndex = Math.floor(clampRandom(random()) * (index + 1));
-      [sequence[index], sequence[swapIndex]] = [
-        sequence[swapIndex],
-        sequence[index],
-      ];
+    if (!sequence.includes(ACTIONS.BLINK)) {
+      const blinkIndex = Math.floor(clampRandom(random()) * sequence.length);
+      sequence[blinkIndex] = ACTIONS.BLINK;
     }
 
     return sequence;
@@ -88,7 +91,6 @@
   function createRandomChallenge(random = Math.random) {
     return {
       sequence: createRandomSequence(random),
-      blinkTarget: clampRandom(random()) < 0.5 ? 1 : 2,
     };
   }
 
@@ -106,7 +108,6 @@
 
   function createLivenessSession({
     sequence,
-    blinkTarget = 1,
     promptDelayRandom = Math.random,
     config = {},
   } = {}) {
@@ -140,7 +141,7 @@
       blinkSignalSource: null,
       blinkClosedAt: null,
       blinkReopenCount: 0,
-      blinkTarget: blinkTarget === 2 ? 2 : 1,
+      blinkTarget: 1,
       blinkCompletedCount: 0,
       calibrationSamples: [],
     };
@@ -201,10 +202,6 @@
     }
 
     function actionInstructionText() {
-      if (state.action === ACTIONS.BLINK && state.blinkTarget === 2) {
-        return "kedipkan kedua mata dua kali secara normal";
-      }
-
       return ACTION_LABELS[state.action];
     }
 
@@ -483,16 +480,6 @@
 
       if (state.blinkReopenCount >= settings.blinkReopenFrames) {
         state.blinkCompletedCount += 1;
-
-        if (state.blinkCompletedCount < state.blinkTarget) {
-          state.blinkStage = "awaiting_closed";
-          state.blinkSignalSource = null;
-          state.blinkClosedAt = null;
-          state.blinkReopenCount = 0;
-          state.message = `${actionProgressText()}: kedipkan kedua mata sekali lagi.`;
-          return;
-        }
-
         beginReturnToNeutral();
       }
     }
