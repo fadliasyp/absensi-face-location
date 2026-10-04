@@ -16,6 +16,8 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 
 ### Changed
 
+- Mapping tengok kamera depan diselaraskan dengan preview mirror: kanan memakai delta yaw positif dan kiri memakai delta yaw negatif; arah berlawanan tetap ditolak.
+- Cache asset liveness dinaikkan ke `active-liveness-v11` agar perbaikan arah kanan/kiri segera dimuat setelah deploy frontend.
 - Challenge liveness kini memilih tiga langkah acak dengan pengulangan diperbolehkan, menjamin minimal satu langkah kedip, dan membatasi setiap langkah kedip menjadi satu kedipan.
 - Cache asset liveness dinaikkan ke `active-liveness-v10` agar generator challenge terbaru dimuat setelah deploy frontend.
 - Instruksi liveness kedip kini hanya meminta peserta mengedipkan kedua mata secara normal; arahan pejam/merem dan kedip perlahan dihapus tanpa mengubah validasi tutup-buka kedua mata.

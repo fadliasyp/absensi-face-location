@@ -1,5 +1,21 @@
 # Decision Log
 
+## 2026-10-04 - Arah Tengok Mengikuti Preview Kamera Depan
+
+### Status
+
+Accepted.
+
+### Decision
+
+Preview kamera depan ditampilkan seperti cermin. Agar instruksi sesuai dengan sisi yang dilihat peserta, engine memperlakukan delta yaw positif sebagai tengok kanan dan delta yaw negatif sebagai tengok kiri.
+
+### Consequences
+
+- Label, ikon panah, dan gerakan peserta kini memakai perspektif user-facing yang sama.
+- Arah berlawanan tetap menggagalkan langkah setelah jumlah frame yang ditentukan.
+- Regression test mengunci yaw positif untuk kanan dan yaw negatif untuk kiri.
+
 ## 2026-10-04 - Satu Gerakan per Langkah Challenge Acak
 
 ### Status

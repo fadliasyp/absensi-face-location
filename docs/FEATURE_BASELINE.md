@@ -57,6 +57,7 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 - Instruksi gerakan hanya aktif setelah jeda prompt acak; gerakan sebelumnya tidak boleh dihitung.
 - Gerakan harus dilakukan sesuai urutan dan kembali ke posisi netral.
 - Tengok cepat memerlukan dua frame searah: sedikitnya satu frame pendekatan dan satu frame yang mencapai ambang penuh.
+- Karena preview kamera depan dimirror, tengok kanan memakai delta yaw positif dan tengok kiri memakai delta yaw negatif.
 - Satu frame lonjakan arah tidak boleh dianggap sebagai gerakan tengok valid.
 - Gerakan kepala sebelum prompt atau arah yang berlawanan selama dua frame menggagalkan sesi.
 - Kedip harus memiliki transisi kedua mata terbuka, tertutup, lalu terbuka kembali.
@@ -73,6 +74,7 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 - Jangan kembali ke tantangan kanan-kiri tetap tanpa kedip.
 - Jangan meminta dua kedipan dalam satu langkah atau menghapus jaminan minimal satu langkah kedip.
 - Jangan menerima satu frame arah sebagai gerakan valid.
+- Jangan membalik kembali mapping kanan/kiri kamera depan; kanan harus mengikuti sisi kanan yang dilihat peserta pada preview mirror.
 - Jangan mewajibkan seluruh frame tengok mencapai ambang penuh karena gerakan manusia normal dapat berlangsung cepat.
 - Jangan kembali mengabaikan arah berlawanan atau menghitung gerakan sebelum prompt.
 - Jangan mematikan inferensi blendshape MediaPipe selama langkah kedip.

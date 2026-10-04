@@ -488,18 +488,20 @@
       const yawDelta = sample.yaw - state.baseline.yaw;
       const supportThreshold =
         settings.turnYawDelta * settings.turnSupportRatio;
+      // Preview kamera depan ditampilkan seperti cermin: kanan pengguna
+      // mengikuti delta X positif, sedangkan kiri mengikuti delta negatif.
       const expectedDirectionReached =
-        state.action === ACTIONS.TURN_RIGHT
-          ? yawDelta <= -settings.turnYawDelta
-          : yawDelta >= settings.turnYawDelta;
-      const expectedDirectionSupported =
-        state.action === ACTIONS.TURN_RIGHT
-          ? yawDelta <= -supportThreshold
-          : yawDelta >= supportThreshold;
-      const wrongDirectionReached =
         state.action === ACTIONS.TURN_RIGHT
           ? yawDelta >= settings.turnYawDelta
           : yawDelta <= -settings.turnYawDelta;
+      const expectedDirectionSupported =
+        state.action === ACTIONS.TURN_RIGHT
+          ? yawDelta >= supportThreshold
+          : yawDelta <= -supportThreshold;
+      const wrongDirectionReached =
+        state.action === ACTIONS.TURN_RIGHT
+          ? yawDelta <= -settings.turnYawDelta
+          : yawDelta >= settings.turnYawDelta;
 
       if (expectedDirectionSupported) {
         state.turnCount += 1;

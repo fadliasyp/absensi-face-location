@@ -411,9 +411,9 @@ function prepareAction(session, startAt = 0, overrides = {}) {
   });
   let timestamp = prepareAction(session);
 
-  session.ingest(frame(timestamp, { yaw: 0.09 }));
+  session.ingest(frame(timestamp, { yaw: -0.09 }));
   timestamp += 150;
-  session.ingest(frame(timestamp, { yaw: 0.09 }));
+  session.ingest(frame(timestamp, { yaw: -0.09 }));
 
   assert.equal(session.getState().failed, true);
   assert.equal(
@@ -627,12 +627,16 @@ function prepareAction(session, startAt = 0, overrides = {}) {
   });
   let timestamp = prepareAction(session);
 
-  session.ingest(frame(timestamp, { yaw: 0.09 }));
+  session.ingest(frame(timestamp, { yaw: -0.09 }));
   timestamp += 150;
-  session.ingest(frame(timestamp, { yaw: 0.09 }));
+  session.ingest(frame(timestamp, { yaw: -0.09 }));
 
   assert.equal(session.getState().failed, true);
-  assert.equal(session.getState().reason, "wrong_action");
+  assert.equal(
+    session.getState().reason,
+    "wrong_action",
+    "Yaw negatif harus ditolak ketika preview kamera depan meminta tengok kanan.",
+  );
 }
 
 {
@@ -642,7 +646,7 @@ function prepareAction(session, startAt = 0, overrides = {}) {
   });
   let timestamp = prepareAction(session);
 
-  session.ingest(frame(timestamp, { yaw: -0.09 }));
+  session.ingest(frame(timestamp, { yaw: 0.09 }));
   timestamp += 150;
   assert.equal(
     session.getState().phase,
@@ -650,7 +654,7 @@ function prepareAction(session, startAt = 0, overrides = {}) {
     "Satu frame gerakan tidak boleh dianggap stabil.",
   );
 
-  session.ingest(frame(timestamp, { yaw: -0.09 }));
+  session.ingest(frame(timestamp, { yaw: 0.09 }));
   timestamp += 150;
   session.ingest(frame(timestamp));
   timestamp += 150;
@@ -660,9 +664,9 @@ function prepareAction(session, startAt = 0, overrides = {}) {
   assert.equal(session.getState().actionIndex, 1);
   assert.equal(session.getState().action, ACTIONS.TURN_LEFT);
 
-  session.ingest(frame(timestamp, { yaw: 0.09 }));
+  session.ingest(frame(timestamp, { yaw: -0.09 }));
   timestamp += 150;
-  session.ingest(frame(timestamp, { yaw: 0.09 }));
+  session.ingest(frame(timestamp, { yaw: -0.09 }));
   timestamp += 150;
   session.ingest(frame(timestamp));
   timestamp += 150;
@@ -678,28 +682,6 @@ function prepareAction(session, startAt = 0, overrides = {}) {
   });
   let timestamp = prepareAction(session);
 
-  session.ingest(frame(timestamp, { yaw: -0.04 }));
-  timestamp += 35;
-  session.ingest(frame(timestamp, { yaw: -0.07 }));
-  timestamp += 35;
-  session.ingest(frame(timestamp));
-  timestamp += 35;
-  session.ingest(frame(timestamp));
-
-  assert.equal(
-    session.getState().complete,
-    true,
-    "Tengok kanan cepat harus dikenali dari frame pendekatan dan frame puncak yang searah.",
-  );
-}
-
-{
-  const session = createLivenessSession({
-    sequence: [ACTIONS.TURN_LEFT],
-    config: testConfig,
-  });
-  let timestamp = prepareAction(session);
-
   session.ingest(frame(timestamp, { yaw: 0.04 }));
   timestamp += 35;
   session.ingest(frame(timestamp, { yaw: 0.07 }));
@@ -711,7 +693,29 @@ function prepareAction(session, startAt = 0, overrides = {}) {
   assert.equal(
     session.getState().complete,
     true,
-    "Tengok kiri cepat harus dikenali dari frame pendekatan dan frame puncak yang searah.",
+    "Tengok kanan pada preview kamera depan harus dikenali dari yaw positif.",
+  );
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.TURN_LEFT],
+    config: testConfig,
+  });
+  let timestamp = prepareAction(session);
+
+  session.ingest(frame(timestamp, { yaw: -0.04 }));
+  timestamp += 35;
+  session.ingest(frame(timestamp, { yaw: -0.07 }));
+  timestamp += 35;
+  session.ingest(frame(timestamp));
+  timestamp += 35;
+  session.ingest(frame(timestamp));
+
+  assert.equal(
+    session.getState().complete,
+    true,
+    "Tengok kiri pada preview kamera depan harus dikenali dari yaw negatif.",
   );
 }
 
@@ -722,7 +726,7 @@ function prepareAction(session, startAt = 0, overrides = {}) {
   });
   let timestamp = prepareAction(session);
 
-  session.ingest(frame(timestamp, { yaw: -0.08 }));
+  session.ingest(frame(timestamp, { yaw: 0.08 }));
   timestamp += 35;
   session.ingest(frame(timestamp));
   timestamp += 35;
@@ -784,9 +788,9 @@ assert.match(
   "Engine liveness harus dimuat sebelum controller verifikasi.",
 );
 assert.equal(
-  (verificationPage.match(/active-liveness-v10/g) || []).length,
+  (verificationPage.match(/active-liveness-v11/g) || []).length,
   3,
-  "Ketiga asset liveness harus memakai versi cache v10 yang sama.",
+  "Ketiga asset liveness harus memakai versi cache v11 yang sama.",
 );
 assert.match(
   verificationScript,
