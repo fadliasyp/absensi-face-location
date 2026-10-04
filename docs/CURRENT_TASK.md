@@ -14,7 +14,7 @@ Instruksi tengok Tahap 1 kini menampilkan panah langsung pada teks kanan/kiri. K
 ## Completed
 
 - Menambahkan `assets/js/liveness-engine.js` sebagai state machine murni yang dapat diuji deterministik.
-- Tantangan selalu berisi tiga langkah acak berbasis Web Crypto bila tersedia; gerakan boleh berulang dan minimal satu langkah kedip selalu ada.
+- Tantangan selalu berisi tiga langkah acak berbasis Web Crypto bila tersedia; gerakan boleh muncul kembali setelah diselingi gerakan lain, tetapi tidak boleh sama pada dua langkah berurutan dan minimal satu langkah kedip selalu ada.
 - Baseline pose, EAR, dan blendshape diambil dari frame wajah valid pertama; tahap stabilisasi awal dan penantian netral awal dihapus.
 - Gerakan tetap memakai threshold relatif, beberapa frame stabil, serta wajib kembali netral setelah setiap aksi.
 - Tengok cepat memakai dua frame searah; salah satunya harus mencapai ambang penuh dan frame pendukung minimal 65% dari ambang.
@@ -36,13 +36,13 @@ Instruksi tengok Tahap 1 kini menampilkan panah langsung pada teks kanan/kiri. K
 - Polling MediaPipe berubah dinamis menjadi 35 ms saat challenge dan 400 ms di luar challenge; pemrosesan frame tetap berurutan.
 - MediaPipe menahan puncak koefisien kedua mata sejak konsumsi terakhir; controller mengonsumsinya sekali dan engine menerima pulsa tutup-buka yang memenuhi durasi 25–1400 ms.
 - Puncak satu mata, puncak kedaluwarsa, dan puncak yang sudah dikonsumsi tidak dapat menyelesaikan langkah kedip.
-- Ketiga script liveness memakai query versi `active-liveness-v13` untuk mencegah browser/Vercel memakai JavaScript lama dari cache.
+- Ketiga script liveness memakai query versi `active-liveness-v14` untuk mencegah browser/Vercel memakai JavaScript lama dari cache.
 - Challenge lokal memakai jeda prompt acak 700–1700 ms dan batas respons 6 detik per langkah; setiap langkah kedip hanya meminta satu kedipan.
 - Gerakan kepala yang dilakukan sebelum prompt atau berlawanan dengan instruksi selama dua frame menggagalkan sesi; kedip alami saat instruksi menoleh tidak diperlakukan sebagai pelanggaran.
 - Tahap 1 hanya memperkuat browser terhadap foto diam dan video rekaman biasa; tidak ada proof liveness server.
 - Frontend kembali membuat challenge melalui `AttendanceLiveness.createRandomChallenge` dan mencatat absensi melalui `catat_absensi`.
 - Telemetry event Tahap 2 telah dihapus dari `liveness-engine.js`.
-- Setelah rollback Tahap 2, cache key terbaru adalah `active-liveness-v13` untuk koreksi koordinat kanan/kiri video mentah, panah instruksi, serta latch kedipan cepat sekali konsumsi.
+- Setelah rollback Tahap 2, cache key terbaru adalah `active-liveness-v14` untuk mencegah gerakan identik berurutan, mempertahankan koreksi arah video mentah, dan memuat latch kedipan cepat sekali konsumsi.
 - Migration `202610040006_rollback_server_bound_liveness.sql` menghapus function/table Tahap 2 dan memulihkan execute `catat_absensi(jsonb)` untuk `authenticated`.
 - Migration `202610040004` dan `202610040005` dipertahankan sebagai histori karena status penerapannya pada remote belum diketahui.
 - Contract `tests/liveness-stage1-rollback.test.cjs` melindungi hasil akhir rollback.
@@ -84,7 +84,7 @@ Ini bukan task aktif sampai pengguna memintanya:
 
 ## Notes for Next Session
 
-1. Terapkan migration rollback `202610040006` bila Tahap 2 pernah diterapkan; setelah itu deploy frontend ke Vercel dan lakukan hard refresh. Pastikan Network memuat asset dengan query `active-liveness-v13`.
+1. Terapkan migration rollback `202610040006` bila Tahap 2 pernah diterapkan; setelah itu deploy frontend ke Vercel dan lakukan hard refresh. Pastikan Network memuat asset dengan query `active-liveness-v14`.
 2. Uji wajah asli pada cahaya terang/redup, dengan/tanpa kacamata, dan kamera depan beberapa ponsel.
 3. Pastikan satu foto diam dengan mata terbuka tidak dapat menyelesaikan langkah kedip.
 4. Pastikan popup formal muncul untuk multi-face, kamera berhenti, tab berpindah, dan timeout.

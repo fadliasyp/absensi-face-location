@@ -63,6 +63,22 @@ Preview kamera depan ditampilkan seperti cermin. Agar instruksi sesuai dengan si
 - Arah berlawanan tetap menggagalkan langkah setelah jumlah frame yang ditentukan.
 - Regression test mengunci yaw positif untuk kanan dan yaw negatif untuk kiri.
 
+## 2026-10-04 - Gerakan Identik Tidak Boleh Berurutan
+
+### Status
+
+Accepted. Memperjelas keputusan satu gerakan per langkah challenge acak.
+
+### Decision
+
+Generator tetap memilih tiga langkah acak dan menjamin minimal satu langkah kedip, tetapi mengeluarkan gerakan yang sama dengan langkah tepat sebelumnya dari kandidat. Gerakan boleh muncul kembali setelah diselingi aksi lain, misalnya kanan, kedip, kanan.
+
+### Consequences
+
+- Urutan kedip, kedip tidak lagi terlihat seperti satu langkah yang meminta dua kedipan pada perangkat mobile.
+- Setiap langkah kedip tetap selesai dengan satu siklus tutup-buka mata.
+- Variasi challenge dan pengulangan nonberurutan tetap dipertahankan.
+
 ## 2026-10-04 - Satu Gerakan per Langkah Challenge Acak
 
 ### Status
@@ -71,7 +87,7 @@ Accepted. Menggantikan aturan urutan yang selalu memuat ketiga jenis gerakan tep
 
 ### Decision
 
-Challenge tetap memiliki tiga langkah, tetapi setiap langkah dipilih acak dari kedip, tengok kanan, dan tengok kiri dengan pengulangan diperbolehkan. Setiap langkah kedip hanya meminta satu kedipan. Jika tiga pilihan awal tidak memuat kedip, satu posisi acak diganti menjadi kedip agar minimal satu pemeriksaan tutup-buka mata tetap berlangsung.
+Challenge tetap memiliki tiga langkah, tetapi setiap langkah dipilih acak dari kedip, tengok kanan, dan tengok kiri. Pengulangan diperbolehkan setelah diselingi gerakan lain sesuai keputusan terbaru di atas. Setiap langkah kedip hanya meminta satu kedipan. Jika tiga pilihan awal tidak memuat kedip, satu posisi acak diganti menjadi kedip agar minimal satu pemeriksaan tutup-buka mata tetap berlangsung.
 
 ### Consequences
 

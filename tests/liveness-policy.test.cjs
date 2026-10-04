@@ -49,6 +49,12 @@ for (const randomValue of [0, 0.2, 0.34, 0.5, 0.67, 0.999]) {
     sequence.every((action) => Object.values(ACTIONS).includes(action)),
     "Generator hanya boleh menghasilkan gerakan liveness yang dikenal.",
   );
+  assert.ok(
+    sequence.every(
+      (action, index) => index === 0 || action !== sequence[index - 1],
+    ),
+    "Gerakan yang sama tidak boleh muncul pada dua langkah berurutan karena terlihat seperti satu langkah meminta dua gerakan.",
+  );
 }
 
 {
@@ -884,9 +890,9 @@ assert.match(
   "Engine liveness harus dimuat sebelum controller verifikasi.",
 );
 assert.equal(
-  (verificationPage.match(/active-liveness-v13/g) || []).length,
+  (verificationPage.match(/active-liveness-v14/g) || []).length,
   3,
-  "Ketiga asset liveness harus memakai versi cache v13 yang sama.",
+  "Ketiga asset liveness harus memakai versi cache v14 yang sama.",
 );
 assert.match(
   verificationScript,

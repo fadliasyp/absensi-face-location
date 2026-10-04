@@ -73,12 +73,18 @@
 
   function createRandomSequence(random = Math.random) {
     const availableActions = Object.values(ACTIONS);
-    const sequence = Array.from({ length: 3 }, () => {
-      const actionIndex = Math.floor(
-        clampRandom(random()) * availableActions.length,
+    const sequence = [];
+
+    while (sequence.length < 3) {
+      const previousAction = sequence[sequence.length - 1];
+      const candidates = availableActions.filter(
+        (action) => action !== previousAction,
       );
-      return availableActions[actionIndex];
-    });
+      const actionIndex = Math.floor(
+        clampRandom(random()) * candidates.length,
+      );
+      sequence.push(candidates[actionIndex]);
+    }
 
     if (!sequence.includes(ACTIONS.BLINK)) {
       const blinkIndex = Math.floor(clampRandom(random()) * sequence.length);
