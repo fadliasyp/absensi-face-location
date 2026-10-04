@@ -52,7 +52,7 @@ Frontend berupa halaman statis. Supabase menjadi backend untuk Auth, Postgres, S
 
 ## Current Work
 
-Active liveness browser telah ditingkatkan menjadi urutan acak kedip, tengok kanan, dan tengok kiri dengan kalibrasi adaptif, kestabilan beberapa frame, posisi netral, pemeriksaan identitas awal/akhir, serta fail-closed pada gangguan kamera. Jadwal absensi tiga tahap dan pemulihan Izin/Alfa tetap dipertahankan. Runtime kamera nyata dan deployment Vercel belum diverifikasi.
+Active liveness browser telah ditingkatkan menjadi urutan acak kedip, tengok kanan, dan tengok kiri dengan kalibrasi adaptif, kestabilan beberapa frame, posisi netral, pemeriksaan identitas awal/akhir, serta fail-closed pada gangguan kamera. False reject kedipan alami diperbaiki dengan threshold penutupan mata relatif yang lebih toleran dan sampling detector yang lebih rapat. Jadwal absensi tiga tahap dan pemulihan Izin/Alfa tetap dipertahankan. Deployment Vercel terbaru belum diverifikasi.
 
 ## Pending Work
 

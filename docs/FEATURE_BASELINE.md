@@ -53,6 +53,7 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 - Setiap sesi memuat kedip, tengok kanan, dan tengok kiri tepat sekali dalam urutan acak.
 - Gerakan harus dilakukan sesuai urutan, stabil beberapa frame, dan kembali ke posisi netral.
 - Kedip harus memiliki transisi kedua mata terbuka, tertutup, lalu terbuka kembali.
+- Kedipan singkat yang hanya tertangkap sebagian tetap diterima melalui threshold relatif terhadap baseline mata peserta; perubahan kecil tetap ditolak.
 - Lebih dari satu wajah, wajah hilang terlalu lama, kamera berhenti, tab tersembunyi, dan timeout gagal secara tertutup.
 - Pemrosesan face-api berjalan berurutan agar deteksi tidak saling tumpang tindih.
 - MediaPipe panduan visual berhenti sementara selama engine liveness memakai kamera.

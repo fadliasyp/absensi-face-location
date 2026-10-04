@@ -831,7 +831,7 @@ function secureChallengeRandom() {
   return Math.random();
 }
 
-function waitForNextLivenessFrame(delayMs = 90) {
+function waitForNextLivenessFrame(delayMs = 35) {
   return new Promise((resolve) => window.setTimeout(resolve, delayMs));
 }
 
@@ -847,7 +847,7 @@ async function detectLivenessFrame() {
     .detectAllFaces(
       video,
       new faceapi.TinyFaceDetectorOptions({
-        inputSize: 320,
+        inputSize: 256,
         scoreThreshold: 0.35,
       }),
     )

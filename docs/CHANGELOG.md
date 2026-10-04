@@ -24,6 +24,7 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 
 ### Fixed
 
+- False reject pada kedipan alami dikurangi melalui threshold EAR adaptif yang lebih toleran, sampling lebih rapat, dan detector liveness lebih ringan.
 - Foto diam dengan mata terus terbuka tidak lagi dapat lolos hanya dengan digerakkan kanan-kiri.
 - Wrapper `attendance_window_status` tiga parameter mempertahankan nama parameter legacy `p_batas_telat`, sehingga migration dapat memperbarui fungsi database lama tanpa error PostgreSQL `42P13`.
 - Navbar admin dan peserta tidak lagi keluar viewport pada laptop sempit; menu horizontal beralih ke hamburger/sidebar pada lebar `901–1280px`.

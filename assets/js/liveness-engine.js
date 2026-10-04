@@ -29,7 +29,7 @@
     minimumOpenEAR: 0.15,
     maximumOpenEAR: 0.55,
     neutralOpenRatio: 0.78,
-    blinkClosedRatio: 0.68,
+    blinkClosedRatio: 0.76,
     blinkReopenRatio: 0.82,
     minBlinkClosedMs: 60,
     maxBlinkClosedMs: 1400,
@@ -39,7 +39,7 @@
   });
 
   const ACTION_LABELS = Object.freeze({
-    [ACTIONS.BLINK]: "kedipkan kedua mata",
+    [ACTIONS.BLINK]: "kedipkan kedua mata secara perlahan",
     [ACTIONS.TURN_RIGHT]: "tengok ke kanan",
     [ACTIONS.TURN_LEFT]: "tengok ke kiri",
   });
@@ -278,7 +278,7 @@
         state.blinkStage = "awaiting_closed";
         state.blinkClosedAt = null;
         state.blinkReopenCount = 0;
-        state.message = `${actionProgressText()}: kedipkan kedua mata secara alami.`;
+        state.message = `${actionProgressText()}: kedip perlahan atau pejamkan kedua mata sesaat, lalu buka kembali.`;
         return;
       }
 

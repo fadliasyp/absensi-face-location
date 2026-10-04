@@ -2,7 +2,7 @@
 
 ## Status
 
-Upgrade active face liveness selesai di repository. Unit/contract test hijau; runtime kamera perangkat nyata dan deployment Vercel belum diverifikasi.
+Perbaikan false reject kedipan active liveness selesai di repository. Unit/contract test hijau; deployment Vercel dan pengujian ulang perangkat pengguna belum dikonfirmasi.
 
 ## Last Completed Task
 
@@ -20,6 +20,9 @@ Upgrade active face liveness selesai di repository. Unit/contract test hijau; ru
 - Identitas wajah dicocokkan sebelum dan sesudah challenge.
 - MediaPipe panduan visual dipause selama face-api memproses liveness untuk mengurangi perebutan CPU/kamera.
 - Contract `tests/liveness-policy.test.cjs` melindungi foto mata terbuka, urutan arah, kestabilan frame, multi-face, kontinuitas, dan integrasi halaman.
+- Kedipan yang hanya tertangkap sebagian sekarang diterima pada rasio EAR adaptif `0.76`, sedangkan perubahan kecil `0.86` tetap ditolak oleh regression test.
+- Sampling face-api dipercepat dari jeda 90 ms menjadi 35 ms dan input detector liveness diturunkan dari 320 menjadi 256 agar frame kedipan tidak mudah terlewat.
+- Instruksi kedip meminta gerakan perlahan/pejam sesaat sebagai fallback ramah pengguna.
 
 - Migration `202610040001_dynamic_attendance_deadline.sql` menambahkan `jam_generate_alfa` dengan default 12.00 WIB.
 - Server mengklasifikasikan Hadir/Terlambat/Closed dari tiga waktu dan menolak urutan yang tidak valid.

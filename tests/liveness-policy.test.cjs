@@ -114,6 +114,60 @@ function prepareAction(session, startAt = 0) {
 
   session.ingest(
     frame(timestamp, {
+      leftEAR: 0.22,
+      rightEAR: 0.22,
+    }),
+  );
+  timestamp += 180;
+  session.ingest(frame(timestamp));
+  timestamp += 150;
+  session.ingest(frame(timestamp));
+  timestamp += 150;
+  session.ingest(frame(timestamp));
+  timestamp += 150;
+  session.ingest(frame(timestamp));
+
+  assert.equal(
+    session.getState().complete,
+    true,
+    "Kedipan singkat yang hanya tertangkap sebagian tetap harus dikenali.",
+  );
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.BLINK],
+    config: testConfig,
+  });
+  let timestamp = prepareAction(session);
+
+  session.ingest(
+    frame(timestamp, {
+      leftEAR: 0.26,
+      rightEAR: 0.26,
+    }),
+  );
+  timestamp += 180;
+  session.ingest(frame(timestamp));
+  timestamp += 150;
+  session.ingest(frame(timestamp));
+
+  assert.equal(
+    session.getState().complete,
+    false,
+    "Perubahan kecil pada mata tidak boleh dianggap sebagai kedipan.",
+  );
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.BLINK],
+    config: testConfig,
+  });
+  let timestamp = prepareAction(session);
+
+  session.ingest(
+    frame(timestamp, {
       leftEAR: 0.1,
       rightEAR: 0.1,
     }),
@@ -250,6 +304,16 @@ assert.ok(
 assert.ok(
   /if \(window\.__attendanceLivenessActive\)/.test(faceGuideScript),
   "MediaPipe panduan harus berhenti sementara agar tidak berebut kamera dengan liveness.",
+);
+assert.ok(
+  /function waitForNextLivenessFrame\(delayMs = 35\)/.test(
+    verificationScript,
+  ),
+  "Sampling liveness harus cukup rapat untuk menangkap kedipan singkat.",
+);
+assert.ok(
+  /inputSize:\s*256/.test(verificationScript),
+  "Detector liveness harus memakai input ringan agar frame kedipan tidak terlewat.",
 );
 
 console.log("Liveness policy contract: OK");
