@@ -145,6 +145,12 @@ async function initMediaPipeFaceGuide() {
     }
 
     guideInterval = setInterval(() => {
+      if (window.__attendanceLivenessActive) {
+        resizeCanvas();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        return;
+      }
+
       if (!faceLandmarker || !video || video.readyState < 2) return;
 
       resizeCanvas();

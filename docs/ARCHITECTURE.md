@@ -83,8 +83,13 @@ User opens verification
        - Hadir sampai Batas Masuk
        - Terlambat setelah Batas Masuk sampai sebelum Jam Generate Alfa
        - Closed mulai Jam Generate Alfa
-  -> camera + face match (threshold 0.5, browser)
-  -> randomized movement/liveness check (browser)
+  -> initial face match (threshold 0.5, browser)
+  -> active liveness state machine (browser)
+       - calibrate neutral pose and open-eye baseline
+       - shuffle blink/right/left with browser crypto
+       - enforce order, consecutive frames, neutral return, and timeout
+       - reject multiple faces, lost continuity, hidden tab, or stopped camera
+  -> final face match (threshold 0.5, browser)
   -> browser geolocation
   -> choose nearest configured location (browser pre-check)
   -> capture/compress photo
@@ -100,7 +105,9 @@ User opens verification
   -> success/late/rejected popup
 ```
 
-Server tidak menerima hasil face matching/liveness sebagai proof tersendiri; tahap biometrik masih merupakan browser-side control.
+`liveness-engine.js` berisi state machine murni yang diuji tanpa kamera. `user-verifikasi.js` mengubah landmark face-api menjadi sampel yaw/EAR, sedangkan MediaPipe hanya menjadi panduan posisi dan dipause selama challenge agar kedua model tidak berebut kamera.
+
+Server tidak menerima hasil face matching/liveness sebagai proof tersendiri; tahap biometrik masih merupakan browser-side control. Active liveness meningkatkan pertahanan terhadap foto diam, tetapi bukan server-verifiable attestation dan tidak diklaim kebal terhadap browser yang dimodifikasi atau replay video canggih.
 
 ## Manual Leave Flow
 

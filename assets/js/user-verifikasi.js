@@ -44,9 +44,6 @@ const faceOverlayCanvas = document.getElementById("faceOverlayCanvas");
 const instructionCompactBox = document.getElementById("instructionCompactBox");
 let faceOverlayInterval = null;
 
-let gerakanValid = false;
-let instruksiAktif = null;
-
 let currentUser = null;
 let currentProfile = null;
 let lokasiAbsenList = [];
@@ -335,17 +332,17 @@ function updateContohGerakan(instruksi) {
     return;
   }
 
-  if (instruksi === "kedip") {
+  if (instruksi === "blink") {
     instruksiIcon.innerText = "😉";
     return;
   }
 
-  if (instruksi === "tengok_kanan") {
+  if (instruksi === "turn_right") {
     instruksiIcon.innerText = "➡️";
     return;
   }
 
-  if (instruksi === "tengok_kiri") {
+  if (instruksi === "turn_left") {
     instruksiIcon.innerText = "⬅️";
     return;
   }
@@ -366,8 +363,6 @@ function analisisArahWajah(landmarks) {
 
   const selisihHidungX = titikHidung.x - tengahWajahX;
   const rasioX = selisihHidungX / lebarWajah;
-
-  console.log("RASIO ARAH WAJAH:", rasioX);
 
   return rasioX;
 }
@@ -645,20 +640,42 @@ async function verifikasiDanAbsen() {
       return;
     }
 
-    const gerakanBerhasil = await verifikasiGerakanSekali();
+    setInstruksiUI("Memeriksa identitas wajah awal...", "🔎", "warning");
 
-    if (!gerakanBerhasil) {
+    const wajahAwalValid = await cekWajah();
+
+    if (!wajahAwalValid) {
+      if (heroStatusText) {
+        heroStatusText.innerText = "Wajah tidak cocok";
+      }
+
+      setInstruksiUI("Wajah tidak cocok", "❌", "error");
+
+      showPopupError(
+        "Wajah Tidak Cocok",
+        "Wajah tidak sesuai dengan data wajah yang terdaftar.",
+      );
+
+      return;
+    }
+
+    const hasilGerakan = await verifikasiGerakanSekali();
+
+    if (!hasilGerakan.success) {
       if (heroStatusText) {
         heroStatusText.innerText = "Gerakan tidak valid";
       }
 
       showPopupError(
-        "Gerakan Belum Terbaca",
-        "Coba ulangi dengan wajah di tengah kamera, jangan terlalu dekat, dan lakukan gerakan perlahan.",
+        "Verifikasi Gerakan Gagal",
+        hasilGerakan.message ||
+          "Coba ulangi dengan wajah di tengah kamera dan lakukan gerakan sesuai urutan.",
       );
 
       return;
     }
+
+    setInstruksiUI("Memastikan kembali identitas wajah...", "🔎", "warning");
 
     const wajahValid = await cekWajah();
 
@@ -688,7 +705,7 @@ async function verifikasiDanAbsen() {
   }
 }
 
-async function verifikasiGerakanSekali() {
+async function verifikasiGerakanSekaliLegacy() {
   await tungguVideoSiap();
 
   return new Promise((resolve) => {
@@ -702,10 +719,8 @@ async function verifikasiGerakanSekali() {
       heroStatusText.innerText = "Memproses gerakan...";
     }
 
-    instruksiAktif = "putar_kanan_kiri";
-
     setInstruksiUI("Putar kepala kanan-kiri perlahan", "↔️", "warning");
-    updateContohGerakan(instruksiAktif);
+    updateContohGerakan("putar_kanan_kiri");
 
     if (statusGerakanBox) {
       statusGerakanBox.classList.remove("status-valid", "status-fail");
@@ -804,6 +819,180 @@ async function verifikasiGerakanSekali() {
       }
     }, 500);
   });
+}
+
+function secureChallengeRandom() {
+  if (window.crypto && typeof window.crypto.getRandomValues === "function") {
+    const randomValue = new Uint32Array(1);
+    window.crypto.getRandomValues(randomValue);
+    return randomValue[0] / 4294967296;
+  }
+
+  return Math.random();
+}
+
+function waitForNextLivenessFrame(delayMs = 90) {
+  return new Promise((resolve) => window.setTimeout(resolve, delayMs));
+}
+
+function getActiveVideoTrack() {
+  if (!video || !video.srcObject) return null;
+
+  const [videoTrack] = video.srcObject.getVideoTracks();
+  return videoTrack || null;
+}
+
+async function detectLivenessFrame() {
+  const detections = await faceapi
+    .detectAllFaces(
+      video,
+      new faceapi.TinyFaceDetectorOptions({
+        inputSize: 320,
+        scoreThreshold: 0.35,
+      }),
+    )
+    .withFaceLandmarks();
+  const timestamp = performance.now();
+
+  if (detections.length !== 1) {
+    return {
+      timestamp,
+      faceCount: detections.length,
+    };
+  }
+
+  const landmarks = detections[0].landmarks;
+
+  return {
+    timestamp,
+    faceCount: 1,
+    yaw: analisisArahWajah(landmarks),
+    leftEAR: hitungEAR(landmarks.getLeftEye()),
+    rightEAR: hitungEAR(landmarks.getRightEye()),
+  };
+}
+
+function getLivenessIcon(action) {
+  if (action === "blink") return "MATA";
+  if (action === "turn_right") return ">";
+  if (action === "turn_left") return "<";
+  return "SCAN";
+}
+
+function renderLivenessState(state) {
+  const type = state.complete
+    ? "success"
+    : state.failed
+      ? "error"
+      : "warning";
+
+  updateContohGerakan(state.action);
+  setInstruksiUI(state.message, getLivenessIcon(state.action), type);
+}
+
+async function verifikasiGerakanSekali() {
+  await tungguVideoSiap();
+
+  if (!modelSiap) {
+    return {
+      success: false,
+      message: "Model face scan belum siap. Silakan muat ulang halaman.",
+    };
+  }
+
+  if (!window.AttendanceLiveness) {
+    return {
+      success: false,
+      message: "Modul liveness tidak tersedia. Silakan muat ulang halaman.",
+    };
+  }
+
+  const sequence = window.AttendanceLiveness.createRandomSequence(
+    secureChallengeRandom,
+  );
+  const session = window.AttendanceLiveness.createLivenessSession({
+    sequence,
+  });
+  let state = session.getState();
+  let consecutiveDetectionErrors = 0;
+
+  if (heroStatusText) {
+    heroStatusText.innerText = "Memverifikasi gerakan hidup";
+  }
+
+  renderLivenessState(state);
+  showMessage(
+    "Ikuti tiga instruksi acak: kedip, tengok kanan, dan tengok kiri.",
+    "success",
+  );
+
+  window.__attendanceLivenessActive = true;
+
+  try {
+    while (!state.complete && !state.failed) {
+    const videoTrack = getActiveVideoTrack();
+
+    if (
+      document.visibilityState !== "visible" ||
+      !videoTrack ||
+      videoTrack.readyState !== "live"
+    ) {
+      return {
+        success: false,
+        message:
+          "Kamera atau halaman tidak lagi aktif. Verifikasi harus dimulai kembali.",
+      };
+    }
+
+    try {
+      const sample = await detectLivenessFrame();
+      state = session.ingest(sample);
+      consecutiveDetectionErrors = 0;
+      renderLivenessState(state);
+    } catch (error) {
+      console.error("Gagal membaca frame liveness:", error);
+      consecutiveDetectionErrors += 1;
+
+      if (consecutiveDetectionErrors >= 3) {
+        return {
+          success: false,
+          message:
+            "Kamera tidak dapat membaca gerakan secara stabil. Periksa pencahayaan lalu coba kembali.",
+        };
+      }
+    }
+
+    if (!state.complete && !state.failed) {
+      await waitForNextLivenessFrame();
+    }
+    }
+
+    if (state.failed) {
+      setInstruksiUI(state.message, "GAGAL", "error");
+      return {
+        success: false,
+        reason: state.reason,
+        message: state.message,
+      };
+    }
+
+    if (heroStatusText) {
+      heroStatusText.innerText = "Gerakan hidup terverifikasi";
+    }
+
+    setInstruksiUI(
+      "Seluruh gerakan berhasil. Memastikan kembali identitas wajah...",
+      "OK",
+      "success",
+    );
+
+    return {
+      success: true,
+      sequence,
+    };
+  } finally {
+    window.__attendanceLivenessActive = false;
+  }
 }
 
 function tungguVideoSiap() {

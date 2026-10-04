@@ -36,6 +36,51 @@ Mengarahkan sesi aktif berdasarkan role, status akun, dan ketersediaan data waja
 node tests/session-routing.test.cjs
 ```
 
+## Active Face Liveness
+
+### Status
+
+STABLE pada unit/contract test; runtime kamera perangkat nyata perlu dikonfirmasi setelah deploy.
+
+### Fungsi
+
+Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif terhadap wajah peserta.
+
+### Perilaku yang Sudah Benar
+
+- Identitas wajah dicocokkan sebelum dan sesudah tantangan.
+- Posisi netral serta bukaan mata dikalibrasi dari beberapa frame peserta.
+- Setiap sesi memuat kedip, tengok kanan, dan tengok kiri tepat sekali dalam urutan acak.
+- Gerakan harus dilakukan sesuai urutan, stabil beberapa frame, dan kembali ke posisi netral.
+- Kedip harus memiliki transisi kedua mata terbuka, tertutup, lalu terbuka kembali.
+- Lebih dari satu wajah, wajah hilang terlalu lama, kamera berhenti, tab tersembunyi, dan timeout gagal secara tertutup.
+- Pemrosesan face-api berjalan berurutan agar deteksi tidak saling tumpang tindih.
+- MediaPipe panduan visual berhenti sementara selama engine liveness memakai kamera.
+
+### Jangan Rusak
+
+- Jangan kembali ke tantangan kanan-kiri tetap tanpa kedip.
+- Jangan menerima satu frame arah sebagai gerakan valid.
+- Jangan menghapus pemeriksaan identitas sebelum dan sesudah challenge.
+- Jangan menyatakan kontrol browser ini sebagai attestation yang diverifikasi server.
+
+### File Penting
+
+- `assets/js/liveness-engine.js`
+- `assets/js/user-verifikasi.js`
+- `assets/js/mediapipe-face-guide.js`
+- `user/verifikasi.html`
+- `tests/liveness-policy.test.cjs`
+
+### Cara Verifikasi
+
+```bash
+node tests/liveness-policy.test.cjs
+node --check assets/js/liveness-engine.js
+node --check assets/js/user-verifikasi.js
+node --check assets/js/mediapipe-face-guide.js
+```
+
 ## Attendance Window and Server Authority
 
 ### Status

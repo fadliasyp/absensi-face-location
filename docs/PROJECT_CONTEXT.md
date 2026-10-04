@@ -35,7 +35,7 @@ Frontend berupa halaman statis. Supabase menjadi backend untuk Auth, Postgres, S
 | Login Google dan pelengkapan profil pending | WORKING | `login.html`, `oauth-callback.html`, `lengkapi-profil.js` |
 | Approval/status/role user dan email notifikasi | WORKING | `admin-users.js`, `send-approval-email` |
 | Daftar wajah dan reset wajah | WORKING | `user-daftar-wajah.js`, `admin-users.js` |
-| Absensi wajah + liveness + geolokasi | WORKING | `user-verifikasi.js`, `catat_absensi` |
+| Absensi wajah + active liveness + geolokasi | STABLE pada contract | `liveness-engine.js`, `liveness-policy.test.cjs`, `user-verifikasi.js`, `catat_absensi` |
 | Jendela absensi dinamis berbasis waktu server WIB | STABLE pada contract | migration `202610040001`, `attendance-policy.test.cjs` |
 | Kalender kerja dan override admin | STABLE | migration `002`, `attendance-policy.test.cjs` |
 | Alfa otomatis dinamis dan fallback admin | STABLE pada contract | migration `001/002/202610040001`, contract test |
@@ -52,7 +52,7 @@ Frontend berupa halaman statis. Supabase menjadi backend untuk Auth, Postgres, S
 
 ## Current Work
 
-Jadwal absensi tiga tahap telah diimplementasikan pada repository: Jam Masuk, Batas Masuk, dan Jam Generate Alfa dinamis. Pengajuan izin hari ini ditolak mulai deadline terbaru; Alfa dari deadline lama dapat diubah menjadi Izin jika admin memundurkan deadline dan waktu server masih sebelum batas baru. Navbar admin/peserta pada laptop sempit menggunakan hamburger/sidebar agar tidak keluar viewport. Migration remote belum diverifikasi.
+Active liveness browser telah ditingkatkan menjadi urutan acak kedip, tengok kanan, dan tengok kiri dengan kalibrasi adaptif, kestabilan beberapa frame, posisi netral, pemeriksaan identitas awal/akhir, serta fail-closed pada gangguan kamera. Jadwal absensi tiga tahap dan pemulihan Izin/Alfa tetap dipertahankan. Runtime kamera nyata dan deployment Vercel belum diverifikasi.
 
 ## Pending Work
 
@@ -62,6 +62,7 @@ Jadwal absensi tiga tahap telah diimplementasikan pada repository: Jam Masuk, Ba
 - Ambil schema dump production agar base schema, RLS policy, Storage policy, dan grants dapat terversi.
 - Buat atau nonaktifkan referensi `supabase/seed.sql`; file tersebut dirujuk config tetapi belum ada.
 - Tambahkan browser/runtime test untuk kamera, geolokasi, R2, export, dan email bila diperlukan.
+- Uji active liveness pada beberapa ponsel, kondisi cahaya, kacamata, dan bentuk mata sebelum menetapkan threshold sebagai final production.
 - Ukur ulang respons UI pada perangkat pengguna setelah deploy ikon statis. Kurangi efek blur/transisi mobile hanya jika jank masih terukur.
 
 ## Business Logic
@@ -101,7 +102,7 @@ Jadwal absensi tiga tahap telah diimplementasikan pada repository: Jam Masuk, Ba
 
 1. **Base schema/RLS tidak lengkap di repository.** Tabel inti sudah dipakai, tetapi migration pembuat awal `profiles`, `absensi`, `lokasi_absen`, dan `pengaturan_absen` tidak tersedia. Policy production tidak dapat dipastikan dari repository.
 2. **Seed hilang.** `supabase/config.toml` mengaktifkan seed `./seed.sql`, tetapi file tidak ditemukan.
-3. **Client-side biometric trust.** Face matching dan liveness dilakukan di browser. RPC memastikan akun memiliki descriptor dan memvalidasi waktu/lokasi, tetapi tidak menerima bukti kriptografis bahwa face/liveness benar-benar dijalankan.
+3. **Client-side biometric trust.** Face matching dan active liveness dilakukan di browser. Tantangan acak lebih kuat terhadap foto diam, tetapi RPC belum menerima bukti kriptografis/server-verifiable bahwa face/liveness benar-benar dijalankan; browser termodifikasi atau replay canggih tetap berada di luar jaminan ini.
 4. **Public photo capability.** Siapa pun yang memiliki object key valid dapat meminta signed view URL melalui `r2-public-view`. Ini disengaja untuk export, tetapi object key harus diperlakukan sebagai capability link.
 5. **Edge secret naming.** `delete-user` membaca `SERVICE_ROLE_KEY`, sedangkan function lain memakai `SUPABASE_SERVICE_ROLE_KEY` atau fallback. Deployment harus memastikan custom secret tersedia atau kode diseragamkan pada task terpisah.
 6. **Direct browser mutations.** Beberapa operasi admin mengubah `profiles`, `lokasi_absen`, dan `pengaturan_absen` langsung dari browser; keamanannya bergantung pada RLS yang belum terversi.

@@ -1,6 +1,27 @@
 # Decision Log
 
-## 2026-10-03 — Public Access untuk Foto Absensi dari Export
+## 2026-10-04 - Active Liveness Tetap Ringan dan Teruji di Browser
+
+### Status
+
+ACCEPTED
+
+### Decision
+
+Liveness peserta memakai kalibrasi adaptif dan tiga aksi aktif: kedip, tengok kanan, dan tengok kiri dalam urutan acak. Setiap aksi membutuhkan kestabilan beberapa frame serta posisi netral, dan identitas wajah diperiksa sebelum dan sesudah challenge.
+
+### Context
+
+Tantangan kanan-kiri tetap sebelumnya dapat dilewati dengan foto wajah yang digerakkan di depan kamera. Pengguna meminta peningkatan akurasi dan menyetujui teknologi baru, tetapi kombinasi gerakan dibatasi pada kedip serta kanan-kiri.
+
+### Consequences
+
+- State machine dipisahkan agar threshold dan transisi dapat diuji tanpa kamera.
+- Pemrosesan dibuat sekuensial dan MediaPipe panduan dipause selama challenge untuk menjaga respons perangkat.
+- Kontrol ini ditujukan memperkuat pertahanan terhadap foto diam.
+- Karena hasil biometrik masih berasal dari JavaScript browser, sistem tidak mengklaim server-verifiable attestation atau perlindungan penuh terhadap replay video/browser termodifikasi.
+
+## 2026-10-03 - Public Access untuk Foto Absensi dari Export
 
 ### Status
 

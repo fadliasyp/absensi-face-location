@@ -2,16 +2,24 @@
 
 ## Status
 
-Pemulihan Alfa setelah deadline dimundurkan selesai di repository. Migration database dan frontend terbaru belum diverifikasi pada Supabase/Vercel production.
+Upgrade active face liveness selesai di repository. Unit/contract test hijau; runtime kamera perangkat nyata dan deployment Vercel belum diverifikasi.
 
 ## Last Completed Task
 
-- Task: mengizinkan Alfa hari ini dipulihkan menjadi Izin ketika admin memundurkan Jam Generate Alfa.
-- Goal: deadline terbaru menjadi authority tanpa membuka perubahan Alfa tanggal lampau.
+- Task: memperkuat liveness agar foto diam tidak lolos sebagai wajah hidup.
+- Goal: tantangan acak kedip, tengok kanan, dan tengok kiri yang akurat, berurutan, adaptif, serta fail-closed.
 - Status repository: selesai pada 2026-10-04.
 - Status production: belum diterapkan/dikonfirmasi.
 
 ## Completed
+
+- Menambahkan `assets/js/liveness-engine.js` sebagai state machine murni yang dapat diuji deterministik.
+- Tantangan selalu memuat kedip, tengok kanan, dan tengok kiri tepat sekali dengan urutan acak berbasis Web Crypto bila tersedia.
+- Kalibrasi memakai pose netral dan EAR mata peserta; gerakan memakai threshold relatif, beberapa frame stabil, serta wajib kembali netral.
+- Sistem menolak lebih dari satu wajah, kontinuitas wajah yang hilang, timeout, tab tersembunyi, dan camera track yang berhenti.
+- Identitas wajah dicocokkan sebelum dan sesudah challenge.
+- MediaPipe panduan visual dipause selama face-api memproses liveness untuk mengurangi perebutan CPU/kamera.
+- Contract `tests/liveness-policy.test.cjs` melindungi foto mata terbuka, urutan arah, kestabilan frame, multi-face, kontinuitas, dan integrasi halaman.
 
 - Migration `202610040001_dynamic_attendance_deadline.sql` menambahkan `jam_generate_alfa` dengan default 12.00 WIB.
 - Server mengklasifikasikan Hadir/Terlambat/Closed dari tiga waktu dan menolak urutan yang tidak valid.
@@ -37,6 +45,7 @@ Ini bukan task aktif sampai pengguna memintanya:
 - Terapkan migration `202610040002_reject_late_manual_leave.sql` setelah migration `202610040001`.
 - Terapkan migration `202610040003_reopen_alfa_after_deadline_extension.sql` setelah migration `202610040002`.
 - Deploy frontend ke Vercel setelah migration berhasil.
+- Deploy frontend liveness ke Vercel lalu uji kamera nyata pada Android/iOS dan laptop.
 - Konfirmasi penerapan migration `202610030003` dan `202610030004` di Supabase remote.
 - Konfirmasi versi deployment Edge Function `delete-user`.
 - Ambil schema/RLS/Storage policy production untuk melengkapi reproducibility database.
@@ -48,9 +57,9 @@ Ini bukan task aktif sampai pengguna memintanya:
 
 ## Notes for Next Session
 
-1. Terapkan migration `202610040001`, `202610040002`, lalu `202610040003`.
-2. Verifikasi kolom `jam_generate_alfa`, constraint urutan waktu, serta satu job cron dinamis.
-3. Uji izin sebelum deadline, tepat pada/setelah deadline, serta Alfa yang sudah terbentuk lalu deadline dimundurkan.
-4. Deploy frontend dan smoke test contoh 09.00 / 11.00 / 17.00.
-5. Pastikan perubahan deadline tidak diharapkan menghapus Alfa yang sudah terbentuk.
+1. Deploy frontend ke Vercel dan lakukan hard refresh pada perangkat uji.
+2. Uji wajah asli pada cahaya terang/redup, dengan/tanpa kacamata, dan kamera depan beberapa ponsel.
+3. Pastikan satu foto diam dengan mata terbuka tidak dapat menyelesaikan langkah kedip.
+4. Pastikan popup formal muncul untuk multi-face, kamera berhenti, tab berpindah, dan timeout.
+5. Terapkan migration `202610040001`, `202610040002`, lalu `202610040003` bila belum diterapkan.
 6. Pertahankan seluruh baseline logic yang dilindungi pengguna.

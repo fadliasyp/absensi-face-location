@@ -6,6 +6,8 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 
 ### Added
 
+- Active liveness dengan kalibrasi adaptif dan urutan acak kedip, tengok kanan, serta tengok kiri.
+- State machine liveness teruji dan contract `tests/liveness-policy.test.cjs`.
 - Jam Generate Alfa dinamis dengan fallback pukul 12.00 WIB untuk data lama.
 - Field admin untuk Jam Masuk, Batas Masuk, dan Jam Generate Alfa.
 - Gaya SweetAlert formal yang konsisten pada alur absensi peserta.
@@ -14,12 +16,15 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 
 ### Changed
 
+- Identitas wajah diperiksa sebelum dan sesudah challenge; gerakan wajib stabil, berurutan, dan kembali netral.
+- MediaPipe panduan visual dipause selama face-api menjalankan active liveness untuk mengurangi beban perangkat.
 - Status Hadir berlaku sampai Batas Masuk; setelahnya berstatus Terlambat sampai sebelum Jam Generate Alfa.
 - Cron Alfa berubah dari jadwal tetap pukul 12.00 menjadi pemeriksaan idempoten setiap menit terhadap deadline server WIB.
 - Popup pengajuan izin menggunakan gaya formal yang sama dengan popup absensi.
 
 ### Fixed
 
+- Foto diam dengan mata terus terbuka tidak lagi dapat lolos hanya dengan digerakkan kanan-kiri.
 - Wrapper `attendance_window_status` tiga parameter mempertahankan nama parameter legacy `p_batas_telat`, sehingga migration dapat memperbarui fungsi database lama tanpa error PostgreSQL `42P13`.
 - Navbar admin dan peserta tidak lagi keluar viewport pada laptop sempit; menu horizontal beralih ke hamburger/sidebar pada lebar `901–1280px`.
 
