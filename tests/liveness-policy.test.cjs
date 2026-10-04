@@ -64,10 +64,11 @@ assert.equal(
   "Challenge produksi harus langsung menuju jeda instruksi setelah baseline terbaca.",
 );
 assert.ok(
-  DEFAULT_CONFIG.turnFrames >= 2 &&
+  DEFAULT_CONFIG.turnFrames === 2 &&
+    DEFAULT_CONFIG.turnSupportRatio >= 0.6 &&
     DEFAULT_CONFIG.minPromptDelayMs >= 600 &&
     DEFAULT_CONFIG.maxActionMs <= 7000,
-  "Kestabilan gerakan dan jeda acak anti-replay harus tetap dipertahankan.",
+  "Gerakan cepat harus memakai dua frame searah dan jeda acak anti-replay tetap dipertahankan.",
 );
 
 const testConfig = {
@@ -627,6 +628,70 @@ function prepareAction(session, startAt = 0, overrides = {}) {
 
 {
   const session = createLivenessSession({
+    sequence: [ACTIONS.TURN_RIGHT],
+    config: testConfig,
+  });
+  let timestamp = prepareAction(session);
+
+  session.ingest(frame(timestamp, { yaw: -0.04 }));
+  timestamp += 35;
+  session.ingest(frame(timestamp, { yaw: -0.07 }));
+  timestamp += 35;
+  session.ingest(frame(timestamp));
+  timestamp += 35;
+  session.ingest(frame(timestamp));
+
+  assert.equal(
+    session.getState().complete,
+    true,
+    "Tengok kanan cepat harus dikenali dari frame pendekatan dan frame puncak yang searah.",
+  );
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.TURN_LEFT],
+    config: testConfig,
+  });
+  let timestamp = prepareAction(session);
+
+  session.ingest(frame(timestamp, { yaw: 0.04 }));
+  timestamp += 35;
+  session.ingest(frame(timestamp, { yaw: 0.07 }));
+  timestamp += 35;
+  session.ingest(frame(timestamp));
+  timestamp += 35;
+  session.ingest(frame(timestamp));
+
+  assert.equal(
+    session.getState().complete,
+    true,
+    "Tengok kiri cepat harus dikenali dari frame pendekatan dan frame puncak yang searah.",
+  );
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.TURN_RIGHT],
+    config: testConfig,
+  });
+  let timestamp = prepareAction(session);
+
+  session.ingest(frame(timestamp, { yaw: -0.08 }));
+  timestamp += 35;
+  session.ingest(frame(timestamp));
+  timestamp += 35;
+  session.ingest(frame(timestamp));
+
+  assert.equal(
+    session.getState().complete,
+    false,
+    "Satu frame lonjakan arah tidak boleh dianggap sebagai gerakan tengok yang valid.",
+  );
+}
+
+{
+  const session = createLivenessSession({
     sequence: [ACTIONS.BLINK],
     config: testConfig,
   });
@@ -662,9 +727,9 @@ assert.match(
   "Engine liveness harus dimuat sebelum controller verifikasi.",
 );
 assert.equal(
-  (verificationPage.match(/active-liveness-v7/g) || []).length,
+  (verificationPage.match(/active-liveness-v8/g) || []).length,
   3,
-  "Ketiga asset liveness harus memakai versi cache v7 yang sama.",
+  "Ketiga asset liveness harus memakai versi cache v8 yang sama.",
 );
 assert.match(
   verificationScript,

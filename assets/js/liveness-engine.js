@@ -21,7 +21,8 @@
     calibrationFrames: 1,
     neutralFrames: 0,
     returnNeutralFrames: 3,
-    turnFrames: 3,
+    turnFrames: 2,
+    turnSupportRatio: 0.65,
     blinkReopenFrames: 2,
     calibrationCenterLimit: 0.04,
     neutralYawTolerance: 0.03,
@@ -133,6 +134,7 @@
       promptReadyAt: null,
       neutralCount: 0,
       turnCount: 0,
+      turnPeakDetected: false,
       wrongActionCount: 0,
       blinkStage: "awaiting_closed",
       blinkSignalSource: null,
@@ -158,6 +160,7 @@
     function resetTransientProgress() {
       state.neutralCount = 0;
       state.turnCount = 0;
+      state.turnPeakDetected = false;
       state.wrongActionCount = 0;
       state.blinkStage = "awaiting_closed";
       state.blinkSignalSource = null;
@@ -218,6 +221,7 @@
       state.actionStartedAt = timestamp;
       state.promptReadyAt = null;
       state.turnCount = 0;
+      state.turnPeakDetected = false;
       state.wrongActionCount = 0;
       state.blinkStage = "awaiting_closed";
       state.blinkSignalSource = null;
@@ -495,20 +499,28 @@
 
     function processTurn(sample) {
       const yawDelta = sample.yaw - state.baseline.yaw;
+      const supportThreshold =
+        settings.turnYawDelta * settings.turnSupportRatio;
       const expectedDirectionReached =
         state.action === ACTIONS.TURN_RIGHT
           ? yawDelta <= -settings.turnYawDelta
           : yawDelta >= settings.turnYawDelta;
+      const expectedDirectionSupported =
+        state.action === ACTIONS.TURN_RIGHT
+          ? yawDelta <= -supportThreshold
+          : yawDelta >= supportThreshold;
       const wrongDirectionReached =
         state.action === ACTIONS.TURN_RIGHT
           ? yawDelta >= settings.turnYawDelta
           : yawDelta <= -settings.turnYawDelta;
 
-      if (expectedDirectionReached) {
+      if (expectedDirectionSupported) {
         state.turnCount += 1;
+        state.turnPeakDetected ||= expectedDirectionReached;
         state.wrongActionCount = 0;
       } else {
         state.turnCount = 0;
+        state.turnPeakDetected = false;
       }
 
       if (wrongDirectionReached) {
@@ -525,7 +537,10 @@
         state.wrongActionCount = 0;
       }
 
-      if (state.turnCount >= settings.turnFrames) {
+      if (
+        state.turnPeakDetected &&
+        state.turnCount >= settings.turnFrames
+      ) {
         beginReturnToNeutral();
       }
     }

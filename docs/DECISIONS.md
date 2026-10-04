@@ -1,5 +1,22 @@
 # Decision Log
 
+## 2026-10-04 - Tengok Cepat Memakai Pendekatan dan Puncak
+
+### Status
+
+ACCEPTED
+
+### Decision
+
+Tengok kanan/kiri dianggap valid setelah dua frame berurutan ke arah yang diminta. Salah satu frame wajib mencapai ambang penuh, sedangkan frame lainnya boleh menjadi frame pendekatan minimal 65% dari ambang.
+
+### Consequences
+
+- Gerakan kepala manusia yang cepat lebih mudah terbaca meskipun kamera hanya menangkap pendekatan dan puncaknya.
+- Satu frame lonjakan tetap tidak dapat menyelesaikan gerakan.
+- Arah berlawanan, gerakan sebelum prompt, dan kewajiban kembali netral tetap dipertahankan.
+- Nilai 65% perlu diuji pada kamera perangkat nyata dan dapat dituning kembali bila muncul false positive atau false reject terukur.
+
 ## 2026-10-04 - Kedipan Cepat Menggunakan Fusi Sinyal Konsisten
 
 ### Status
@@ -8,7 +25,7 @@ ACCEPTED
 
 ### Decision
 
-Siklus kedip dapat dimulai ketika kedua mata tertutup menurut MediaPipe atau EAR face-api. Pembukaan kembali diverifikasi dengan sumber yang memulai siklus. Durasi tertutup minimum adalah 25 ms dan sampel MediaPipe hanya dianggap baru selama 200 ms.
+Siklus kedip dapat dimulai ketika kedua mata tertutup menurut MediaPipe atau EAR face-api. Pembukaan kembali mengutamakan sumber yang memulai siklus dan memakai EAR bila MediaPipe tidak lagi tersedia. Durasi tertutup minimum adalah 25 ms dan sampel MediaPipe hanya dianggap baru selama 200 ms.
 
 ### Consequences
 

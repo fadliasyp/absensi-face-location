@@ -16,6 +16,8 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 
 ### Changed
 
+- Tengok kanan/kiri cepat kini dikenali dari dua frame searah dengan satu puncak penuh; satu frame lonjakan tetap ditolak.
+- Cache asset liveness dinaikkan ke `active-liveness-v8` untuk memuat toleransi gerakan kepala normal yang cepat.
 - Deteksi kedip menggabungkan MediaPipe dan EAR dengan sumber siklus yang konsisten, menerima kedipan cepat mulai 25 ms, dan mengabaikan sampel MediaPipe di atas 200 ms.
 - Cache asset liveness dinaikkan ke `active-liveness-v7` untuk memuat perbaikan kedipan cepat.
 - Baseline liveness kini diambil dari satu frame wajah valid tanpa proses menstabilkan wajah dan penantian netral awal; kestabilan setiap gerakan tetap diwajibkan.

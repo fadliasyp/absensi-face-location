@@ -53,7 +53,9 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 - Setiap sesi memuat langkah kedip, tengok kanan, dan tengok kiri dalam urutan acak; langkah kedip meminta satu atau dua siklus secara acak.
 - Urutan gerakan dan target satu/dua kedipan dibuat lokal menggunakan Web Crypto bila tersedia.
 - Instruksi gerakan hanya aktif setelah jeda prompt acak; gerakan sebelumnya tidak boleh dihitung.
-- Gerakan harus dilakukan sesuai urutan, stabil beberapa frame, dan kembali ke posisi netral.
+- Gerakan harus dilakukan sesuai urutan dan kembali ke posisi netral.
+- Tengok cepat memerlukan dua frame searah: sedikitnya satu frame pendekatan dan satu frame yang mencapai ambang penuh.
+- Satu frame lonjakan arah tidak boleh dianggap sebagai gerakan tengok valid.
 - Gerakan kepala sebelum prompt atau arah yang berlawanan selama dua frame menggagalkan sesi.
 - Kedip harus memiliki transisi kedua mata terbuka, tertutup, lalu terbuka kembali.
 - Kedipan mengutamakan koefisien MediaPipe `eyeBlinkLeft`/`eyeBlinkRight` yang dibandingkan dengan baseline peserta; EAR relatif face-api tetap menjadi fallback.
@@ -68,6 +70,7 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 
 - Jangan kembali ke tantangan kanan-kiri tetap tanpa kedip.
 - Jangan menerima satu frame arah sebagai gerakan valid.
+- Jangan mewajibkan seluruh frame tengok mencapai ambang penuh karena gerakan manusia normal dapat berlangsung cepat.
 - Jangan kembali mengabaikan arah berlawanan atau menghitung gerakan sebelum prompt.
 - Jangan mematikan inferensi blendshape MediaPipe selama langkah kedip.
 - Jangan kembali membuat sampel MediaPipe lama mengalahkan EAR terbaru.

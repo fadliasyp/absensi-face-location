@@ -91,6 +91,8 @@ User opens verification
        - fuse fresh MediaPipe and face-api EAR so fast blinks can use either signal
        - bind reopen validation to the signal that detected both eyes closed
        - ignore MediaPipe blink samples older than 200 ms
+       - detect fast head turns from two same-direction frames with one full peak
+       - reject a single yaw spike and require neutral return after the turn
        - shuffle blink/right/left and select one/two blinks with browser crypto
        - wait a random delay before exposing each prompt
        - enforce order, response deadline, consecutive frames, and neutral return
@@ -112,7 +114,7 @@ User opens verification
   -> success/late/rejected popup
 ```
 
-`liveness-engine.js` berisi state machine murni yang diuji tanpa kamera. `user-verifikasi.js` mengubah landmark face-api menjadi sampel yaw/EAR dan menggabungkan sampel blendshape terbaru dari `mediapipe-face-guide.js`. Baseline relatif ditangkap sekali dari frame wajah valid pertama sehingga tidak ada penantian stabilisasi awal. Selama challenge, MediaPipe tetap melakukan inferensi `eyeBlinkLeft`/`eyeBlinkRight` dengan interval 80 ms, sementara gambar panduan disembunyikan. Engine menerima penutupan kedua mata dari MediaPipe atau EAR, lalu memakai sumber yang sama untuk memastikan mata terbuka kembali; batas minimum 25 ms menerima kedipan cepat yang tertangkap antar-frame. Sampel MediaPipe di atas 200 ms diabaikan sehingga EAR terbaru dapat mengambil alih. State `prompt_delay` memisahkan waktu menunggu dari waktu respons supaya gerakan video yang terjadi sebelum instruksi tidak dapat dihitung; target kedip, urutan, dan jeda dipilih dengan Web Crypto.
+`liveness-engine.js` berisi state machine murni yang diuji tanpa kamera. `user-verifikasi.js` mengubah landmark face-api menjadi sampel yaw/EAR dan menggabungkan sampel blendshape terbaru dari `mediapipe-face-guide.js`. Baseline relatif ditangkap sekali dari frame wajah valid pertama sehingga tidak ada penantian stabilisasi awal. Selama challenge, MediaPipe tetap melakukan inferensi `eyeBlinkLeft`/`eyeBlinkRight` dengan interval 80 ms, sementara gambar panduan disembunyikan. Engine menerima penutupan kedua mata dari MediaPipe atau EAR, lalu mengutamakan sumber yang sama untuk memastikan mata terbuka kembali dengan fallback EAR jika MediaPipe hilang; batas minimum 25 ms menerima kedipan cepat yang tertangkap antar-frame. Sampel MediaPipe di atas 200 ms diabaikan sehingga EAR terbaru dapat mengambil alih. Gerakan tengok memakai dua frame searah dengan ambang pendukung 65%; sedikitnya satu frame wajib mencapai ambang penuh sebelum peserta kembali netral. State `prompt_delay` memisahkan waktu menunggu dari waktu respons supaya gerakan video yang terjadi sebelum instruksi tidak dapat dihitung; target kedip, urutan, dan jeda dipilih dengan Web Crypto.
 
 Server tidak menerima hasil face matching/liveness sebagai proof tersendiri; tahap biometrik merupakan kontrol browser Tahap 1. Active liveness meningkatkan pertahanan terhadap foto diam dan video replay biasa, tetapi bukan server-verifiable attestation dan tidak diklaim kebal terhadap browser termodifikasi, virtual camera, atau replay/deepfake canggih.
 
