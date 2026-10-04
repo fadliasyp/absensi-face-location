@@ -231,6 +231,28 @@ function prepareAction(session, startAt = 0, overrides = {}) {
 
   session.ingest(
     frame(timestamp, {
+      blinkPeakLeft: 0.62,
+      blinkPeakRight: 0.64,
+      blinkPeakTimestamp: timestamp - 300,
+    }),
+  );
+
+  assert.equal(
+    session.getState().phase,
+    "return_neutral",
+    "Puncak kedip MediaPipe yang masih valid harus dapat memakai EAR frame terbaru untuk membuktikan mata sudah terbuka.",
+  );
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.BLINK],
+    config: testConfig,
+  });
+  const timestamp = prepareAction(session);
+
+  session.ingest(
+    frame(timestamp, {
       blinkLeft: 0.08,
       blinkRight: 0.09,
       blinkPeakLeft: 0.62,
@@ -828,6 +850,26 @@ function prepareAction(session, startAt = 0, overrides = {}) {
   });
   let timestamp = prepareAction(session);
 
+  session.ingest(frame(timestamp, { yaw: -0.07 }));
+  timestamp += 300;
+  session.ingest(frame(timestamp));
+  timestamp += 300;
+  session.ingest(frame(timestamp, { yaw: -0.04 }));
+
+  assert.equal(
+    session.getState().phase,
+    "return_neutral",
+    "Puncak dan frame pendukung dalam jendela waktu harus menerima tengok cepat meskipun terselip satu frame netral.",
+  );
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.TURN_RIGHT],
+    config: testConfig,
+  });
+  let timestamp = prepareAction(session);
+
   session.ingest(frame(timestamp, { yaw: -0.08 }));
   timestamp += 35;
   session.ingest(frame(timestamp));
@@ -838,6 +880,26 @@ function prepareAction(session, startAt = 0, overrides = {}) {
     session.getState().complete,
     false,
     "Satu frame lonjakan arah tidak boleh dianggap sebagai gerakan tengok yang valid.",
+  );
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.TURN_RIGHT],
+    config: testConfig,
+  });
+  let timestamp = prepareAction(session);
+
+  session.ingest(frame(timestamp, { yaw: -0.08 }));
+  timestamp += DEFAULT_CONFIG.turnEvidenceWindowMs + 1;
+  session.ingest(frame(timestamp));
+  timestamp += 35;
+  session.ingest(frame(timestamp, { yaw: -0.04 }));
+
+  assert.equal(
+    session.getState().phase,
+    "action",
+    "Bukti tengok yang sudah melewati jendela waktu tidak boleh digabungkan dengan frame baru.",
   );
 }
 
@@ -890,9 +952,9 @@ assert.match(
   "Engine liveness harus dimuat sebelum controller verifikasi.",
 );
 assert.equal(
-  (verificationPage.match(/active-liveness-v15/g) || []).length,
+  (verificationPage.match(/active-liveness-v16/g) || []).length,
   3,
-  "Ketiga asset liveness harus memakai versi cache v15 yang sama.",
+  "Ketiga asset liveness harus memakai versi cache v16 yang sama.",
 );
 assert.match(
   verificationScript,
@@ -987,13 +1049,27 @@ assert.match(
 );
 assert.match(
   faceGuideScript,
-  /livenessActive\s*\?\s*35\s*:\s*400/,
-  "MediaPipe harus mengambil sampel lebih rapat selama challenge aktif.",
+  /livenessAction\s*===\s*"blink"\s*\?\s*35\s*:\s*120/,
+  "MediaPipe harus mengambil sampel rapat saat kedip dan mengurangi beban CPU saat langkah tengok.",
+);
+assert.ok(
+  /__attendanceLivenessAction\s*=\s*state\.action/.test(
+    verificationScript,
+  ) &&
+    /finally[^]*__attendanceLivenessAction\s*=\s*null/.test(
+      verificationScript,
+    ),
+  "Controller harus menerbitkan aksi aktif untuk scheduler MediaPipe dan selalu membersihkannya setelah challenge.",
 );
 assert.match(
   verificationScript,
   /Math\.abs\(sampleAge\)\s*<=\s*200/,
   "Sampel MediaPipe yang sudah terlalu lama tidak boleh menutupi EAR frame terbaru.",
+);
+assert.match(
+  verificationScript,
+  /const result = \{\};[^]*if \([^)]*isRecent[^]*result\.blinkLeft[^]*const peakAge[^]*if \(hasRecentPeak\)/,
+  "Puncak kedip harus dinilai terpisah agar tidak ikut terbuang ketika sampel MediaPipe biasa sudah kedaluwarsa.",
 );
 assert.ok(
   /function waitForNextLivenessFrame\(delayMs = 35\)/.test(

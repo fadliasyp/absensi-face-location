@@ -57,14 +57,15 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 - Pilihan tiga langkah gerakan dibuat lokal menggunakan Web Crypto bila tersedia.
 - Instruksi gerakan hanya aktif setelah jeda prompt acak; gerakan sebelumnya tidak boleh dihitung.
 - Gerakan harus dilakukan sesuai urutan dan kembali ke posisi netral.
-- Tengok cepat memerlukan dua frame searah: sedikitnya satu frame pendekatan dan satu frame yang mencapai ambang penuh.
+- Tengok cepat memerlukan dua bukti searah dalam jendela 900 ms: sedikitnya satu bukti pendekatan dan satu bukti yang mencapai ambang penuh.
 - Preview kamera depan dimirror hanya untuk tampilan CSS; face-api tetap membaca video mentah sehingga tengok kanan peserta memakai delta yaw negatif dan tengok kiri memakai delta yaw positif.
 - Satu frame lonjakan arah tidak boleh dianggap sebagai gerakan tengok valid.
 - Gerakan kepala sebelum prompt atau arah yang berlawanan selama dua frame menggagalkan sesi.
 - Kedip harus memiliki transisi kedua mata terbuka, tertutup, lalu terbuka kembali.
 - Kedipan mengutamakan koefisien MediaPipe `eyeBlinkLeft`/`eyeBlinkRight` yang dibandingkan dengan baseline peserta; EAR relatif face-api tetap menjadi fallback.
 - Kedipan normal cepat sekitar satu interval frame tetap diterima melalui MediaPipe atau EAR, sedangkan perubahan kecil tanpa transisi tutup-buka tetap ditolak.
-- MediaPipe menahan puncak tutup kedua mata sekali konsumsi sampai controller membacanya, sehingga frame kedip cepat tidak hilang ketika sampel terbaru sudah kembali terbuka.
+- MediaPipe menahan puncak tutup kedua mata sekali konsumsi sampai controller membacanya; puncak dinilai terpisah dari umur sampel biasa dan dapat memakai EAR frame terbaru sebagai bukti mata kembali terbuka.
+- MediaPipe berjalan 35 ms saat aksi kedip, 120 ms saat aksi liveness lain, dan 400 ms di luar challenge untuk mengurangi perebutan CPU pada perangkat mobile.
 - Sumber yang membaca mata tertutup juga memverifikasi pembukaan kembali; kedua mata wajib ikut dalam siklus.
 - Sampel MediaPipe yang lebih lama dari 200 ms diabaikan agar tidak menutupi EAR frame terbaru.
 - Lebih dari satu wajah, wajah hilang terlalu lama, kamera berhenti, tab tersembunyi, dan timeout gagal secara tertutup.

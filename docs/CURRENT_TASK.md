@@ -2,7 +2,7 @@
 
 ## Status
 
-Instruksi tengok Tahap 1 kini menampilkan panah langsung pada teks kanan/kiri. Kedipan cepat diperkuat dengan sampling MediaPipe 35 ms dan puncak tutup kedua mata sekali konsumsi, sehingga frame tertutup tidak hilang ketika sudah tertimpa frame mata terbuka. Syarat kedua mata, pembukaan kembali, dan mapping arah kamera depan tetap dipertahankan. Deployment rollback/Vercel dan uji perangkat nyata belum dikonfirmasi.
+Instruksi tengok Tahap 1 menampilkan panah langsung pada teks kanan/kiri. Kedipan cepat memakai sampling MediaPipe 35 ms khusus saat aksi kedip; puncak tutup kedua mata tetap dapat dipakai ketika sampel blendshape biasa terlambat dengan EAR frame terbaru sebagai bukti mata terbuka. Tengok cepat mengumpulkan dua bukti dalam jendela 900 ms. Syarat kedua mata, pembukaan kembali, penolakan satu lonjakan, dan mapping arah kamera depan tetap dipertahankan. Deployment rollback/Vercel dan uji perangkat nyata belum dikonfirmasi.
 
 ## Last Completed Task
 
@@ -17,7 +17,7 @@ Instruksi tengok Tahap 1 kini menampilkan panah langsung pada teks kanan/kiri. K
 - Tantangan selalu berisi tiga langkah acak berbasis Web Crypto bila tersedia; gerakan boleh muncul kembali setelah diselingi gerakan lain, tetapi tidak boleh sama pada dua langkah berurutan dan minimal satu langkah kedip selalu ada.
 - Baseline pose, EAR, dan blendshape diambil dari frame wajah valid pertama; tahap stabilisasi awal dan penantian netral awal dihapus.
 - Gerakan tetap memakai threshold relatif, beberapa frame stabil, serta wajib kembali netral setelah setiap aksi.
-- Tengok cepat memakai dua frame searah; salah satunya harus mencapai ambang penuh dan frame pendukung minimal 65% dari ambang.
+- Tengok cepat memakai dua bukti searah dalam jendela 900 ms; salah satunya harus mencapai ambang penuh dan bukti pendukung minimal 65% dari ambang.
 - Mirror kamera depan hanya memengaruhi tampilan CSS. Karena face-api membaca video mentah, tengok kanan peserta memakai delta yaw negatif dan tengok kiri memakai delta yaw positif; arah berlawanan tetap ditolak.
 - Regression test mencakup tengok kanan cepat, tengok kiri cepat, serta penolakan satu frame lonjakan.
 - Sistem menolak lebih dari satu wajah, kontinuitas wajah yang hilang, timeout, tab tersembunyi, dan camera track yang berhenti.
@@ -33,10 +33,10 @@ Instruksi tengok Tahap 1 kini menampilkan panah langsung pada teks kanan/kiri. K
 - Instruksi kedip hanya meminta peserta mengedipkan kedua mata secara normal; tidak ada lagi perintah untuk pejam/merem atau menahan mata tertutup.
 - Instruksi tengok menyertakan `➡️` untuk kanan dan `⬅️` untuk kiri langsung pada teks perintah.
 - Kedip sekarang mengutamakan blendshape MediaPipe yang dibandingkan dengan baseline peserta; EAR face-api tetap menjadi fallback bila sampel MediaPipe belum tersedia/terlalu lama.
-- Polling MediaPipe berubah dinamis menjadi 35 ms saat challenge dan 400 ms di luar challenge; pemrosesan frame tetap berurutan.
-- MediaPipe menahan puncak koefisien kedua mata sejak konsumsi terakhir; controller mengonsumsinya sekali dan engine menerima pulsa tutup-buka yang memenuhi durasi 25–1400 ms.
+- Polling MediaPipe berubah dinamis menjadi 35 ms saat aksi kedip, 120 ms selama aksi liveness lain, dan 400 ms di luar challenge; pemrosesan frame tetap berurutan.
+- MediaPipe menahan puncak koefisien kedua mata sejak konsumsi terakhir; controller menilai puncak secara terpisah dari umur sampel biasa dan engine dapat memakai EAR terbaru untuk validasi pembukaan kembali.
 - Puncak satu mata, puncak kedaluwarsa, dan puncak yang sudah dikonsumsi tidak dapat menyelesaikan langkah kedip.
-- Ketiga script liveness memakai query versi `active-liveness-v15` untuk mencegah browser/Vercel memakai JavaScript lama dari cache.
+- Ketiga script liveness memakai query versi `active-liveness-v16` untuk mencegah browser/Vercel memakai JavaScript lama dari cache.
 - Kamera baru dinyatakan siap setelah stream berhasil diputar dan frame memiliki dimensi valid; penantian dibatasi delapan detik.
 - Jika izin, playback, atau frame kamera gagal, stream dibersihkan, status kamera ditampilkan melalui komponen yang ada, dan tombol verifikasi tetap nonaktif.
 - Challenge lokal memakai jeda prompt acak 700–1700 ms dan batas respons 6 detik per langkah; setiap langkah kedip hanya meminta satu kedipan.
@@ -44,7 +44,7 @@ Instruksi tengok Tahap 1 kini menampilkan panah langsung pada teks kanan/kiri. K
 - Tahap 1 hanya memperkuat browser terhadap foto diam dan video rekaman biasa; tidak ada proof liveness server.
 - Frontend kembali membuat challenge melalui `AttendanceLiveness.createRandomChallenge` dan mencatat absensi melalui `catat_absensi`.
 - Telemetry event Tahap 2 telah dihapus dari `liveness-engine.js`.
-- Setelah rollback Tahap 2, cache key terbaru adalah `active-liveness-v15` untuk validasi kesiapan kamera, mencegah gerakan identik berurutan, mempertahankan koreksi arah video mentah, dan memuat latch kedipan cepat sekali konsumsi.
+- Setelah rollback Tahap 2, cache key terbaru adalah `active-liveness-v16` untuk toleransi perangkat mobile pada kedip/tengok, validasi kesiapan kamera, urutan gerakan, dan koreksi arah video mentah.
 - Migration `202610040006_rollback_server_bound_liveness.sql` menghapus function/table Tahap 2 dan memulihkan execute `catat_absensi(jsonb)` untuk `authenticated`.
 - Migration `202610040004` dan `202610040005` dipertahankan sebagai histori karena status penerapannya pada remote belum diketahui.
 - Contract `tests/liveness-stage1-rollback.test.cjs` melindungi hasil akhir rollback.
@@ -86,7 +86,7 @@ Ini bukan task aktif sampai pengguna memintanya:
 
 ## Notes for Next Session
 
-1. Terapkan migration rollback `202610040006` bila Tahap 2 pernah diterapkan; setelah itu deploy frontend ke Vercel dan lakukan hard refresh. Pastikan Network memuat asset dengan query `active-liveness-v15`.
+1. Terapkan migration rollback `202610040006` bila Tahap 2 pernah diterapkan; setelah itu deploy frontend ke Vercel dan lakukan hard refresh. Pastikan Network memuat asset dengan query `active-liveness-v16`.
 2. Uji wajah asli pada cahaya terang/redup, dengan/tanpa kacamata, dan kamera depan beberapa ponsel.
 3. Pastikan satu foto diam dengan mata terbuka tidak dapat menyelesaikan langkah kedip.
 4. Pastikan popup formal muncul untuk multi-face, kamera berhenti, tab berpindah, dan timeout.

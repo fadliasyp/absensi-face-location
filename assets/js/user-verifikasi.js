@@ -873,20 +873,21 @@ function getRecentMediaPipeBlinkSample(timestamp) {
   const sample = faceGuide.consumeLatestLivenessSample();
   const sampleAge = timestamp - Number(sample?.timestamp);
   const isRecent = Number.isFinite(sampleAge) && Math.abs(sampleAge) <= 200;
+  const result = {};
 
   if (
-    !isRecent ||
-    sample?.faceCount !== 1 ||
-    !Number.isFinite(sample?.blinkLeft) ||
-    !Number.isFinite(sample?.blinkRight)
+    isRecent &&
+    (sample?.faceCount !== 1 ||
+      !Number.isFinite(sample?.blinkLeft) ||
+      !Number.isFinite(sample?.blinkRight))
   ) {
-    return {};
+    return result;
   }
 
-  const result = {
-    blinkLeft: sample.blinkLeft,
-    blinkRight: sample.blinkRight,
-  };
+  if (isRecent) {
+    result.blinkLeft = sample.blinkLeft;
+    result.blinkRight = sample.blinkRight;
+  }
 
   const peakAge = timestamp - Number(sample?.blinkPeakTimestamp);
   const hasRecentPeak =
@@ -951,6 +952,7 @@ function renderLivenessState(state) {
       ? "error"
       : "warning";
 
+  window.__attendanceLivenessAction = state.action;
   updateContohGerakan(state.action);
   setInstruksiUI(state.message, getLivenessIcon(state.action), type);
 }
@@ -1058,6 +1060,7 @@ async function verifikasiGerakanSekali() {
     };
   } finally {
     window.__attendanceLivenessActive = false;
+    window.__attendanceLivenessAction = null;
   }
 }
 

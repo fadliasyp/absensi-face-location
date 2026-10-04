@@ -63,6 +63,23 @@ Preview kamera depan ditampilkan seperti cermin. Agar instruksi sesuai dengan si
 - Arah berlawanan tetap menggagalkan langkah setelah jumlah frame yang ditentukan.
 - Regression test mengunci yaw positif untuk kanan dan yaw negatif untuk kiri.
 
+## 2026-10-04 - Toleransi Liveness untuk Sampling Mobile
+
+### Status
+
+Accepted. Memperbarui keputusan puncak kedipan cepat dan tengok dua frame berurutan.
+
+### Decision
+
+Puncak kedipan MediaPipe dinilai terpisah dari umur sampel blendshape biasa dan boleh memakai EAR frame face-api terbaru sebagai bukti mata sudah terbuka. Gerakan tengok tetap memerlukan dua bukti searah dan satu puncak penuh, tetapi bukti boleh dipadukan dalam jendela 900 ms. MediaPipe dipoll 35 ms hanya saat aksi kedip, 120 ms saat aksi liveness lain, dan 400 ms di luar challenge.
+
+### Consequences
+
+- Kedipan cepat tidak hilang hanya karena loop face-api pada HP selesai lebih lambat dari 200 ms.
+- Satu frame netral di antara puncak dan pendekatan tengok tidak langsung menghapus progres.
+- Satu lonjakan, arah berlawanan, puncak satu mata, serta bukti kedaluwarsa tetap ditolak.
+- Runtime kamera nyata masih harus diuji setelah deploy karena contract test memakai sampel deterministik.
+
 ## 2026-10-04 - Kamera Harus Siap Sebelum Verifikasi Diaktifkan
 
 ### Status

@@ -16,6 +16,10 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 
 ### Changed
 
+- Puncak kedipan MediaPipe yang masih valid tidak lagi ikut terbuang saat sampel biasa terlambat; EAR frame terbaru dapat membuktikan mata sudah terbuka.
+- Deteksi tengok cepat kini menggabungkan dua bukti dalam jendela 900 ms tanpa menerima satu lonjakan atau bukti kedaluwarsa.
+- Polling MediaPipe menjadi 35 ms khusus aksi kedip, 120 ms untuk aksi liveness lain, dan 400 ms di luar challenge agar beban CPU mobile lebih seimbang.
+- Cache asset liveness dinaikkan ke `active-liveness-v16` agar perbaikan mobile segera dimuat.
 - Inisialisasi kamera peserta kini menunggu playback dan frame valid dengan timeout delapan detik; tombol verifikasi tidak lagi aktif ketika akses kamera gagal.
 - Cache asset liveness dinaikkan ke `active-liveness-v15` agar perbaikan kesiapan kamera segera dimuat di perangkat mobile.
 - Generator challenge tidak lagi menghasilkan dua gerakan identik secara berurutan; pengulangan nonberurutan tetap boleh dan setiap langkah kedip tetap hanya satu kedipan.

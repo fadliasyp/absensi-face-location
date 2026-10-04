@@ -228,7 +228,9 @@ async function initMediaPipeFaceGuide() {
 
     const runGuideFrame = () => {
       const livenessActive = Boolean(window.__attendanceLivenessActive);
-      const nextDelay = livenessActive ? 35 : 400;
+      const livenessAction = window.__attendanceLivenessAction;
+      const activeDelay = livenessAction === "blink" ? 35 : 120;
+      const nextDelay = livenessActive ? activeDelay : 400;
 
       try {
         if (!faceLandmarker || !video || video.readyState < 2) return;

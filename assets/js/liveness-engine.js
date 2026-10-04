@@ -23,6 +23,7 @@
     returnNeutralFrames: 3,
     turnFrames: 2,
     turnSupportRatio: 0.65,
+    turnEvidenceWindowMs: 900,
     blinkReopenFrames: 2,
     calibrationCenterLimit: 0.04,
     neutralYawTolerance: 0.03,
@@ -142,6 +143,7 @@
       neutralCount: 0,
       turnCount: 0,
       turnPeakDetected: false,
+      turnEvidenceStartedAt: null,
       wrongActionCount: 0,
       blinkStage: "awaiting_closed",
       blinkSignalSource: null,
@@ -168,6 +170,7 @@
       state.neutralCount = 0;
       state.turnCount = 0;
       state.turnPeakDetected = false;
+      state.turnEvidenceStartedAt = null;
       state.wrongActionCount = 0;
       state.blinkStage = "awaiting_closed";
       state.blinkSignalSource = null;
@@ -225,6 +228,7 @@
       state.promptReadyAt = null;
       state.turnCount = 0;
       state.turnPeakDetected = false;
+      state.turnEvidenceStartedAt = null;
       state.wrongActionCount = 0;
       state.blinkStage = "awaiting_closed";
       state.blinkSignalSource = null;
@@ -452,7 +456,7 @@
         const peakClosedDuration = sample.timestamp - sample.blinkPeakTimestamp;
         const capturedBlinkPulse =
           blendshapePeakEyesClosed &&
-          blendshapeEyesReopened &&
+          (blendshapeEyesReopened || earEyesReopened) &&
           peakClosedDuration >= settings.minBlinkClosedMs &&
           peakClosedDuration <= settings.maxBlinkClosedMs;
 
@@ -515,6 +519,17 @@
       const yawDelta = sample.yaw - state.baseline.yaw;
       const supportThreshold =
         settings.turnYawDelta * settings.turnSupportRatio;
+      const evidenceExpired =
+        state.turnEvidenceStartedAt !== null &&
+        sample.timestamp - state.turnEvidenceStartedAt >
+          settings.turnEvidenceWindowMs;
+
+      if (evidenceExpired) {
+        state.turnCount = 0;
+        state.turnPeakDetected = false;
+        state.turnEvidenceStartedAt = null;
+      }
+
       // CSS hanya membalik preview, bukan piksel video yang dibaca face-api.
       // Karena itu kanan peserta bernilai negatif pada video mentah dan kiri positif.
       const expectedDirectionReached =
@@ -531,15 +546,19 @@
           : yawDelta <= -settings.turnYawDelta;
 
       if (expectedDirectionSupported) {
+        if (state.turnEvidenceStartedAt === null) {
+          state.turnEvidenceStartedAt = sample.timestamp;
+        }
+
         state.turnCount += 1;
         state.turnPeakDetected ||= expectedDirectionReached;
         state.wrongActionCount = 0;
-      } else {
-        state.turnCount = 0;
-        state.turnPeakDetected = false;
       }
 
       if (wrongDirectionReached) {
+        state.turnCount = 0;
+        state.turnPeakDetected = false;
+        state.turnEvidenceStartedAt = null;
         state.wrongActionCount += 1;
 
         if (state.wrongActionCount >= settings.wrongActionFrames) {
