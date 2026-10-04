@@ -63,6 +63,22 @@ Preview kamera depan ditampilkan seperti cermin. Agar instruksi sesuai dengan si
 - Arah berlawanan tetap menggagalkan langkah setelah jumlah frame yang ditentukan.
 - Regression test mengunci yaw positif untuk kanan dan yaw negatif untuk kiri.
 
+## 2026-10-04 - Kamera Harus Siap Sebelum Verifikasi Diaktifkan
+
+### Status
+
+Accepted.
+
+### Decision
+
+Halaman verifikasi hanya mengaktifkan tombol setelah stream kamera berhasil diputar, dimensi frame tersedia, dan model wajah siap. Penantian frame memiliki timeout delapan detik. Kegagalan akses atau playback diperlakukan fail-closed dengan membersihkan stream dan memakai komponen pesan/status yang sudah ada.
+
+### Consequences
+
+- Latar kamera gelap tidak lagi dapat disertai tombol aktif dan status siap palsu.
+- Perubahan hanya menyentuh logic browser; struktur HTML dan CSS dipertahankan.
+- Izin kamera perangkat dan perilaku runtime tetap perlu diuji setelah deploy frontend.
+
 ## 2026-10-04 - Gerakan Identik Tidak Boleh Berurutan
 
 ### Status

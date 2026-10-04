@@ -16,6 +16,8 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 
 ### Changed
 
+- Inisialisasi kamera peserta kini menunggu playback dan frame valid dengan timeout delapan detik; tombol verifikasi tidak lagi aktif ketika akses kamera gagal.
+- Cache asset liveness dinaikkan ke `active-liveness-v15` agar perbaikan kesiapan kamera segera dimuat di perangkat mobile.
 - Generator challenge tidak lagi menghasilkan dua gerakan identik secara berurutan; pengulangan nonberurutan tetap boleh dan setiap langkah kedip tetap hanya satu kedipan.
 - Cache asset liveness dinaikkan ke `active-liveness-v14` agar aturan urutan terbaru segera dimuat di perangkat mobile.
 - Pemetaan tengok dikoreksi berdasarkan input video mentah face-api: kanan peserta memakai delta yaw negatif dan kiri memakai delta yaw positif; mirror CSS hanya memengaruhi preview.

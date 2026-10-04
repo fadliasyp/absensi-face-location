@@ -308,19 +308,37 @@ function resizeFaceOverlayCanvas() {
 async function startCamera() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     showMessage("Browser tidak mendukung akses kamera.");
-    return;
+    return false;
   }
 
+  let stream = null;
+
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: { ideal: "user" },
+      },
       audio: false,
     });
 
     video.srcObject = stream;
+    await video.play();
+    await tungguVideoSiap();
+    return true;
   } catch (error) {
     console.error(error);
+
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+    }
+
+    if (video.srcObject === stream) {
+      video.srcObject = null;
+    }
+
     showMessage("Kamera gagal diakses. Pastikan izin kamera diaktifkan.");
+    setInstruksiUI("Kamera belum aktif", "KAMERA", "error");
+    return false;
   }
 }
 
@@ -1043,21 +1061,46 @@ async function verifikasiGerakanSekali() {
   }
 }
 
-function tungguVideoSiap() {
-  return new Promise((resolve) => {
-    if (
-      video.readyState >= 2 &&
-      video.videoWidth > 0 &&
-      video.videoHeight > 0
-    ) {
-      resolve();
-      return;
-    }
+function tungguVideoSiap(timeoutMs = 8000) {
+  return new Promise((resolve, reject) => {
+    let selesai = false;
+    let timeoutId = null;
 
-    video.onloadedmetadata = () => {
-      video.play();
-      resolve();
+    const cleanup = () => {
+      if (timeoutId !== null) window.clearTimeout(timeoutId);
+      video.removeEventListener("loadedmetadata", periksaKesiapan);
+      video.removeEventListener("loadeddata", periksaKesiapan);
+      video.removeEventListener("canplay", periksaKesiapan);
     };
+
+    const selesaikan = (callback) => {
+      if (selesai) return;
+      selesai = true;
+      cleanup();
+      callback();
+    };
+
+    const periksaKesiapan = () => {
+      if (
+        video.readyState >= 2 &&
+        video.videoWidth > 0 &&
+        video.videoHeight > 0
+      ) {
+        selesaikan(resolve);
+      }
+    };
+
+    video.addEventListener("loadedmetadata", periksaKesiapan);
+    video.addEventListener("loadeddata", periksaKesiapan);
+    video.addEventListener("canplay", periksaKesiapan);
+
+    timeoutId = window.setTimeout(() => {
+      selesaikan(() =>
+        reject(new Error("Kamera tidak siap dalam batas waktu.")),
+      );
+    }, timeoutMs);
+
+    periksaKesiapan();
   });
 }
 
@@ -1539,12 +1582,15 @@ async function prosesAbsenSetelahValidasi() {
 
 async function init() {
   await cekUser();
-  await startCamera();
-  await loadModelFaceApi();
-  await loadLokasiAbsen();
-
   const btn = document.getElementById("btnVerifikasiAbsen");
-  if (btn) btn.disabled = false;
+  const cameraReady = await startCamera();
+
+  if (cameraReady) {
+    await loadModelFaceApi();
+    await loadLokasiAbsen();
+  }
+
+  if (btn) btn.disabled = !(cameraReady && modelSiap);
 }
 
 init();

@@ -890,9 +890,29 @@ assert.match(
   "Engine liveness harus dimuat sebelum controller verifikasi.",
 );
 assert.equal(
-  (verificationPage.match(/active-liveness-v14/g) || []).length,
+  (verificationPage.match(/active-liveness-v15/g) || []).length,
   3,
-  "Ketiga asset liveness harus memakai versi cache v14 yang sama.",
+  "Ketiga asset liveness harus memakai versi cache v15 yang sama.",
+);
+assert.match(
+  verificationScript,
+  /async function startCamera\(\)[^]*await video\.play\(\)[^]*await tungguVideoSiap\(\)[^]*return true/,
+  "Kamera baru boleh dianggap siap setelah video benar-benar diputar dan memiliki frame valid.",
+);
+assert.match(
+  verificationScript,
+  /async function startCamera\(\)[^]*catch \(error\)[^]*return false/,
+  "Kegagalan akses kamera harus diteruskan sebagai status gagal ke proses inisialisasi.",
+);
+assert.match(
+  verificationScript,
+  /function tungguVideoSiap\([^)]*\)[^]*setTimeout[^]*reject/,
+  "Penantian frame kamera harus memiliki timeout dan tidak boleh menggantung tanpa batas.",
+);
+assert.match(
+  verificationScript,
+  /const cameraReady = await startCamera\(\)[^]*btn\.disabled = !\(cameraReady && modelSiap\)/,
+  "Tombol verifikasi hanya boleh aktif ketika kamera dan model wajah benar-benar siap.",
 );
 assert.match(
   verificationScript,

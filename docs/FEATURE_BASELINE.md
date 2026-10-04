@@ -68,6 +68,7 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 - Sumber yang membaca mata tertutup juga memverifikasi pembukaan kembali; kedua mata wajib ikut dalam siklus.
 - Sampel MediaPipe yang lebih lama dari 200 ms diabaikan agar tidak menutupi EAR frame terbaru.
 - Lebih dari satu wajah, wajah hilang terlalu lama, kamera berhenti, tab tersembunyi, dan timeout gagal secara tertutup.
+- Tombol verifikasi hanya aktif setelah kamera benar-benar memutar frame valid dan model wajah siap; kegagalan kamera tidak boleh ditampilkan sebagai kondisi siap.
 - Pemrosesan face-api berjalan berurutan agar deteksi tidak saling tumpang tindih.
 - MediaPipe tetap membaca blendshape selama challenge dengan interval lebih rapat; hanya rendering panduan visual yang berhenti sementara.
 
