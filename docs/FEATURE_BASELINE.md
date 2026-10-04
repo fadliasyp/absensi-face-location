@@ -51,6 +51,7 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 - Identitas wajah dicocokkan sebelum dan sesudah tantangan.
 - Baseline posisi netral dan bukaan mata diambil dari frame wajah valid pertama tanpa tahap stabilisasi awal.
 - Setiap sesi memuat langkah kedip, tengok kanan, dan tengok kiri dalam urutan acak; langkah kedip meminta satu atau dua siklus secara acak.
+- Teks instruksi meminta peserta mengedipkan kedua mata secara normal, tanpa perintah pejam/merem atau menahan mata tertutup.
 - Urutan gerakan dan target satu/dua kedipan dibuat lokal menggunakan Web Crypto bila tersedia.
 - Instruksi gerakan hanya aktif setelah jeda prompt acak; gerakan sebelumnya tidak boleh dihitung.
 - Gerakan harus dilakukan sesuai urutan dan kembali ke posisi netral.
@@ -75,6 +76,7 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 - Jangan mematikan inferensi blendshape MediaPipe selama langkah kedip.
 - Jangan kembali membuat sampel MediaPipe lama mengalahkan EAR terbaru.
 - Jangan menerima kedipan satu mata atau sinyal kecil sebagai kedipan penuh.
+- Jangan mengembalikan instruksi pejam/merem atau kedip perlahan; peserta cukup diminta berkedip normal.
 - Jangan menghapus pemeriksaan identitas sebelum dan sesudah challenge.
 - Jangan mengembalikan penantian stabilisasi wajah awal tanpa persetujuan pengguna.
 - Jangan menambahkan kembali ketergantungan sesi/proof liveness server tanpa persetujuan baru pengguna.

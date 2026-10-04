@@ -717,9 +717,21 @@ function prepareAction(session, startAt = 0, overrides = {}) {
   assert.equal(session.getState().reason, "face_continuity_lost");
 }
 
+const engineScript = fs.readFileSync(enginePath, "utf8");
 const verificationScript = fs.readFileSync(verificationPath, "utf8");
 const verificationPage = fs.readFileSync(verificationPagePath, "utf8");
 const faceGuideScript = fs.readFileSync(faceGuidePath, "utf8");
+
+assert.doesNotMatch(
+  engineScript,
+  /pejam|perlahan/i,
+  "Instruksi liveness hanya boleh meminta kedip normal, bukan merem atau kedip perlahan.",
+);
+assert.match(
+  engineScript,
+  /kedipkan kedua mata secara normal/i,
+  "Instruksi liveness harus meminta peserta berkedip secara normal.",
+);
 
 assert.match(
   verificationPage,
@@ -727,9 +739,9 @@ assert.match(
   "Engine liveness harus dimuat sebelum controller verifikasi.",
 );
 assert.equal(
-  (verificationPage.match(/active-liveness-v8/g) || []).length,
+  (verificationPage.match(/active-liveness-v9/g) || []).length,
   3,
-  "Ketiga asset liveness harus memakai versi cache v8 yang sama.",
+  "Ketiga asset liveness harus memakai versi cache v9 yang sama.",
 );
 assert.match(
   verificationScript,

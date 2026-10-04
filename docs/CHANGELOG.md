@@ -16,6 +16,8 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 
 ### Changed
 
+- Instruksi liveness kedip kini hanya meminta peserta mengedipkan kedua mata secara normal; arahan pejam/merem dan kedip perlahan dihapus tanpa mengubah validasi tutup-buka kedua mata.
+- Cache asset liveness dinaikkan ke `active-liveness-v9` agar instruksi kedip terbaru segera dimuat setelah deploy frontend.
 - Tengok kanan/kiri cepat kini dikenali dari dua frame searah dengan satu puncak penuh; satu frame lonjakan tetap ditolak.
 - Cache asset liveness dinaikkan ke `active-liveness-v8` untuk memuat toleransi gerakan kepala normal yang cepat.
 - Deteksi kedip menggabungkan MediaPipe dan EAR dengan sumber siklus yang konsisten, menerima kedipan cepat mulai 25 ms, dan mengabaikan sampel MediaPipe di atas 200 ms.

@@ -1,5 +1,21 @@
 # Decision Log
 
+## 2026-10-04 - Instruksi Kedip Menggunakan Gerakan Normal
+
+### Status
+
+Accepted.
+
+### Decision
+
+UI liveness hanya meminta peserta mengedipkan kedua mata secara normal. Peserta tidak diminta pejam/merem, menahan mata tertutup, atau berkedip perlahan. Validasi internal tetap membutuhkan transisi kedua mata tertutup lalu terbuka untuk membedakan kedipan penuh dari perubahan kecil.
+
+### Consequences
+
+- Instruksi lebih sesuai dengan gerakan alami peserta dan tidak mendorong mata ditutup terlalu lama.
+- Target acak satu atau dua kedipan serta seluruh perlindungan Tahap 1 tetap dipertahankan.
+- Contract test mencegah istilah `pejam` dan `perlahan` kembali ke engine liveness.
+
 ## 2026-10-04 - Tengok Cepat Memakai Pendekatan dan Puncak
 
 ### Status

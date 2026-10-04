@@ -48,7 +48,7 @@
   });
 
   const ACTION_LABELS = Object.freeze({
-    [ACTIONS.BLINK]: "kedipkan kedua mata secara perlahan",
+    [ACTIONS.BLINK]: "kedipkan kedua mata secara normal",
     [ACTIONS.TURN_RIGHT]: "tengok ke kanan",
     [ACTIONS.TURN_LEFT]: "tengok ke kiri",
   });
@@ -202,7 +202,7 @@
 
     function actionInstructionText() {
       if (state.action === ACTIONS.BLINK && state.blinkTarget === 2) {
-        return "kedipkan kedua mata dua kali secara perlahan";
+        return "kedipkan kedua mata dua kali secara normal";
       }
 
       return ACTION_LABELS[state.action];
@@ -462,7 +462,7 @@
         state.blinkSignalSource = null;
         state.blinkClosedAt = null;
         state.blinkReopenCount = 0;
-        state.message = `${actionProgressText()}: kedip perlahan atau pejamkan kedua mata sesaat, lalu buka kembali.`;
+        state.message = `${actionProgressText()}: kedipkan kedua mata secara normal.`;
         return;
       }
 
