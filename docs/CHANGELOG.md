@@ -13,8 +13,6 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 - Gaya SweetAlert formal yang konsisten pada alur absensi peserta.
 - Penolakan izin berbasis Jam Generate Alfa server WIB dengan respons khusus saat Alfa sudah tercatat.
 - Pemulihan atomik Alfa hari ini menjadi Izin ketika admin memundurkan deadline dan batas terbaru masih terbuka.
-- Sesi liveness Supabase yang singkat, rate-limited, terikat pengguna, dan sekali pakai tanpa layanan berbayar tambahan.
-- Contract `tests/liveness-server-policy.test.cjs` untuk grants, lifecycle proof, expiry, dan wrapper absensi.
 
 ### Changed
 
@@ -23,8 +21,6 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 - Status Hadir berlaku sampai Batas Masuk; setelahnya berstatus Terlambat sampai sebelum Jam Generate Alfa.
 - Cron Alfa berubah dari jadwal tetap pukul 12.00 menjadi pemeriksaan idempoten setiap menit terhadap deadline server WIB.
 - Popup pengajuan izin menggunakan gaya formal yang sama dengan popup absensi.
-- Challenge liveness kini diterbitkan server dan frontend mencatat absensi melalui `catat_absensi_terverifikasi`.
-- Engine liveness menerbitkan telemetry urutan/timing minimal untuk dicocokkan dengan challenge server.
 
 ### Fixed
 
@@ -34,7 +30,12 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 - Wrapper `attendance_window_status` tiga parameter mempertahankan nama parameter legacy `p_batas_telat`, sehingga migration dapat memperbarui fungsi database lama tanpa error PostgreSQL `42P13`.
 - Navbar admin dan peserta tidak lagi keluar viewport pada laptop sempit; menu horizontal beralih ke hamburger/sidebar pada lebar `901–1280px`.
 - Replay video biasa dipersulit melalui jeda prompt acak, target kedip satu/dua kali, batas respons yang lebih pendek, dan penolakan gerakan kepala sebelum prompt atau berlawanan arah.
-- Pemanggilan langsung RPC absensi lama oleh role peserta ditutup; proof yang kedaluwarsa atau sudah dipakai ditolak.
+
+### Removed
+
+- Tahap 2 server-bound dihapus dari alur aktif; frontend kembali memakai challenge lokal Tahap 1 dan RPC `catat_absensi`.
+- Telemetry event liveness serta dependency frontend pada RPC proof server dihapus.
+- Migration `202610040006` menghapus tabel/function Tahap 2 jika pernah diterapkan dan memulihkan grant attendance Tahap 1.
 
 ## 2026-10-03
 

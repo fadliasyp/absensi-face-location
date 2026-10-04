@@ -191,16 +191,11 @@ Command: select public.generate_alfa_harian();
 
 Function mengembalikan tanpa mutasi sebelum Jam Generate Alfa, pada hari libur, dan untuk tanggal mendatang. Insert Alfa tetap idempoten karena hanya memilih peserta yang belum mempunyai record.
 
-## Server-Bound Liveness Sessions
+## Liveness Tahap 2 (Rolled Back)
 
-Migration `202610040004_server_bound_liveness.sql` menambahkan `public.liveness_sessions` sebagai penyimpanan challenge sementara. Tabel tidak dapat diakses langsung oleh `anon` atau `authenticated`; seluruh transisi dilakukan melalui function `security definer` dengan `search_path` kosong.
+Migration `202610040004` dan `202610040005` dipertahankan sebagai histori karena status penerapan remote belum diketahui. Migration `202610040006_rollback_server_bound_liveness.sql` mengembalikan sistem ke Tahap 1 dengan menghapus function `mulai_sesi_liveness`, `selesaikan_sesi_liveness`, `catat_absensi_terverifikasi`, serta tabel sementara `liveness_sessions`. Execute `catat_absensi(jsonb)` dipulihkan untuk `authenticated`.
 
-- `mulai_sesi_liveness()` memvalidasi peserta aktif dengan descriptor wajah, mengunci rate-limit per pengguna, menerbitkan salah satu dari enam urutan aksi, dan memberi expiry tiga menit.
-- `selesaikan_sesi_liveness(uuid, jsonb)` mengunci row, memeriksa kepemilikan/status/expiry, urutan aksi, timing terbatas, jumlah kedip, dan ukuran telemetry sebelum mengubah status menjadi `passed`.
-- `catat_absensi_terverifikasi(jsonb)` mengunci proof, menolak proof yang tidak passed/kedaluwarsa/sudah digunakan, memanggil authority `catat_absensi`, lalu menandai proof `consumed` hanya jika insert berhasil.
-- Execute `catat_absensi(jsonb)` dicabut dari `authenticated`; function tersebut menjadi authority internal untuk wrapper baru.
-
-Telemetry masih dibuat browser dan bukan bukti biometrik kriptografis. Tabel ini melindungi lifecycle challenge serta replay proof, bukan menggantikan layanan PAD server-side.
+Rollback hanya menghapus data sesi liveness sementara; tabel `absensi` dan riwayat kehadiran tidak dihapus.
 
 ## Storage
 
@@ -230,6 +225,8 @@ Definisi bucket serta Storage policies tidak tersedia di repository.
 8. `202610040002_reject_late_manual_leave.sql`
 9. `202610040003_reopen_alfa_after_deadline_extension.sql`
 10. `202610040004_server_bound_liveness.sql`
+11. `202610040005_unlimited_liveness_attempts.sql`
+12. `202610040006_rollback_server_bound_liveness.sql`
 
 Migration ini merupakan delta atas schema yang sudah ada, bukan bootstrap database lengkap.
 

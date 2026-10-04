@@ -1,6 +1,6 @@
 # Decision Log
 
-## 2026-10-04 - Tahap 2 Liveness Menggunakan Supabase Tanpa Layanan Berbayar
+## 2026-10-04 - Kembali ke Anti-Video Replay Tahap 1
 
 ### Status
 
@@ -8,7 +8,24 @@ ACCEPTED
 
 ### Decision
 
-Challenge liveness diterbitkan oleh RPC Supabase, disimpan singkat, dibatasi per peserta, dan hanya dapat dipakai sekali melalui wrapper absensi. Tidak ada dependency atau API biometrik berbayar baru.
+Upgrade server-bound Tahap 2 dibatalkan. Sistem memakai kembali challenge lokal Tahap 1 dan RPC `catat_absensi`, sedangkan migration rollback menghapus artefak database Tahap 2 bila pernah diterapkan.
+
+### Consequences
+
+- Tuning kedip, urutan acak, prompt tertunda, deadline respons, penolakan arah salah, dan pemeriksaan identitas awal/akhir tetap dipertahankan.
+- Tidak ada dependency runtime pada tabel atau RPC sesi liveness server.
+- Perlindungan terhadap virtual camera, browser termodifikasi, dan deepfake real-time tetap berada di luar jaminan Tahap 1.
+- Migration Tahap 2 tetap tersimpan sebagai histori agar rollback remote dapat dilakukan secara deterministik.
+
+## 2026-10-04 - Tahap 2 Liveness Menggunakan Supabase Tanpa Layanan Berbayar
+
+### Status
+
+SUPERSEDED
+
+### Decision
+
+Challenge liveness diterbitkan oleh RPC Supabase, disimpan singkat, dapat dimulai ulang tanpa batas jumlah percobaan, dan hanya dapat dipakai sekali melalui wrapper absensi. Tidak ada dependency atau API biometrik berbayar baru.
 
 ### Context
 
@@ -18,7 +35,8 @@ Pengguna meminta melanjutkan penguatan anti-video tetapi hanya dengan solusi gra
 
 - Browser tidak lagi memilih urutan/target kedip yang menjadi authority; server menyimpan nilai yang diharapkan.
 - RPC attendance lama dicabut dari peserta dan hanya dipanggil secara internal setelah proof server berstatus `passed`.
-- Rate limit, expiry, row lock, dan status `consumed` mengurangi brute force serta replay proof biasa.
+- Expiry, row lock, dan status `consumed` menjaga lifecycle sesi serta mengurangi replay proof biasa; jumlah percobaan tidak dibatasi sesuai keputusan pengguna.
+- Retry selalu mengganti sesi aktif sebelumnya dan membersihkan sesi gagal/kedaluwarsa agar percobaan tanpa batas tidak menghasilkan banyak proof aktif.
 - Landmark dan timing tetap berasal dari browser. Solusi ini sengaja tidak diklaim sebagai PAD/attestation biometrik atau perlindungan terhadap browser termodifikasi, virtual camera, dan deepfake real-time.
 
 ## 2026-10-04 - Active Liveness Tetap Ringan dan Teruji di Browser

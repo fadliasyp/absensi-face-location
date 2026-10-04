@@ -667,7 +667,7 @@ async function verifikasiDanAbsen() {
       }
 
       showPopupError(
-        hasilGerakan.title || "Verifikasi Gerakan Gagal",
+        "Verifikasi Gerakan Gagal",
         hasilGerakan.message ||
           "Coba ulangi dengan wajah di tengah kamera dan lakukan gerakan sesuai urutan.",
       );
@@ -694,39 +694,9 @@ async function verifikasiDanAbsen() {
       return;
     }
 
-    let hasilSesiLiveness;
-
-    try {
-      hasilSesiLiveness = await selesaikanSesiLivenessServer(
-        hasilGerakan.sessionId,
-        hasilGerakan.events,
-      );
-    } catch (error) {
-      console.error("Gagal menyelesaikan sesi liveness:", error);
-      showMessage("Verifikasi gerakan belum dapat disahkan oleh server.");
-      showPopupError(
-        "Verifikasi Server Gagal",
-        "Sistem belum dapat mengesahkan verifikasi gerakan. Silakan periksa koneksi dan ulangi proses.",
-      );
-      return;
-    }
-
-    if (!hasilSesiLiveness?.success) {
-      showMessage(
-        hasilSesiLiveness?.message ||
-          "Verifikasi gerakan ditolak oleh server.",
-      );
-      showPopupError(
-        hasilSesiLiveness?.title || "Verifikasi Gerakan Ditolak",
-        hasilSesiLiveness?.message ||
-          "Bukti gerakan tidak dapat disahkan. Silakan ulangi proses.",
-      );
-      return;
-    }
-
     setInstruksiUI("Wajah valid, mengecek lokasi...", "📍", "success");
 
-    await prosesAbsenSetelahValidasi(hasilGerakan.sessionId);
+    await prosesAbsenSetelahValidasi();
   } finally {
     if (btn) {
       btn.disabled = false;
@@ -948,26 +918,6 @@ function renderLivenessState(state) {
   setInstruksiUI(state.message, getLivenessIcon(state.action), type);
 }
 
-async function mulaiSesiLivenessServer() {
-  const { data, error } = await supabaseClient.rpc("mulai_sesi_liveness");
-
-  if (error) throw error;
-  return data;
-}
-
-async function selesaikanSesiLivenessServer(sessionId, events) {
-  const { data, error } = await supabaseClient.rpc(
-    "selesaikan_sesi_liveness",
-    {
-      p_session_id: sessionId,
-      p_events: events,
-    },
-  );
-
-  if (error) throw error;
-  return data;
-}
-
 async function verifikasiGerakanSekali() {
   await tungguVideoSiap();
 
@@ -985,53 +935,12 @@ async function verifikasiGerakanSekali() {
     };
   }
 
-  let challenge;
-
-  try {
-    challenge = await mulaiSesiLivenessServer();
-  } catch (error) {
-    console.error("Gagal memulai sesi liveness:", error);
-    return {
-      success: false,
-      title: "Verifikasi Server Tidak Tersedia",
-      message:
-        "Sistem belum dapat membuat challenge verifikasi. Silakan periksa koneksi dan coba kembali.",
-    };
-  }
-
-  if (!challenge?.success) {
-    return {
-      success: false,
-      title: challenge?.title || "Verifikasi Tidak Dapat Dimulai",
-      message:
-        challenge?.message ||
-        "Challenge verifikasi belum dapat dibuat. Silakan coba kembali.",
-    };
-  }
-
-  const sequence = Array.isArray(challenge.sequence)
-    ? challenge.sequence
-    : [];
-  const allowedActions = new Set(["blink", "turn_right", "turn_left"]);
-
-  if (
-    !challenge.session_id ||
-    sequence.length !== 3 ||
-    new Set(sequence).size !== 3 ||
-    sequence.some((action) => !allowedActions.has(action)) ||
-    ![1, 2].includes(Number(challenge.blink_target))
-  ) {
-    return {
-      success: false,
-      title: "Challenge Tidak Valid",
-      message:
-        "Challenge dari server tidak dapat diverifikasi. Silakan muat ulang halaman.",
-    };
-  }
-
+  const challenge = window.AttendanceLiveness.createRandomChallenge(
+    secureChallengeRandom,
+  );
   const session = window.AttendanceLiveness.createLivenessSession({
-    sequence,
-    blinkTarget: Number(challenge.blink_target),
+    sequence: challenge.sequence,
+    blinkTarget: challenge.blinkTarget,
     promptDelayRandom: secureChallengeRandom,
   });
   let state = session.getState();
@@ -1109,10 +1018,8 @@ async function verifikasiGerakanSekali() {
 
     return {
       success: true,
-      sessionId: challenge.session_id,
-      sequence,
-      blinkTarget: Number(challenge.blink_target),
-      events: state.events,
+      sequence: challenge.sequence,
+      blinkTarget: challenge.blinkTarget,
     };
   } finally {
     window.__attendanceLivenessActive = false;
@@ -1453,7 +1360,7 @@ function derajatKeRadian(deg) {
   return deg * (Math.PI / 180);
 }
 
-async function prosesAbsenSetelahValidasi(livenessSessionId) {
+async function prosesAbsenSetelahValidasi() {
   if (!currentUser || !currentProfile) {
     showMessage("User belum terdeteksi. Silakan login ulang.");
     return;
@@ -1561,14 +1468,13 @@ async function prosesAbsenSetelahValidasi(livenessSessionId) {
   }
 
   const { data: hasilAbsensi, error } = await supabaseClient.rpc(
-    "catat_absensi_terverifikasi",
+    "catat_absensi",
     {
       p_payload: {
         latitude: latitudeUser,
         longitude: longitudeUser,
         lokasi_absen_id: lokasiTerdekat.id,
         foto_absen_key: fotoAbsenKey,
-        liveness_session_id: livenessSessionId,
       },
     },
   );
