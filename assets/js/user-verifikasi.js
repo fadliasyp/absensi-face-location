@@ -842,6 +842,32 @@ function getActiveVideoTrack() {
   return videoTrack || null;
 }
 
+function getRecentMediaPipeBlinkSample(timestamp) {
+  const faceGuide = window.AttendanceFaceGuide;
+
+  if (!faceGuide || typeof faceGuide.getLatestLivenessSample !== "function") {
+    return {};
+  }
+
+  const sample = faceGuide.getLatestLivenessSample();
+  const sampleAge = timestamp - Number(sample?.timestamp);
+  const isRecent = Number.isFinite(sampleAge) && Math.abs(sampleAge) <= 650;
+
+  if (
+    !isRecent ||
+    sample?.faceCount !== 1 ||
+    !Number.isFinite(sample?.blinkLeft) ||
+    !Number.isFinite(sample?.blinkRight)
+  ) {
+    return {};
+  }
+
+  return {
+    blinkLeft: sample.blinkLeft,
+    blinkRight: sample.blinkRight,
+  };
+}
+
 async function detectLivenessFrame() {
   const detections = await faceapi
     .detectAllFaces(
@@ -862,6 +888,7 @@ async function detectLivenessFrame() {
   }
 
   const landmarks = detections[0].landmarks;
+  const mediaPipeBlink = getRecentMediaPipeBlinkSample(timestamp);
 
   return {
     timestamp,
@@ -869,6 +896,7 @@ async function detectLivenessFrame() {
     yaw: analisisArahWajah(landmarks),
     leftEAR: hitungEAR(landmarks.getLeftEye()),
     rightEAR: hitungEAR(landmarks.getRightEye()),
+    ...mediaPipeBlink,
   };
 }
 

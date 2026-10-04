@@ -31,6 +31,11 @@
     neutralOpenRatio: 0.78,
     blinkClosedRatio: 0.76,
     blinkReopenRatio: 0.82,
+    blinkBlendshapeClosedFloor: 0.4,
+    blinkBlendshapeClosedFallback: 0.45,
+    blinkBlendshapeClosedDelta: 0.18,
+    blinkBlendshapeOpenFallback: 0.3,
+    blinkBlendshapeReopenDelta: 0.1,
     minBlinkClosedMs: 60,
     maxBlinkClosedMs: 1400,
     maxMissingFaceMs: 2200,
@@ -45,6 +50,8 @@
   });
 
   function median(values) {
+    if (values.length === 0) return null;
+
     const sorted = [...values].sort((a, b) => a - b);
     const middle = Math.floor(sorted.length / 2);
 
@@ -220,6 +227,12 @@
         yaw: sample.yaw,
         leftEAR: sample.leftEAR,
         rightEAR: sample.rightEAR,
+        blinkLeft: Number.isFinite(sample.blinkLeft)
+          ? sample.blinkLeft
+          : null,
+        blinkRight: Number.isFinite(sample.blinkRight)
+          ? sample.blinkRight
+          : null,
       });
       state.message = `Menstabilkan wajah (${Math.min(
         state.calibrationSamples.length,
@@ -234,6 +247,16 @@
         yaw: median(state.calibrationSamples.map((item) => item.yaw)),
         leftEAR: median(state.calibrationSamples.map((item) => item.leftEAR)),
         rightEAR: median(state.calibrationSamples.map((item) => item.rightEAR)),
+        blinkLeft: median(
+          state.calibrationSamples
+            .map((item) => item.blinkLeft)
+            .filter(Number.isFinite),
+        ),
+        blinkRight: median(
+          state.calibrationSamples
+            .map((item) => item.blinkRight)
+            .filter(Number.isFinite),
+        ),
       };
       state.phase = "neutral";
       state.neutralCount = 0;
@@ -253,13 +276,47 @@
     }
 
     function processBlink(sample) {
-      const bothEyesClosed =
-        sample.leftEAR <= state.baseline.leftEAR * settings.blinkClosedRatio &&
-        sample.rightEAR <= state.baseline.rightEAR * settings.blinkClosedRatio;
-      const bothEyesReopened = eyesAreOpen(
-        sample,
-        settings.blinkReopenRatio,
-      );
+      const hasBlendshapeSignal =
+        Number.isFinite(sample.blinkLeft) &&
+        Number.isFinite(sample.blinkRight);
+      const hasBlendshapeBaseline =
+        Number.isFinite(state.baseline.blinkLeft) &&
+        Number.isFinite(state.baseline.blinkRight);
+      const leftClosedThreshold = hasBlendshapeBaseline
+        ? Math.max(
+            settings.blinkBlendshapeClosedFloor,
+            state.baseline.blinkLeft + settings.blinkBlendshapeClosedDelta,
+          )
+        : settings.blinkBlendshapeClosedFallback;
+      const rightClosedThreshold = hasBlendshapeBaseline
+        ? Math.max(
+            settings.blinkBlendshapeClosedFloor,
+            state.baseline.blinkRight + settings.blinkBlendshapeClosedDelta,
+          )
+        : settings.blinkBlendshapeClosedFallback;
+      const leftOpenThreshold = hasBlendshapeBaseline
+        ? Math.min(
+            leftClosedThreshold - 0.05,
+            state.baseline.blinkLeft + settings.blinkBlendshapeReopenDelta,
+          )
+        : settings.blinkBlendshapeOpenFallback;
+      const rightOpenThreshold = hasBlendshapeBaseline
+        ? Math.min(
+            rightClosedThreshold - 0.05,
+            state.baseline.blinkRight + settings.blinkBlendshapeReopenDelta,
+          )
+        : settings.blinkBlendshapeOpenFallback;
+      const bothEyesClosed = hasBlendshapeSignal
+        ? sample.blinkLeft >= leftClosedThreshold &&
+          sample.blinkRight >= rightClosedThreshold
+        : sample.leftEAR <=
+            state.baseline.leftEAR * settings.blinkClosedRatio &&
+          sample.rightEAR <=
+            state.baseline.rightEAR * settings.blinkClosedRatio;
+      const bothEyesReopened = hasBlendshapeSignal
+        ? sample.blinkLeft <= leftOpenThreshold &&
+          sample.blinkRight <= rightOpenThreshold
+        : eyesAreOpen(sample, settings.blinkReopenRatio);
 
       if (state.blinkStage === "awaiting_closed") {
         if (bothEyesClosed) {

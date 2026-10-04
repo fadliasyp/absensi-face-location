@@ -164,6 +164,97 @@ function prepareAction(session, startAt = 0) {
     sequence: [ACTIONS.BLINK],
     config: testConfig,
   });
+  let timestamp = 0;
+
+  for (let index = 0; index < testConfig.calibrationFrames; index += 1) {
+    session.ingest(
+      frame(timestamp, {
+        blinkLeft: 0.24,
+        blinkRight: 0.22,
+      }),
+    );
+    timestamp += 150;
+  }
+
+  for (let index = 0; index < testConfig.neutralFrames; index += 1) {
+    session.ingest(
+      frame(timestamp, {
+        blinkLeft: 0.24,
+        blinkRight: 0.22,
+      }),
+    );
+    timestamp += 150;
+  }
+
+  assert.equal(session.getState().phase, "action");
+
+  session.ingest(
+    frame(timestamp, {
+      blinkLeft: 0.46,
+      blinkRight: 0.44,
+    }),
+  );
+  timestamp += 180;
+  session.ingest(
+    frame(timestamp, {
+      blinkLeft: 0.25,
+      blinkRight: 0.23,
+    }),
+  );
+  timestamp += 150;
+  session.ingest(
+    frame(timestamp, {
+      blinkLeft: 0.24,
+      blinkRight: 0.22,
+    }),
+  );
+  timestamp += 150;
+  session.ingest(frame(timestamp));
+  timestamp += 150;
+  session.ingest(frame(timestamp));
+
+  assert.equal(
+    session.getState().complete,
+    true,
+    "Kenaikan koefisien kedip MediaPipe dari baseline harus valid saat EAR tidak turun.",
+  );
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.BLINK],
+    config: testConfig,
+  });
+  let timestamp = prepareAction(session);
+
+  session.ingest(
+    frame(timestamp, {
+      blinkLeft: 0.35,
+      blinkRight: 0.36,
+    }),
+  );
+  timestamp += 180;
+  session.ingest(
+    frame(timestamp, {
+      blinkLeft: 0.08,
+      blinkRight: 0.09,
+    }),
+  );
+  timestamp += 150;
+  session.ingest(frame(timestamp));
+
+  assert.equal(
+    session.getState().complete,
+    false,
+    "Sinyal blendshape kecil tidak boleh dianggap sebagai kedipan penuh.",
+  );
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.BLINK],
+    config: testConfig,
+  });
   let timestamp = prepareAction(session);
 
   session.ingest(
@@ -301,9 +392,25 @@ assert.ok(
   ),
   "Controller harus selalu melepas penanda liveness meskipun proses gagal.",
 );
+assert.match(
+  faceGuideScript,
+  /outputFaceBlendshapes:\s*true/,
+  "MediaPipe harus mengaktifkan koefisien ekspresi wajah.",
+);
 assert.ok(
-  /if \(window\.__attendanceLivenessActive\)/.test(faceGuideScript),
-  "MediaPipe panduan harus berhenti sementara agar tidak berebut kamera dengan liveness.",
+  /eyeBlinkLeft/.test(faceGuideScript) &&
+    /eyeBlinkRight/.test(faceGuideScript),
+  "MediaPipe harus menerbitkan sinyal kedip untuk kedua mata.",
+);
+assert.match(
+  faceGuideScript,
+  /getLatestLivenessSample/,
+  "Panduan MediaPipe harus menyediakan sampel kedip terbaru untuk liveness.",
+);
+assert.match(
+  verificationScript,
+  /AttendanceFaceGuide[^]*getLatestLivenessSample/,
+  "Controller verifikasi harus menggabungkan sinyal kedip MediaPipe.",
 );
 assert.ok(
   /function waitForNextLivenessFrame\(delayMs = 35\)/.test(

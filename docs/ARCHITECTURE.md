@@ -86,6 +86,8 @@ User opens verification
   -> initial face match (threshold 0.5, browser)
   -> active liveness state machine (browser)
        - calibrate neutral pose and open-eye baseline
+       - read MediaPipe eyeBlinkLeft/eyeBlinkRight against participant baseline
+       - fall back to face-api EAR when a fresh blendshape sample is unavailable
        - shuffle blink/right/left with browser crypto
        - enforce order, consecutive frames, neutral return, and timeout
        - reject multiple faces, lost continuity, hidden tab, or stopped camera
@@ -105,7 +107,7 @@ User opens verification
   -> success/late/rejected popup
 ```
 
-`liveness-engine.js` berisi state machine murni yang diuji tanpa kamera. `user-verifikasi.js` mengubah landmark face-api menjadi sampel yaw/EAR, sedangkan MediaPipe hanya menjadi panduan posisi dan dipause selama challenge agar kedua model tidak berebut kamera.
+`liveness-engine.js` berisi state machine murni yang diuji tanpa kamera. `user-verifikasi.js` mengubah landmark face-api menjadi sampel yaw/EAR dan menggabungkan sampel blendshape terbaru dari `mediapipe-face-guide.js`. Selama challenge, MediaPipe tetap melakukan inferensi `eyeBlinkLeft`/`eyeBlinkRight` dengan interval 80 ms, sementara gambar panduan disembunyikan. Engine memakai blendshape adaptif sebagai sinyal kedip utama dan mempertahankan EAR sebagai fallback.
 
 Server tidak menerima hasil face matching/liveness sebagai proof tersendiri; tahap biometrik masih merupakan browser-side control. Active liveness meningkatkan pertahanan terhadap foto diam, tetapi bukan server-verifiable attestation dan tidak diklaim kebal terhadap browser yang dimodifikasi atau replay video canggih.
 

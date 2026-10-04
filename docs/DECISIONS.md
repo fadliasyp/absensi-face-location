@@ -17,7 +17,8 @@ Tantangan kanan-kiri tetap sebelumnya dapat dilewati dengan foto wajah yang dige
 ### Consequences
 
 - State machine dipisahkan agar threshold dan transisi dapat diuji tanpa kamera.
-- Pemrosesan dibuat sekuensial dan MediaPipe panduan dipause selama challenge untuk menjaga respons perangkat.
+- Pemrosesan face-api tetap sekuensial. MediaPipe mempertahankan inferensi blendshape selama challenge dengan interval dinamis; hanya rendering panduan yang dipause.
+- Koefisien MediaPipe `eyeBlinkLeft`/`eyeBlinkRight` menjadi sinyal kedip utama yang dikalibrasi terhadap baseline peserta, dengan EAR face-api sebagai fallback.
 - Kontrol ini ditujukan memperkuat pertahanan terhadap foto diam.
 - Karena hasil biometrik masih berasal dari JavaScript browser, sistem tidak mengklaim server-verifiable attestation atau perlindungan penuh terhadap replay video/browser termodifikasi.
 

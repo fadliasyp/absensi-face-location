@@ -17,7 +17,7 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 ### Changed
 
 - Identitas wajah diperiksa sebelum dan sesudah challenge; gerakan wajib stabil, berurutan, dan kembali netral.
-- MediaPipe panduan visual dipause selama face-api menjalankan active liveness untuk mengurangi beban perangkat.
+- MediaPipe tetap menjalankan blendshape kedip saat challenge; hanya rendering panduan visual yang dipause dan interval inferensi berubah dinamis.
 - Status Hadir berlaku sampai Batas Masuk; setelahnya berstatus Terlambat sampai sebelum Jam Generate Alfa.
 - Cron Alfa berubah dari jadwal tetap pukul 12.00 menjadi pemeriksaan idempoten setiap menit terhadap deadline server WIB.
 - Popup pengajuan izin menggunakan gaya formal yang sama dengan popup absensi.
@@ -25,6 +25,7 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 ### Fixed
 
 - False reject pada kedipan alami dikurangi melalui threshold EAR adaptif yang lebih toleran, sampling lebih rapat, dan detector liveness lebih ringan.
+- False reject kedip yang masih terjadi setelah tuning EAR diperbaiki dengan sinyal khusus `eyeBlinkLeft`/`eyeBlinkRight` MediaPipe, threshold relatif terhadap baseline peserta, fallback EAR, serta cache-busting asset liveness v3.
 - Foto diam dengan mata terus terbuka tidak lagi dapat lolos hanya dengan digerakkan kanan-kiri.
 - Wrapper `attendance_window_status` tiga parameter mempertahankan nama parameter legacy `p_batas_telat`, sehingga migration dapat memperbarui fungsi database lama tanpa error PostgreSQL `42P13`.
 - Navbar admin dan peserta tidak lagi keluar viewport pada laptop sempit; menu horizontal beralih ke hamburger/sidebar pada lebar `901–1280px`.

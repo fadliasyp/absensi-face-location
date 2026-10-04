@@ -9,6 +9,40 @@ const faceShape = document.getElementById("faceShape");
 
 let faceLandmarker = null;
 let guideInterval = null;
+let latestLivenessSample = Object.freeze({
+  timestamp: 0,
+  faceCount: 0,
+  blinkLeft: null,
+  blinkRight: null,
+});
+
+function getBlendshapeScore(categories, categoryName) {
+  const category = categories.find(
+    (item) => item.categoryName === categoryName,
+  );
+
+  return Number.isFinite(category?.score) ? category.score : null;
+}
+
+function updateLatestLivenessSample(result, timestamp) {
+  const faceCount = result.faceLandmarks?.length || 0;
+  const categories = result.faceBlendshapes?.[0]?.categories || [];
+
+  latestLivenessSample = Object.freeze({
+    timestamp,
+    faceCount,
+    blinkLeft: getBlendshapeScore(categories, "eyeBlinkLeft"),
+    blinkRight: getBlendshapeScore(categories, "eyeBlinkRight"),
+  });
+}
+
+function getLatestLivenessSample() {
+  return { ...latestLivenessSample };
+}
+
+window.AttendanceFaceGuide = Object.freeze({
+  getLatestLivenessSample,
+});
 
 function setGuideState(type) {
   if (!faceShape) return;
@@ -132,6 +166,7 @@ async function initMediaPipeFaceGuide() {
       },
       runningMode: "VIDEO",
       numFaces: 1,
+      outputFaceBlendshapes: true,
     });
 
     await waitVideoReady();
@@ -141,49 +176,50 @@ async function initMediaPipeFaceGuide() {
     const ctx = canvas.getContext("2d");
 
     if (guideInterval) {
-      clearInterval(guideInterval);
+      clearTimeout(guideInterval);
     }
 
-    guideInterval = setInterval(() => {
-      if (window.__attendanceLivenessActive) {
+    const runGuideFrame = () => {
+      const livenessActive = Boolean(window.__attendanceLivenessActive);
+      const nextDelay = livenessActive ? 80 : 400;
+
+      try {
+        if (!faceLandmarker || !video || video.readyState < 2) return;
+
         resizeCanvas();
+
+        const nowInMs = performance.now();
+        const result = faceLandmarker.detectForVideo(video, nowInMs);
+        updateLatestLivenessSample(result, nowInMs);
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        return;
+
+        if (livenessActive) return;
+
+        if (!result.faceLandmarks || result.faceLandmarks.length === 0) {
+          setGuideState("invalid");
+          return;
+        }
+
+        const landmarks = result.faceLandmarks[0];
+        const box = getFaceBoxFromLandmarks(
+          landmarks,
+          canvas.width,
+          canvas.height,
+        );
+        const valid = isFaceInsideGuide(box, canvas.width, canvas.height);
+
+        // kalau tidak mau ada kotak deteksi sama sekali, hapus / komentari baris ini
+        // drawSoftBox(ctx, box, valid);
+        setGuideState(valid ? "valid" : "warning");
+      } catch (error) {
+        console.error("Gagal membaca frame MediaPipe:", error);
+      } finally {
+        guideInterval = window.setTimeout(runGuideFrame, nextDelay);
       }
+    };
 
-      if (!faceLandmarker || !video || video.readyState < 2) return;
-
-      resizeCanvas();
-
-      const nowInMs = performance.now();
-      const result = faceLandmarker.detectForVideo(video, nowInMs);
-
-      console.log("MediaPipe result:", result.faceLandmarks?.length || 0);
-
-      if (!result.faceLandmarks || result.faceLandmarks.length === 0) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        setGuideState("invalid");
-        return;
-      }
-
-      const landmarks = result.faceLandmarks[0];
-      const box = getFaceBoxFromLandmarks(
-        landmarks,
-        canvas.width,
-        canvas.height,
-      );
-      const valid = isFaceInsideGuide(box, canvas.width, canvas.height);
-
-      // kalau tidak mau ada kotak deteksi sama sekali, hapus / komentari baris ini
-      // drawSoftBox(ctx, box, valid);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      if (valid) {
-        setGuideState("valid");
-      } else {
-        setGuideState("warning");
-      }
-    }, 400);
+    runGuideFrame();
   } catch (error) {
     console.error("Gagal memuat MediaPipe Face Guide:", error);
     setGuideState("invalid");

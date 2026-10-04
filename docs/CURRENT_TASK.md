@@ -2,7 +2,7 @@
 
 ## Status
 
-Perbaikan false reject kedipan active liveness selesai di repository. Unit/contract test hijau; deployment Vercel dan pengujian ulang perangkat pengguna belum dikonfirmasi.
+Perbaikan tahap kedua false reject kedipan active liveness selesai di repository. Unit/contract test hijau; deployment Vercel dan pengujian ulang perangkat pengguna belum dikonfirmasi.
 
 ## Last Completed Task
 
@@ -18,11 +18,14 @@ Perbaikan false reject kedipan active liveness selesai di repository. Unit/contr
 - Kalibrasi memakai pose netral dan EAR mata peserta; gerakan memakai threshold relatif, beberapa frame stabil, serta wajib kembali netral.
 - Sistem menolak lebih dari satu wajah, kontinuitas wajah yang hilang, timeout, tab tersembunyi, dan camera track yang berhenti.
 - Identitas wajah dicocokkan sebelum dan sesudah challenge.
-- MediaPipe panduan visual dipause selama face-api memproses liveness untuk mengurangi perebutan CPU/kamera.
+- MediaPipe tetap memproses koefisien `eyeBlinkLeft` dan `eyeBlinkRight` selama challenge, tetapi rendering panduan visualnya dihentikan sementara.
 - Contract `tests/liveness-policy.test.cjs` melindungi foto mata terbuka, urutan arah, kestabilan frame, multi-face, kontinuitas, dan integrasi halaman.
 - Kedipan yang hanya tertangkap sebagian sekarang diterima pada rasio EAR adaptif `0.76`, sedangkan perubahan kecil `0.86` tetap ditolak oleh regression test.
 - Sampling face-api dipercepat dari jeda 90 ms menjadi 35 ms dan input detector liveness diturunkan dari 320 menjadi 256 agar frame kedipan tidak mudah terlewat.
 - Instruksi kedip meminta gerakan perlahan/pejam sesaat sebagai fallback ramah pengguna.
+- Kedip sekarang mengutamakan blendshape MediaPipe yang dibandingkan dengan baseline peserta; EAR face-api tetap menjadi fallback bila sampel MediaPipe belum tersedia/terlalu lama.
+- Polling MediaPipe berubah dinamis menjadi 80 ms saat challenge dan 400 ms di luar challenge; pemrosesan frame tetap berurutan.
+- Ketiga script liveness memakai query versi `active-liveness-v3` untuk mencegah browser/Vercel memakai JavaScript lama dari cache.
 
 - Migration `202610040001_dynamic_attendance_deadline.sql` menambahkan `jam_generate_alfa` dengan default 12.00 WIB.
 - Server mengklasifikasikan Hadir/Terlambat/Closed dari tiga waktu dan menolak urutan yang tidak valid.
@@ -60,7 +63,7 @@ Ini bukan task aktif sampai pengguna memintanya:
 
 ## Notes for Next Session
 
-1. Deploy frontend ke Vercel dan lakukan hard refresh pada perangkat uji.
+1. Deploy frontend ke Vercel dan lakukan hard refresh pada perangkat uji; pastikan Network memuat asset dengan query `active-liveness-v3`.
 2. Uji wajah asli pada cahaya terang/redup, dengan/tanpa kacamata, dan kamera depan beberapa ponsel.
 3. Pastikan satu foto diam dengan mata terbuka tidak dapat menyelesaikan langkah kedip.
 4. Pastikan popup formal muncul untuk multi-face, kamera berhenti, tab berpindah, dan timeout.
