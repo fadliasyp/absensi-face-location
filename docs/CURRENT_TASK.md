@@ -2,7 +2,7 @@
 
 ## Status
 
-Perbaikan tahap kedua false reject kedipan active liveness selesai di repository. Unit/contract test hijau; deployment Vercel dan pengujian ulang perangkat pengguna belum dikonfirmasi.
+Penguatan anti-replay Tahap 1 selesai di repository. Unit/contract test hijau; deployment Vercel dan pengujian ulang dengan wajah asli/video replay belum dikonfirmasi.
 
 ## Last Completed Task
 
@@ -25,7 +25,10 @@ Perbaikan tahap kedua false reject kedipan active liveness selesai di repository
 - Instruksi kedip meminta gerakan perlahan/pejam sesaat sebagai fallback ramah pengguna.
 - Kedip sekarang mengutamakan blendshape MediaPipe yang dibandingkan dengan baseline peserta; EAR face-api tetap menjadi fallback bila sampel MediaPipe belum tersedia/terlalu lama.
 - Polling MediaPipe berubah dinamis menjadi 80 ms saat challenge dan 400 ms di luar challenge; pemrosesan frame tetap berurutan.
-- Ketiga script liveness memakai query versi `active-liveness-v3` untuk mencegah browser/Vercel memakai JavaScript lama dari cache.
+- Ketiga script liveness memakai query versi `active-liveness-v4` untuk mencegah browser/Vercel memakai JavaScript lama dari cache.
+- Challenge lokal kini memakai jeda prompt acak 700–1700 ms, batas respons 6 detik, serta target kedip satu atau dua kali yang dipilih melalui Web Crypto.
+- Gerakan kepala yang dilakukan sebelum prompt atau berlawanan dengan instruksi selama dua frame menggagalkan sesi; kedip alami saat instruksi menoleh tidak diperlakukan sebagai pelanggaran.
+- Tahap 1 hanya memperkuat browser terhadap video rekaman biasa. Proof liveness sekali pakai yang diverifikasi server belum diterapkan dan menjadi kandidat Tahap 2.
 
 - Migration `202610040001_dynamic_attendance_deadline.sql` menambahkan `jam_generate_alfa` dengan default 12.00 WIB.
 - Server mengklasifikasikan Hadir/Terlambat/Closed dari tiga waktu dan menolak urutan yang tidak valid.
@@ -51,7 +54,7 @@ Ini bukan task aktif sampai pengguna memintanya:
 - Terapkan migration `202610040002_reject_late_manual_leave.sql` setelah migration `202610040001`.
 - Terapkan migration `202610040003_reopen_alfa_after_deadline_extension.sql` setelah migration `202610040002`.
 - Deploy frontend ke Vercel setelah migration berhasil.
-- Deploy frontend liveness ke Vercel lalu uji kamera nyata pada Android/iOS dan laptop.
+- Deploy frontend liveness v4 ke Vercel lalu uji kamera nyata dan video replay pada Android/iOS serta laptop.
 - Konfirmasi penerapan migration `202610030003` dan `202610030004` di Supabase remote.
 - Konfirmasi versi deployment Edge Function `delete-user`.
 - Ambil schema/RLS/Storage policy production untuk melengkapi reproducibility database.
@@ -63,9 +66,11 @@ Ini bukan task aktif sampai pengguna memintanya:
 
 ## Notes for Next Session
 
-1. Deploy frontend ke Vercel dan lakukan hard refresh pada perangkat uji; pastikan Network memuat asset dengan query `active-liveness-v3`.
+1. Deploy frontend ke Vercel dan lakukan hard refresh pada perangkat uji; pastikan Network memuat asset dengan query `active-liveness-v4`.
 2. Uji wajah asli pada cahaya terang/redup, dengan/tanpa kacamata, dan kamera depan beberapa ponsel.
 3. Pastikan satu foto diam dengan mata terbuka tidak dapat menyelesaikan langkah kedip.
 4. Pastikan popup formal muncul untuk multi-face, kamera berhenti, tab berpindah, dan timeout.
-5. Terapkan migration `202610040001`, `202610040002`, lalu `202610040003` bila belum diterapkan.
-6. Pertahankan seluruh baseline logic yang dilindungi pengguna.
+5. Uji video replay dengan beberapa urutan gerakan; gerakan sebelum prompt/arah berlawanan harus ditolak.
+6. Jika Tahap 1 stabil, desain Tahap 2 berupa session/proof liveness server sekali pakai atau managed PAD.
+7. Terapkan migration `202610040001`, `202610040002`, lalu `202610040003` bila belum diterapkan.
+8. Pertahankan seluruh baseline logic yang dilindungi pengguna.

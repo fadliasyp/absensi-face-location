@@ -52,7 +52,7 @@ Frontend berupa halaman statis. Supabase menjadi backend untuk Auth, Postgres, S
 
 ## Current Work
 
-Active liveness browser telah ditingkatkan menjadi urutan acak kedip, tengok kanan, dan tengok kiri dengan kalibrasi adaptif, kestabilan beberapa frame, posisi netral, pemeriksaan identitas awal/akhir, serta fail-closed pada gangguan kamera. Setelah perbaikan EAR saja masih gagal pada perangkat pengguna, kedip kini mengutamakan blendshape MediaPipe `eyeBlinkLeft`/`eyeBlinkRight` terhadap baseline peserta; EAR tetap menjadi fallback. Jadwal absensi tiga tahap dan pemulihan Izin/Alfa tetap dipertahankan. Deployment Vercel terbaru belum diverifikasi.
+Active liveness browser telah ditingkatkan menjadi urutan acak kedip, tengok kanan, dan tengok kiri dengan kalibrasi adaptif, kestabilan beberapa frame, posisi netral, pemeriksaan identitas awal/akhir, serta fail-closed pada gangguan kamera. Kedip mengutamakan blendshape MediaPipe dengan EAR sebagai fallback. Penguatan anti-replay Tahap 1 menambahkan jeda prompt acak, target satu/dua kedipan, batas respons 6 detik, serta penolakan gerakan kepala sebelum prompt atau berlawanan arah. Proof liveness yang diverifikasi server belum diterapkan. Jadwal absensi tiga tahap dan pemulihan Izin/Alfa tetap dipertahankan. Deployment Vercel terbaru belum diverifikasi.
 
 ## Pending Work
 

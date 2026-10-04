@@ -50,8 +50,10 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 
 - Identitas wajah dicocokkan sebelum dan sesudah tantangan.
 - Posisi netral serta bukaan mata dikalibrasi dari beberapa frame peserta.
-- Setiap sesi memuat kedip, tengok kanan, dan tengok kiri tepat sekali dalam urutan acak.
+- Setiap sesi memuat langkah kedip, tengok kanan, dan tengok kiri dalam urutan acak; langkah kedip meminta satu atau dua siklus secara acak.
+- Instruksi gerakan hanya aktif setelah jeda prompt acak; gerakan sebelumnya tidak boleh dihitung.
 - Gerakan harus dilakukan sesuai urutan, stabil beberapa frame, dan kembali ke posisi netral.
+- Gerakan kepala sebelum prompt atau arah yang berlawanan selama dua frame menggagalkan sesi.
 - Kedip harus memiliki transisi kedua mata terbuka, tertutup, lalu terbuka kembali.
 - Kedipan mengutamakan koefisien MediaPipe `eyeBlinkLeft`/`eyeBlinkRight` yang dibandingkan dengan baseline peserta; EAR relatif face-api tetap menjadi fallback.
 - Kedipan singkat yang hanya tertangkap sebagian tetap diterima, sedangkan perubahan kecil tanpa transisi tutup-buka tetap ditolak.
@@ -63,9 +65,14 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 
 - Jangan kembali ke tantangan kanan-kiri tetap tanpa kedip.
 - Jangan menerima satu frame arah sebagai gerakan valid.
+- Jangan kembali mengabaikan arah berlawanan atau menghitung gerakan sebelum prompt.
 - Jangan mematikan inferensi blendshape MediaPipe selama langkah kedip.
 - Jangan menghapus pemeriksaan identitas sebelum dan sesudah challenge.
 - Jangan menyatakan kontrol browser ini sebagai attestation yang diverifikasi server.
+
+### Batas Keamanan
+
+Tahap ini memperkuat penolakan foto diam dan video replay biasa. Challenge masih dieksekusi browser dan belum menghasilkan proof server sekali pakai, sehingga tidak diklaim tahan terhadap virtual camera, browser termodifikasi, video interaktif, atau deepfake real-time.
 
 ### File Penting
 

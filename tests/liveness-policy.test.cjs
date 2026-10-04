@@ -27,6 +27,7 @@ const {
   ACTIONS,
   DEFAULT_CONFIG,
   createLivenessSession,
+  createRandomChallenge,
   createRandomSequence,
 } = require(enginePath);
 
@@ -36,10 +37,28 @@ assert.deepEqual(
   "Setiap tantangan harus memuat kedip, tengok kanan, dan tengok kiri tepat sekali.",
 );
 
+{
+  const values = [0.2, 0.8, 0.9];
+  const challenge = createRandomChallenge(() => values.shift());
+
+  assert.deepEqual(
+    new Set(challenge.sequence),
+    new Set([ACTIONS.BLINK, ACTIONS.TURN_RIGHT, ACTIONS.TURN_LEFT]),
+    "Challenge acak tetap harus memuat ketiga jenis gerakan.",
+  );
+  assert.equal(
+    challenge.blinkTarget,
+    2,
+    "Challenge harus dapat meminta dua kedipan secara acak.",
+  );
+}
+
 assert.ok(
   DEFAULT_CONFIG.calibrationFrames >= 5 &&
     DEFAULT_CONFIG.neutralFrames >= 2 &&
-    DEFAULT_CONFIG.turnFrames >= 2,
+    DEFAULT_CONFIG.turnFrames >= 2 &&
+    DEFAULT_CONFIG.minPromptDelayMs >= 600 &&
+    DEFAULT_CONFIG.maxActionMs <= 7000,
   "Default produksi harus mewajibkan kalibrasi dan kestabilan beberapa frame.",
 );
 
@@ -52,6 +71,9 @@ const testConfig = {
   maxChallengeMs: 30000,
   maxActionMs: 8000,
   maxMissingFaceMs: 900,
+  minPromptDelayMs: 0,
+  maxPromptDelayMs: 0,
+  wrongActionFrames: 2,
 };
 
 function frame(timestamp, overrides = {}) {
@@ -80,6 +102,140 @@ function prepareAction(session, startAt = 0) {
 
   assert.equal(session.getState().phase, "action");
   return timestamp;
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.TURN_RIGHT],
+    promptDelayRandom: () => 0,
+    config: {
+      ...testConfig,
+      minPromptDelayMs: 500,
+      maxPromptDelayMs: 500,
+    },
+  });
+  let timestamp = 0;
+
+  for (let index = 0; index < testConfig.calibrationFrames; index += 1) {
+    session.ingest(frame(timestamp));
+    timestamp += 150;
+  }
+
+  for (let index = 0; index < testConfig.neutralFrames; index += 1) {
+    session.ingest(frame(timestamp));
+    timestamp += 150;
+  }
+
+  assert.equal(
+    session.getState().phase,
+    "prompt_delay",
+    "Challenge harus menunggu jeda sebelum menampilkan instruksi gerakan.",
+  );
+
+  session.ingest(frame(timestamp, { yaw: -0.09 }));
+  timestamp += 150;
+  session.ingest(frame(timestamp));
+  timestamp += 350;
+  session.ingest(frame(timestamp));
+
+  assert.equal(session.getState().phase, "action");
+  assert.equal(
+    session.getState().actionIndex,
+    0,
+    "Gerakan sebelum prompt tidak boleh memenuhi challenge.",
+  );
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.TURN_RIGHT],
+    promptDelayRandom: () => 0,
+    config: {
+      ...testConfig,
+      minPromptDelayMs: 500,
+      maxPromptDelayMs: 500,
+    },
+  });
+  let timestamp = 0;
+
+  for (let index = 0; index < testConfig.calibrationFrames; index += 1) {
+    session.ingest(frame(timestamp));
+    timestamp += 150;
+  }
+
+  for (let index = 0; index < testConfig.neutralFrames; index += 1) {
+    session.ingest(frame(timestamp));
+    timestamp += 150;
+  }
+
+  session.ingest(frame(timestamp, { yaw: -0.09 }));
+  timestamp += 150;
+  session.ingest(frame(timestamp, { yaw: -0.09 }));
+
+  assert.equal(session.getState().failed, true);
+  assert.equal(
+    session.getState().reason,
+    "moved_before_prompt",
+    "Gerakan berulang sebelum prompt harus menggagalkan challenge replay.",
+  );
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.BLINK],
+    blinkTarget: 2,
+    config: testConfig,
+  });
+  let timestamp = prepareAction(session);
+
+  session.ingest(frame(timestamp, { leftEAR: 0.1, rightEAR: 0.1 }));
+  timestamp += 180;
+  session.ingest(frame(timestamp));
+  timestamp += 150;
+  session.ingest(frame(timestamp));
+
+  assert.equal(
+    session.getState().phase,
+    "action",
+    "Satu kedipan belum boleh menyelesaikan instruksi dua kedipan.",
+  );
+  assert.equal(session.getState().blinkCompletedCount, 1);
+
+  timestamp += 150;
+  session.ingest(frame(timestamp, { leftEAR: 0.1, rightEAR: 0.1 }));
+  timestamp += 180;
+  session.ingest(frame(timestamp));
+  timestamp += 150;
+  session.ingest(frame(timestamp));
+  timestamp += 150;
+  session.ingest(frame(timestamp));
+  timestamp += 150;
+  session.ingest(frame(timestamp));
+
+  assert.equal(
+    session.getState().complete,
+    true,
+    "Instruksi dua kedipan harus selesai hanya setelah dua siklus tutup-buka.",
+  );
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.BLINK],
+    config: testConfig,
+  });
+  let timestamp = prepareAction(session);
+
+  session.ingest(frame(timestamp, { yaw: 0.09 }));
+  timestamp += 150;
+  session.ingest(frame(timestamp, { yaw: 0.09 }));
+
+  assert.equal(session.getState().failed, true);
+  assert.equal(
+    session.getState().reason,
+    "wrong_action",
+    "Gerakan kepala saat diminta kedip harus menggagalkan challenge.",
+  );
 }
 
 {
@@ -281,7 +437,7 @@ function prepareAction(session, startAt = 0) {
 
 {
   const session = createLivenessSession({
-    sequence: [ACTIONS.TURN_RIGHT, ACTIONS.TURN_LEFT],
+    sequence: [ACTIONS.TURN_RIGHT],
     config: testConfig,
   });
   let timestamp = prepareAction(session);
@@ -289,13 +445,17 @@ function prepareAction(session, startAt = 0) {
   session.ingest(frame(timestamp, { yaw: 0.09 }));
   timestamp += 150;
   session.ingest(frame(timestamp, { yaw: 0.09 }));
-  timestamp += 150;
 
-  assert.equal(
-    session.getState().actionIndex,
-    0,
-    "Tengok kiri tidak boleh memenuhi instruksi tengok kanan.",
-  );
+  assert.equal(session.getState().failed, true);
+  assert.equal(session.getState().reason, "wrong_action");
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.TURN_RIGHT, ACTIONS.TURN_LEFT],
+    config: testConfig,
+  });
+  let timestamp = prepareAction(session);
 
   session.ingest(frame(timestamp, { yaw: -0.09 }));
   timestamp += 150;
@@ -362,10 +522,23 @@ assert.match(
   /liveness-engine\.js[^]*user-verifikasi\.js/,
   "Engine liveness harus dimuat sebelum controller verifikasi.",
 );
+assert.equal(
+  (verificationPage.match(/active-liveness-v4/g) || []).length,
+  3,
+  "Ketiga asset liveness harus memakai versi cache v4 yang sama.",
+);
 assert.match(
   verificationScript,
   /AttendanceLiveness\.createLivenessSession/,
   "Controller harus memakai state machine liveness teruji.",
+);
+assert.ok(
+  /AttendanceLiveness\.createRandomChallenge/.test(verificationScript),
+  "Controller harus memakai challenge dengan jumlah kedip acak.",
+);
+assert.ok(
+  /blinkTarget/.test(verificationScript),
+  "Target kedip acak harus diteruskan ke sesi liveness.",
 );
 assert.match(
   verificationScript,

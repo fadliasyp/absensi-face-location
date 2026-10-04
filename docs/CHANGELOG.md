@@ -29,6 +29,7 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 - Foto diam dengan mata terus terbuka tidak lagi dapat lolos hanya dengan digerakkan kanan-kiri.
 - Wrapper `attendance_window_status` tiga parameter mempertahankan nama parameter legacy `p_batas_telat`, sehingga migration dapat memperbarui fungsi database lama tanpa error PostgreSQL `42P13`.
 - Navbar admin dan peserta tidak lagi keluar viewport pada laptop sempit; menu horizontal beralih ke hamburger/sidebar pada lebar `901–1280px`.
+- Replay video biasa dipersulit melalui jeda prompt acak, target kedip satu/dua kali, batas respons yang lebih pendek, dan penolakan gerakan kepala sebelum prompt atau berlawanan arah.
 
 ## 2026-10-03
 

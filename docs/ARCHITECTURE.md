@@ -88,8 +88,10 @@ User opens verification
        - calibrate neutral pose and open-eye baseline
        - read MediaPipe eyeBlinkLeft/eyeBlinkRight against participant baseline
        - fall back to face-api EAR when a fresh blendshape sample is unavailable
-       - shuffle blink/right/left with browser crypto
-       - enforce order, consecutive frames, neutral return, and timeout
+       - shuffle blink/right/left and select one/two blinks with browser crypto
+       - wait a random delay before exposing each prompt
+       - enforce order, response deadline, consecutive frames, and neutral return
+       - reject early head movement and repeated opposite-direction movement
        - reject multiple faces, lost continuity, hidden tab, or stopped camera
   -> final face match (threshold 0.5, browser)
   -> browser geolocation
@@ -107,7 +109,7 @@ User opens verification
   -> success/late/rejected popup
 ```
 
-`liveness-engine.js` berisi state machine murni yang diuji tanpa kamera. `user-verifikasi.js` mengubah landmark face-api menjadi sampel yaw/EAR dan menggabungkan sampel blendshape terbaru dari `mediapipe-face-guide.js`. Selama challenge, MediaPipe tetap melakukan inferensi `eyeBlinkLeft`/`eyeBlinkRight` dengan interval 80 ms, sementara gambar panduan disembunyikan. Engine memakai blendshape adaptif sebagai sinyal kedip utama dan mempertahankan EAR sebagai fallback.
+`liveness-engine.js` berisi state machine murni yang diuji tanpa kamera. `user-verifikasi.js` mengubah landmark face-api menjadi sampel yaw/EAR dan menggabungkan sampel blendshape terbaru dari `mediapipe-face-guide.js`. Selama challenge, MediaPipe tetap melakukan inferensi `eyeBlinkLeft`/`eyeBlinkRight` dengan interval 80 ms, sementara gambar panduan disembunyikan. Engine memakai blendshape adaptif sebagai sinyal kedip utama dan mempertahankan EAR sebagai fallback. State `prompt_delay` memisahkan waktu menunggu dari waktu respons supaya gerakan video yang terjadi sebelum instruksi tidak dapat dihitung; target kedip, urutan, dan jeda dipilih dengan Web Crypto.
 
 Server tidak menerima hasil face matching/liveness sebagai proof tersendiri; tahap biometrik masih merupakan browser-side control. Active liveness meningkatkan pertahanan terhadap foto diam, tetapi bukan server-verifiable attestation dan tidak diklaim kebal terhadap browser yang dimodifikasi atau replay video canggih.
 

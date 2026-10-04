@@ -935,11 +935,13 @@ async function verifikasiGerakanSekali() {
     };
   }
 
-  const sequence = window.AttendanceLiveness.createRandomSequence(
+  const challenge = window.AttendanceLiveness.createRandomChallenge(
     secureChallengeRandom,
   );
   const session = window.AttendanceLiveness.createLivenessSession({
-    sequence,
+    sequence: challenge.sequence,
+    blinkTarget: challenge.blinkTarget,
+    promptDelayRandom: secureChallengeRandom,
   });
   let state = session.getState();
   let consecutiveDetectionErrors = 0;
@@ -950,7 +952,7 @@ async function verifikasiGerakanSekali() {
 
   renderLivenessState(state);
   showMessage(
-    "Ikuti tiga instruksi acak: kedip, tengok kanan, dan tengok kiri.",
+    "Ikuti setiap instruksi hanya setelah instruksi muncul di layar.",
     "success",
   );
 
@@ -1016,7 +1018,8 @@ async function verifikasiGerakanSekali() {
 
     return {
       success: true,
-      sequence,
+      sequence: challenge.sequence,
+      blinkTarget: challenge.blinkTarget,
     };
   } finally {
     window.__attendanceLivenessActive = false;

@@ -39,7 +39,10 @@
     minBlinkClosedMs: 60,
     maxBlinkClosedMs: 1400,
     maxMissingFaceMs: 2200,
-    maxActionMs: 10000,
+    minPromptDelayMs: 700,
+    maxPromptDelayMs: 1700,
+    wrongActionFrames: 2,
+    maxActionMs: 6000,
     maxChallengeMs: 45000,
   });
 
@@ -81,6 +84,13 @@
     return sequence;
   }
 
+  function createRandomChallenge(random = Math.random) {
+    return {
+      sequence: createRandomSequence(random),
+      blinkTarget: clampRandom(random()) < 0.5 ? 1 : 2,
+    };
+  }
+
   function validateSequence(sequence) {
     const allowedActions = new Set(Object.values(ACTIONS));
 
@@ -93,7 +103,12 @@
     }
   }
 
-  function createLivenessSession({ sequence, config = {} } = {}) {
+  function createLivenessSession({
+    sequence,
+    blinkTarget = 1,
+    promptDelayRandom = Math.random,
+    config = {},
+  } = {}) {
     const selectedSequence = sequence || createRandomSequence();
     validateSequence(selectedSequence);
 
@@ -115,11 +130,15 @@
       lastTimestamp: null,
       missingSince: null,
       actionStartedAt: null,
+      promptReadyAt: null,
       neutralCount: 0,
       turnCount: 0,
+      wrongActionCount: 0,
       blinkStage: "awaiting_closed",
       blinkClosedAt: null,
       blinkReopenCount: 0,
+      blinkTarget: blinkTarget === 2 ? 2 : 1,
+      blinkCompletedCount: 0,
       calibrationSamples: [],
     };
 
@@ -138,9 +157,14 @@
     function resetTransientProgress() {
       state.neutralCount = 0;
       state.turnCount = 0;
+      state.wrongActionCount = 0;
       state.blinkStage = "awaiting_closed";
       state.blinkClosedAt = null;
       state.blinkReopenCount = 0;
+
+      if (state.phase === "prompt_delay") {
+        state.promptReadyAt = null;
+      }
 
       if (state.phase === "calibrating") {
         state.calibrationSamples = [];
@@ -171,14 +195,49 @@
       );
     }
 
+    function actionInstructionText() {
+      if (state.action === ACTIONS.BLINK && state.blinkTarget === 2) {
+        return "kedipkan kedua mata dua kali secara perlahan";
+      }
+
+      return ACTION_LABELS[state.action];
+    }
+
+    function getPromptDelay() {
+      const minimum = Math.max(0, settings.minPromptDelayMs);
+      const maximum = Math.max(minimum, settings.maxPromptDelayMs);
+      return Math.round(
+        minimum + clampRandom(promptDelayRandom()) * (maximum - minimum),
+      );
+    }
+
     function beginAction(timestamp) {
       state.phase = "action";
       state.actionStartedAt = timestamp;
+      state.promptReadyAt = null;
       state.turnCount = 0;
+      state.wrongActionCount = 0;
       state.blinkStage = "awaiting_closed";
       state.blinkClosedAt = null;
       state.blinkReopenCount = 0;
-      state.message = `${actionProgressText()}: ${ACTION_LABELS[state.action]}.`;
+      state.blinkCompletedCount = 0;
+      state.message = `${actionProgressText()}: ${actionInstructionText()}.`;
+    }
+
+    function beginPromptDelay(timestamp) {
+      const delay = getPromptDelay();
+
+      state.phase = "prompt_delay";
+      state.actionStartedAt = null;
+      state.promptReadyAt = timestamp + delay;
+      state.neutralCount = 0;
+      state.wrongActionCount = 0;
+      state.message =
+        "Tetap tatap lurus. Instruksi berikutnya akan segera muncul.";
+
+      if (delay === 0) {
+        beginAction(timestamp);
+      }
     }
 
     function beginReturnToNeutral() {
@@ -199,7 +258,7 @@
       }
 
       state.action = state.sequence[state.actionIndex];
-      beginAction(timestamp);
+      beginPromptDelay(timestamp);
     }
 
     function processCalibration(sample) {
@@ -271,11 +330,60 @@
       }
 
       if (state.neutralCount >= settings.neutralFrames) {
+        beginPromptDelay(sample.timestamp);
+      }
+    }
+
+    function processPromptDelay(sample) {
+      const yawDelta = sample.yaw - state.baseline.yaw;
+
+      if (Math.abs(yawDelta) >= settings.turnYawDelta) {
+        state.wrongActionCount += 1;
+
+        if (state.wrongActionCount >= settings.wrongActionFrames) {
+          setFailure(
+            "moved_before_prompt",
+            "Gerakan dilakukan sebelum instruksi muncul. Silakan ulangi verifikasi.",
+          );
+        }
+
+        return;
+      }
+
+      state.wrongActionCount = 0;
+
+      if (!isNeutral(sample)) {
+        state.promptReadyAt = sample.timestamp + settings.minPromptDelayMs;
+        return;
+      }
+
+      if (state.promptReadyAt === null) {
+        state.promptReadyAt = sample.timestamp + getPromptDelay();
+      }
+
+      if (sample.timestamp >= state.promptReadyAt) {
         beginAction(sample.timestamp);
       }
     }
 
     function processBlink(sample) {
+      const yawDelta = sample.yaw - state.baseline.yaw;
+
+      if (Math.abs(yawDelta) >= settings.turnYawDelta) {
+        state.wrongActionCount += 1;
+
+        if (state.wrongActionCount >= settings.wrongActionFrames) {
+          setFailure(
+            "wrong_action",
+            "Gerakan tidak sesuai instruksi kedip. Silakan ulangi verifikasi.",
+          );
+        }
+
+        return;
+      }
+
+      state.wrongActionCount = 0;
+
       const hasBlendshapeSignal =
         Number.isFinite(sample.blinkLeft) &&
         Number.isFinite(sample.blinkRight);
@@ -354,6 +462,16 @@
       state.blinkReopenCount += 1;
 
       if (state.blinkReopenCount >= settings.blinkReopenFrames) {
+        state.blinkCompletedCount += 1;
+
+        if (state.blinkCompletedCount < state.blinkTarget) {
+          state.blinkStage = "awaiting_closed";
+          state.blinkClosedAt = null;
+          state.blinkReopenCount = 0;
+          state.message = `${actionProgressText()}: kedipkan kedua mata sekali lagi.`;
+          return;
+        }
+
         beginReturnToNeutral();
       }
     }
@@ -371,12 +489,23 @@
 
       if (expectedDirectionReached) {
         state.turnCount += 1;
+        state.wrongActionCount = 0;
       } else {
         state.turnCount = 0;
       }
 
       if (wrongDirectionReached) {
-        state.message = `${actionProgressText()}: arah belum sesuai, ${ACTION_LABELS[state.action]}.`;
+        state.wrongActionCount += 1;
+
+        if (state.wrongActionCount >= settings.wrongActionFrames) {
+          setFailure(
+            "wrong_action",
+            `Gerakan berlawanan dengan instruksi ${ACTION_LABELS[state.action]}. Silakan ulangi verifikasi.`,
+          );
+          return;
+        }
+      } else if (!expectedDirectionReached) {
+        state.wrongActionCount = 0;
       }
 
       if (state.turnCount >= settings.turnFrames) {
@@ -482,6 +611,8 @@
         processCalibration(sample);
       } else if (state.phase === "neutral") {
         processNeutral(sample);
+      } else if (state.phase === "prompt_delay") {
+        processPromptDelay(sample);
       } else if (state.phase === "action") {
         processAction(sample);
       } else if (state.phase === "return_neutral") {
@@ -502,6 +633,8 @@
         action: state.action,
         sequence: [...state.sequence],
         totalActions: state.sequence.length,
+        blinkTarget: state.blinkTarget,
+        blinkCompletedCount: state.blinkCompletedCount,
       };
     }
 
@@ -515,6 +648,7 @@
     ACTIONS,
     DEFAULT_CONFIG,
     createLivenessSession,
+    createRandomChallenge,
     createRandomSequence,
   });
 });
