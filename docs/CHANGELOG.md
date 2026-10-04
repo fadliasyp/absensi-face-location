@@ -16,6 +16,8 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 
 ### Changed
 
+- Baseline liveness kini diambil dari satu frame wajah valid tanpa proses menstabilkan wajah dan penantian netral awal; kestabilan setiap gerakan tetap diwajibkan.
+- Cache asset liveness dinaikkan ke `active-liveness-v6` agar perubahan terbaru tidak tertahan cache browser/Vercel.
 - Identitas wajah diperiksa sebelum dan sesudah challenge; gerakan wajib stabil, berurutan, dan kembali netral.
 - MediaPipe tetap menjalankan blendshape kedip saat challenge; hanya rendering panduan visual yang dipause dan interval inferensi berubah dinamis.
 - Status Hadir berlaku sampai Batas Masuk; setelahnya berstatus Terlambat sampai sebelum Jam Generate Alfa.

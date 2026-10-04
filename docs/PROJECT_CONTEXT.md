@@ -52,7 +52,7 @@ Frontend berupa halaman statis. Supabase menjadi backend untuk Auth, Postgres, S
 
 ## Current Work
 
-Active liveness dipertahankan pada Tahap 1: browser membuat urutan acak kedip, tengok kanan, dan tengok kiri dengan target satu/dua kedipan, jeda prompt acak, kalibrasi adaptif, kestabilan beberapa frame, posisi netral, pemeriksaan identitas awal/akhir, serta fail-closed pada gangguan kamera. Kedip mengutamakan blendshape MediaPipe dengan EAR sebagai fallback. Tahap 2 server-bound telah dibatalkan atas keputusan pengguna; migration `202610040006` memulihkan RPC `catat_absensi` dan menghapus sesi/proof server jika Tahap 2 pernah diterapkan. Deployment rollback dan frontend v4 terbaru belum diverifikasi.
+Active liveness dipertahankan pada Tahap 1: browser membuat urutan acak kedip, tengok kanan, dan tengok kiri dengan target satu/dua kedipan serta jeda prompt acak. Baseline pose dan bukaan mata diambil dari frame wajah valid pertama tanpa tahap stabilisasi awal; kestabilan aksi, kembali netral, pemeriksaan identitas awal/akhir, dan fail-closed pada gangguan kamera tetap berlaku. Kedip mengutamakan blendshape MediaPipe dengan EAR sebagai fallback. Tahap 2 server-bound telah dibatalkan atas keputusan pengguna; migration `202610040006` memulihkan RPC `catat_absensi` dan menghapus sesi/proof server jika Tahap 2 pernah diterapkan. Deployment rollback dan frontend v6 terbaru belum diverifikasi.
 
 ## Pending Work
 

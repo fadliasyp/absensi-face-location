@@ -18,8 +18,8 @@
   });
 
   const DEFAULT_CONFIG = Object.freeze({
-    calibrationFrames: 6,
-    neutralFrames: 3,
+    calibrationFrames: 1,
+    neutralFrames: 0,
     returnNeutralFrames: 3,
     turnFrames: 3,
     blinkReopenFrames: 2,
@@ -121,7 +121,7 @@
       complete: false,
       failed: false,
       reason: null,
-      message: "Tatap lurus ke kamera untuk kalibrasi wajah.",
+      message: "Posisikan wajah di tengah kamera dengan kedua mata terbuka.",
       actionIndex: 0,
       action: selectedSequence[0],
       sequence: [...selectedSequence],
@@ -272,7 +272,7 @@
       if (!centered) {
         state.calibrationSamples = [];
         state.message =
-          "Tatap lurus dengan kedua mata terbuka untuk memulai kalibrasi.";
+          "Posisikan wajah di tengah kamera dengan kedua mata terbuka.";
         return;
       }
 
@@ -293,12 +293,8 @@
           ? sample.blinkRight
           : null,
       });
-      state.message = `Menstabilkan wajah (${Math.min(
-        state.calibrationSamples.length,
-        settings.calibrationFrames,
-      )}/${settings.calibrationFrames})...`;
-
       if (state.calibrationSamples.length < settings.calibrationFrames) {
+        state.message = "Membaca posisi wajah...";
         return;
       }
 
@@ -317,9 +313,14 @@
             .filter(Number.isFinite),
         ),
       };
+      if (settings.neutralFrames <= 0) {
+        beginPromptDelay(sample.timestamp);
+        return;
+      }
+
       state.phase = "neutral";
       state.neutralCount = 0;
-      state.message = "Kalibrasi selesai. Pertahankan posisi wajah di tengah.";
+      state.message = "Pertahankan posisi wajah di tengah.";
     }
 
     function processNeutral(sample) {

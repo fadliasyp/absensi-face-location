@@ -1,5 +1,22 @@
 # Decision Log
 
+## 2026-10-04 - Hapus Stabilisasi Awal Active Liveness
+
+### Status
+
+ACCEPTED
+
+### Decision
+
+Baseline pose dan bukaan mata diambil dari frame wajah valid pertama. Penantian kalibrasi beberapa frame dan fase netral awal tidak lagi digunakan pada konfigurasi produksi.
+
+### Consequences
+
+- Challenge tampil lebih cepat dan tidak lagi menampilkan proses “Menstabilkan wajah”.
+- Jeda prompt acak, validasi gerakan beberapa frame, arah salah, kembali netral, pemeriksaan identitas, dan fail-closed kamera tetap dipertahankan.
+- Baseline satu frame dapat lebih sensitif terhadap frame awal yang buruk, sehingga pengujian kamera perangkat nyata tetap diperlukan.
+- Keputusan ini hanya menggantikan bagian kalibrasi awal dari keputusan active liveness sebelumnya.
+
 ## 2026-10-04 - Kembali ke Anti-Video Replay Tahap 1
 
 ### Status

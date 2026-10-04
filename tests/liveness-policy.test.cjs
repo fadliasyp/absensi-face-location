@@ -53,13 +53,21 @@ assert.deepEqual(
   );
 }
 
+assert.equal(
+  DEFAULT_CONFIG.calibrationFrames,
+  1,
+  "Baseline produksi harus diambil dari satu frame valid tanpa tahap menstabilkan wajah.",
+);
+assert.equal(
+  DEFAULT_CONFIG.neutralFrames,
+  0,
+  "Challenge produksi harus langsung menuju jeda instruksi setelah baseline terbaca.",
+);
 assert.ok(
-  DEFAULT_CONFIG.calibrationFrames >= 5 &&
-    DEFAULT_CONFIG.neutralFrames >= 2 &&
-    DEFAULT_CONFIG.turnFrames >= 2 &&
+  DEFAULT_CONFIG.turnFrames >= 2 &&
     DEFAULT_CONFIG.minPromptDelayMs >= 600 &&
     DEFAULT_CONFIG.maxActionMs <= 7000,
-  "Default produksi harus mewajibkan kalibrasi dan kestabilan beberapa frame.",
+  "Kestabilan gerakan dan jeda acak anti-replay harus tetap dipertahankan.",
 );
 
 const testConfig = {
@@ -85,6 +93,31 @@ function frame(timestamp, overrides = {}) {
     rightEAR: 0.3,
     ...overrides,
   };
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.TURN_RIGHT],
+    promptDelayRandom: () => 0,
+    config: {
+      minPromptDelayMs: 500,
+      maxPromptDelayMs: 500,
+    },
+  });
+
+  assert.doesNotMatch(
+    session.getState().message,
+    /kalibrasi|menstabilkan/i,
+    "UI produksi tidak boleh lagi meminta proses stabilisasi wajah.",
+  );
+
+  session.ingest(frame(0));
+
+  assert.equal(
+    session.getState().phase,
+    "prompt_delay",
+    "Satu frame wajah valid harus langsung memulai jeda challenge.",
+  );
 }
 
 function prepareAction(session, startAt = 0) {
@@ -523,9 +556,9 @@ assert.match(
   "Engine liveness harus dimuat sebelum controller verifikasi.",
 );
 assert.equal(
-  (verificationPage.match(/active-liveness-v4/g) || []).length,
+  (verificationPage.match(/active-liveness-v6/g) || []).length,
   3,
-  "Ketiga asset liveness harus memakai versi cache v4 yang sama.",
+  "Ketiga asset liveness harus memakai versi cache v6 yang sama.",
 );
 assert.match(
   verificationScript,
