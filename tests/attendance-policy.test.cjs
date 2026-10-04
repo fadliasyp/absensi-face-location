@@ -191,8 +191,8 @@ assert.match(
 );
 assert.match(
   verificationScript,
-  /"catat_absensi"/,
-  "UI harus mencatat kehadiran melalui RPC server",
+  /"catat_absensi_terverifikasi"/,
+  "UI harus mencatat kehadiran melalui RPC server yang memerlukan bukti liveness",
 );
 assert.doesNotMatch(
   verificationScript,

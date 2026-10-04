@@ -140,6 +140,7 @@
       blinkTarget: blinkTarget === 2 ? 2 : 1,
       blinkCompletedCount: 0,
       calibrationSamples: [],
+      events: [],
     };
 
     function actionProgressText() {
@@ -240,7 +241,17 @@
       }
     }
 
-    function beginReturnToNeutral() {
+    function beginReturnToNeutral(timestamp) {
+      state.events.push({
+        action: state.action,
+        startedAtMs: Math.max(
+          0,
+          Math.round(state.actionStartedAt - state.startedAt),
+        ),
+        completedAtMs: Math.max(0, Math.round(timestamp - state.startedAt)),
+        blinkCount:
+          state.action === ACTIONS.BLINK ? state.blinkCompletedCount : 0,
+      });
       state.phase = "return_neutral";
       state.neutralCount = 0;
       state.message = "Gerakan terbaca. Kembali tatap lurus ke kamera.";
@@ -472,7 +483,7 @@
           return;
         }
 
-        beginReturnToNeutral();
+        beginReturnToNeutral(sample.timestamp);
       }
     }
 
@@ -509,7 +520,7 @@
       }
 
       if (state.turnCount >= settings.turnFrames) {
-        beginReturnToNeutral();
+        beginReturnToNeutral(sample.timestamp);
       }
     }
 
@@ -635,6 +646,7 @@
         totalActions: state.sequence.length,
         blinkTarget: state.blinkTarget,
         blinkCompletedCount: state.blinkCompletedCount,
+        events: state.events.map((event) => ({ ...event })),
       };
     }
 

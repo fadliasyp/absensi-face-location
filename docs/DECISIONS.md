@@ -1,5 +1,26 @@
 # Decision Log
 
+## 2026-10-04 - Tahap 2 Liveness Menggunakan Supabase Tanpa Layanan Berbayar
+
+### Status
+
+ACCEPTED
+
+### Decision
+
+Challenge liveness diterbitkan oleh RPC Supabase, disimpan singkat, dibatasi per peserta, dan hanya dapat dipakai sekali melalui wrapper absensi. Tidak ada dependency atau API biometrik berbayar baru.
+
+### Context
+
+Pengguna meminta melanjutkan penguatan anti-video tetapi hanya dengan solusi gratis. Infrastruktur Supabase sudah menjadi backend project dan dapat mengikat challenge ke identitas login serta transaksi attendance.
+
+### Consequences
+
+- Browser tidak lagi memilih urutan/target kedip yang menjadi authority; server menyimpan nilai yang diharapkan.
+- RPC attendance lama dicabut dari peserta dan hanya dipanggil secara internal setelah proof server berstatus `passed`.
+- Rate limit, expiry, row lock, dan status `consumed` mengurangi brute force serta replay proof biasa.
+- Landmark dan timing tetap berasal dari browser. Solusi ini sengaja tidak diklaim sebagai PAD/attestation biometrik atau perlindungan terhadap browser termodifikasi, virtual camera, dan deepfake real-time.
+
 ## 2026-10-04 - Active Liveness Tetap Ringan dan Teruji di Browser
 
 ### Status

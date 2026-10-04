@@ -84,34 +84,44 @@ User opens verification
        - Terlambat setelah Batas Masuk sampai sebelum Jam Generate Alfa
        - Closed mulai Jam Generate Alfa
   -> initial face match (threshold 0.5, browser)
+  -> RPC mulai_sesi_liveness
+       - validate active participant + enrolled face
+       - issue server-owned sequence/blink target
+       - expire after 3 minutes and rate-limit attempts
   -> active liveness state machine (browser)
        - calibrate neutral pose and open-eye baseline
        - read MediaPipe eyeBlinkLeft/eyeBlinkRight against participant baseline
        - fall back to face-api EAR when a fresh blendshape sample is unavailable
-       - shuffle blink/right/left and select one/two blinks with browser crypto
+       - execute server-issued blink/right/left order and one/two blink target
        - wait a random delay before exposing each prompt
        - enforce order, response deadline, consecutive frames, and neutral return
        - reject early head movement and repeated opposite-direction movement
        - reject multiple faces, lost continuity, hidden tab, or stopped camera
   -> final face match (threshold 0.5, browser)
+  -> RPC selesaikan_sesi_liveness
+       - lock owned pending session
+       - validate event order, duration, payload size, and expiry
+       - mark proof passed for a short period
   -> browser geolocation
   -> choose nearest configured location (browser pre-check)
   -> capture/compress photo
   -> Edge Function r2-signed-url uploads to private R2
-  -> RPC catat_absensi
+  -> RPC catat_absensi_terverifikasi
+       - require passed, unexpired, unused liveness session
+       - call internal catat_absensi authority
        - auth + active user + face descriptor exists
        - server WIB time/window/status
        - per-user/date lock and duplicate check
        - coordinate validation
        - configured location lookup
        - Haversine distance/radius validation
-       - insert attendance snapshot
+       - insert attendance snapshot and consume liveness session atomically
   -> success/late/rejected popup
 ```
 
-`liveness-engine.js` berisi state machine murni yang diuji tanpa kamera. `user-verifikasi.js` mengubah landmark face-api menjadi sampel yaw/EAR dan menggabungkan sampel blendshape terbaru dari `mediapipe-face-guide.js`. Selama challenge, MediaPipe tetap melakukan inferensi `eyeBlinkLeft`/`eyeBlinkRight` dengan interval 80 ms, sementara gambar panduan disembunyikan. Engine memakai blendshape adaptif sebagai sinyal kedip utama dan mempertahankan EAR sebagai fallback. State `prompt_delay` memisahkan waktu menunggu dari waktu respons supaya gerakan video yang terjadi sebelum instruksi tidak dapat dihitung; target kedip, urutan, dan jeda dipilih dengan Web Crypto.
+`liveness-engine.js` berisi state machine murni yang diuji tanpa kamera. `user-verifikasi.js` mengubah landmark face-api menjadi sampel yaw/EAR dan menggabungkan sampel blendshape terbaru dari `mediapipe-face-guide.js`. Selama challenge, MediaPipe tetap melakukan inferensi `eyeBlinkLeft`/`eyeBlinkRight` dengan interval 80 ms, sementara gambar panduan disembunyikan. Engine memakai blendshape adaptif sebagai sinyal kedip utama dan mempertahankan EAR sebagai fallback. State `prompt_delay` memisahkan waktu menunggu dari waktu respons supaya gerakan video yang terjadi sebelum instruksi tidak dapat dihitung. Urutan dan target kedip berasal dari sesi server; jeda prompt tambahan tetap dipilih browser melalui Web Crypto.
 
-Server tidak menerima hasil face matching/liveness sebagai proof tersendiri; tahap biometrik masih merupakan browser-side control. Active liveness meningkatkan pertahanan terhadap foto diam, tetapi bukan server-verifiable attestation dan tidak diklaim kebal terhadap browser yang dimodifikasi atau replay video canggih.
+Server menyimpan challenge, memvalidasi struktur telemetry, dan mengharuskan proof sekali pakai sebelum attendance RPC. Namun face matching, landmark, dan event timing tetap dihitung browser. Server-bound workflow ini bukan server-side biometric analysis atau attestation; browser termodifikasi, virtual camera, dan replay/deepfake canggih tetap di luar jaminan.
 
 ## Manual Leave Flow
 

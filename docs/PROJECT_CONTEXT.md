@@ -24,7 +24,7 @@ Frontend berupa halaman statis. Supabase menjadi backend untuk Auth, Postgres, S
 - Commit terbaru saat bootstrap: `51d0995` (2026-10-03).
 - Source code berada dalam kondisi bersih saat bootstrap; `CODEX_PROJECT_SETUP.md` adalah file bootstrap yang belum dilacak Git.
 - Contract tests tersedia untuk routing sesi, kebijakan absensi, kalender kerja, dan integrity hardening.
-- Status deployment production untuk migration `202610030003`, `202610030004`, `202610040001`, serta Edge Function `delete-user` terbaru: **Belum diketahui / perlu dikonfirmasi**.
+- Status deployment production untuk migration `202610030003`, `202610030004`, `202610040001`–`202610040004`, serta Edge Function `delete-user` terbaru: **Belum diketahui / perlu dikonfirmasi**.
 
 ## Completed Features
 
@@ -35,7 +35,7 @@ Frontend berupa halaman statis. Supabase menjadi backend untuk Auth, Postgres, S
 | Login Google dan pelengkapan profil pending | WORKING | `login.html`, `oauth-callback.html`, `lengkapi-profil.js` |
 | Approval/status/role user dan email notifikasi | WORKING | `admin-users.js`, `send-approval-email` |
 | Daftar wajah dan reset wajah | WORKING | `user-daftar-wajah.js`, `admin-users.js` |
-| Absensi wajah + active liveness + geolokasi | STABLE pada contract | `liveness-engine.js`, `liveness-policy.test.cjs`, `user-verifikasi.js`, `catat_absensi` |
+| Absensi wajah + active liveness + geolokasi | STABLE pada contract | `liveness-engine.js`, `liveness-policy.test.cjs`, `liveness-server-policy.test.cjs`, `catat_absensi_terverifikasi` |
 | Jendela absensi dinamis berbasis waktu server WIB | STABLE pada contract | migration `202610040001`, `attendance-policy.test.cjs` |
 | Kalender kerja dan override admin | STABLE | migration `002`, `attendance-policy.test.cjs` |
 | Alfa otomatis dinamis dan fallback admin | STABLE pada contract | migration `001/002/202610040001`, contract test |
@@ -52,7 +52,7 @@ Frontend berupa halaman statis. Supabase menjadi backend untuk Auth, Postgres, S
 
 ## Current Work
 
-Active liveness browser telah ditingkatkan menjadi urutan acak kedip, tengok kanan, dan tengok kiri dengan kalibrasi adaptif, kestabilan beberapa frame, posisi netral, pemeriksaan identitas awal/akhir, serta fail-closed pada gangguan kamera. Kedip mengutamakan blendshape MediaPipe dengan EAR sebagai fallback. Penguatan anti-replay Tahap 1 menambahkan jeda prompt acak, target satu/dua kedipan, batas respons 6 detik, serta penolakan gerakan kepala sebelum prompt atau berlawanan arah. Proof liveness yang diverifikasi server belum diterapkan. Jadwal absensi tiga tahap dan pemulihan Izin/Alfa tetap dipertahankan. Deployment Vercel terbaru belum diverifikasi.
+Active liveness browser memakai urutan kedip, tengok kanan, dan tengok kiri dengan kalibrasi adaptif, kestabilan beberapa frame, posisi netral, pemeriksaan identitas awal/akhir, serta fail-closed pada gangguan kamera. Kedip mengutamakan blendshape MediaPipe dengan EAR sebagai fallback. Tahap server-bound gratis kini membuat urutan/target kedip di RPC Supabase, membatasi percobaan, memberi masa berlaku singkat, memvalidasi urutan event, dan mewajibkan sesi berhasil sekali pakai pada RPC pencatatan absensi. Analisis wajah tetap terjadi di browser; event bukan attestation biometrik kriptografis. Deployment migration dan Vercel terbaru belum diverifikasi.
 
 ## Pending Work
 
@@ -63,6 +63,7 @@ Active liveness browser telah ditingkatkan menjadi urutan acak kedip, tengok kan
 - Buat atau nonaktifkan referensi `supabase/seed.sql`; file tersebut dirujuk config tetapi belum ada.
 - Tambahkan browser/runtime test untuk kamera, geolokasi, R2, export, dan email bila diperlukan.
 - Uji active liveness pada beberapa ponsel, kondisi cahaya, kacamata, dan bentuk mata sebelum menetapkan threshold sebagai final production.
+- Terapkan migration `202610040004_server_bound_liveness.sql` sebelum frontend liveness v5; setelah itu verifikasi RPC lama `catat_absensi` tidak dapat dipanggil role `authenticated`.
 - Ukur ulang respons UI pada perangkat pengguna setelah deploy ikon statis. Kurangi efek blur/transisi mobile hanya jika jank masih terukur.
 
 ## Business Logic
@@ -102,7 +103,7 @@ Active liveness browser telah ditingkatkan menjadi urutan acak kedip, tengok kan
 
 1. **Base schema/RLS tidak lengkap di repository.** Tabel inti sudah dipakai, tetapi migration pembuat awal `profiles`, `absensi`, `lokasi_absen`, dan `pengaturan_absen` tidak tersedia. Policy production tidak dapat dipastikan dari repository.
 2. **Seed hilang.** `supabase/config.toml` mengaktifkan seed `./seed.sql`, tetapi file tidak ditemukan.
-3. **Client-side biometric trust.** Face matching dan active liveness dilakukan di browser. Tantangan acak lebih kuat terhadap foto diam, tetapi RPC belum menerima bukti kriptografis/server-verifiable bahwa face/liveness benar-benar dijalankan; browser termodifikasi atau replay canggih tetap berada di luar jaminan ini.
+3. **Client-side biometric trust.** Challenge kini diterbitkan dan dikonsumsi server, tetapi face matching serta pengukuran gerakan tetap dilakukan di browser dan event dapat dipalsukan oleh browser termodifikasi. Kontrol gratis ini mempersempit replay/bypass alur biasa, bukan attestation biometrik dan bukan jaminan terhadap virtual camera, replay interaktif, atau deepfake real-time.
 4. **Public photo capability.** Siapa pun yang memiliki object key valid dapat meminta signed view URL melalui `r2-public-view`. Ini disengaja untuk export, tetapi object key harus diperlakukan sebagai capability link.
 5. **Edge secret naming.** `delete-user` membaca `SERVICE_ROLE_KEY`, sedangkan function lain memakai `SUPABASE_SERVICE_ROLE_KEY` atau fallback. Deployment harus memastikan custom secret tersedia atau kode diseragamkan pada task terpisah.
 6. **Direct browser mutations.** Beberapa operasi admin mengubah `profiles`, `lokasi_absen`, dan `pengaturan_absen` langsung dari browser; keamanannya bergantung pada RLS yang belum terversi.

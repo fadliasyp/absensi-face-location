@@ -51,6 +51,7 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 - Identitas wajah dicocokkan sebelum dan sesudah tantangan.
 - Posisi netral serta bukaan mata dikalibrasi dari beberapa frame peserta.
 - Setiap sesi memuat langkah kedip, tengok kanan, dan tengok kiri dalam urutan acak; langkah kedip meminta satu atau dua siklus secara acak.
+- Urutan dan target kedip diterbitkan RPC Supabase, terikat ke akun, memiliki masa berlaku singkat, dan dibatasi lima percobaan per sepuluh menit.
 - Instruksi gerakan hanya aktif setelah jeda prompt acak; gerakan sebelumnya tidak boleh dihitung.
 - Gerakan harus dilakukan sesuai urutan, stabil beberapa frame, dan kembali ke posisi netral.
 - Gerakan kepala sebelum prompt atau arah yang berlawanan selama dua frame menggagalkan sesi.
@@ -60,6 +61,8 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 - Lebih dari satu wajah, wajah hilang terlalu lama, kamera berhenti, tab tersembunyi, dan timeout gagal secara tertutup.
 - Pemrosesan face-api berjalan berurutan agar deteksi tidak saling tumpang tindih.
 - MediaPipe tetap membaca blendshape selama challenge dengan interval lebih rapat; hanya rendering panduan visual yang berhenti sementara.
+- Setelah engine selesai, server mencocokkan urutan dan timing event dengan challenge tersimpan. Absensi hanya dapat memakai sesi `passed` yang belum dikonsumsi.
+- RPC lama `catat_absensi` tidak dapat dieksekusi langsung oleh role peserta; frontend memakai `catat_absensi_terverifikasi`.
 
 ### Jangan Rusak
 
@@ -68,11 +71,12 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 - Jangan kembali mengabaikan arah berlawanan atau menghitung gerakan sebelum prompt.
 - Jangan mematikan inferensi blendshape MediaPipe selama langkah kedip.
 - Jangan menghapus pemeriksaan identitas sebelum dan sesudah challenge.
-- Jangan menyatakan kontrol browser ini sebagai attestation yang diverifikasi server.
+- Jangan membuka kembali hak execute peserta pada `catat_absensi(jsonb)`.
+- Jangan menyatakan telemetry browser sebagai attestation biometrik atau PAD tersertifikasi.
 
 ### Batas Keamanan
 
-Tahap ini memperkuat penolakan foto diam dan video replay biasa. Challenge masih dieksekusi browser dan belum menghasilkan proof server sekali pakai, sehingga tidak diklaim tahan terhadap virtual camera, browser termodifikasi, video interaktif, atau deepfake real-time.
+Challenge dan konsumsi absensi kini terikat sesi server sekali pakai, sehingga bypass langsung RPC dan replay proof biasa dipersempit. Deteksi wajah/gerakan serta event timing tetap berasal dari browser. Karena itu kontrol gratis ini tidak diklaim tahan terhadap virtual camera, browser termodifikasi, video interaktif, atau deepfake real-time.
 
 ### File Penting
 
@@ -81,11 +85,14 @@ Tahap ini memperkuat penolakan foto diam dan video replay biasa. Challenge masih
 - `assets/js/mediapipe-face-guide.js`
 - `user/verifikasi.html`
 - `tests/liveness-policy.test.cjs`
+- `tests/liveness-server-policy.test.cjs`
+- `supabase/migrations/202610040004_server_bound_liveness.sql`
 
 ### Cara Verifikasi
 
 ```bash
 node tests/liveness-policy.test.cjs
+node tests/liveness-server-policy.test.cjs
 node --check assets/js/liveness-engine.js
 node --check assets/js/user-verifikasi.js
 node --check assets/js/mediapipe-face-guide.js

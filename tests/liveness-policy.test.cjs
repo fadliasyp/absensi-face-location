@@ -488,6 +488,30 @@ function prepareAction(session, startAt = 0) {
 
 {
   const session = createLivenessSession({
+    sequence: [ACTIONS.TURN_RIGHT],
+    config: testConfig,
+  });
+  let timestamp = prepareAction(session);
+
+  session.ingest(frame(timestamp, { yaw: -0.09 }));
+  timestamp += 150;
+  session.ingest(frame(timestamp, { yaw: -0.09 }));
+  timestamp += 150;
+  session.ingest(frame(timestamp));
+  timestamp += 150;
+  session.ingest(frame(timestamp));
+
+  const [event] = session.getState().events;
+
+  assert.equal(session.getState().complete, true);
+  assert.equal(event.action, ACTIONS.TURN_RIGHT);
+  assert.ok(event.startedAtMs >= 0);
+  assert.ok(event.completedAtMs > event.startedAtMs);
+  assert.equal(event.blinkCount, 0);
+}
+
+{
+  const session = createLivenessSession({
     sequence: [ACTIONS.BLINK],
     config: testConfig,
   });
@@ -523,18 +547,19 @@ assert.match(
   "Engine liveness harus dimuat sebelum controller verifikasi.",
 );
 assert.equal(
-  (verificationPage.match(/active-liveness-v4/g) || []).length,
+  (verificationPage.match(/active-liveness-v5/g) || []).length,
   3,
-  "Ketiga asset liveness harus memakai versi cache v4 yang sama.",
+  "Ketiga asset liveness harus memakai versi cache v5 yang sama.",
 );
 assert.match(
   verificationScript,
   /AttendanceLiveness\.createLivenessSession/,
   "Controller harus memakai state machine liveness teruji.",
 );
-assert.ok(
-  /AttendanceLiveness\.createRandomChallenge/.test(verificationScript),
-  "Controller harus memakai challenge dengan jumlah kedip acak.",
+assert.doesNotMatch(
+  verificationScript,
+  /AttendanceLiveness\.createRandomChallenge/,
+  "Challenge absensi tidak boleh lagi dibuat oleh browser.",
 );
 assert.ok(
   /blinkTarget/.test(verificationScript),
@@ -594,6 +619,26 @@ assert.ok(
 assert.ok(
   /inputSize:\s*256/.test(verificationScript),
   "Detector liveness harus memakai input ringan agar frame kedipan tidak terlewat.",
+);
+assert.match(
+  verificationScript,
+  /\.rpc\(\s*["']mulai_sesi_liveness["']/,
+  "Controller harus meminta challenge baru dari server.",
+);
+assert.match(
+  verificationScript,
+  /\.rpc\(\s*["']selesaikan_sesi_liveness["']/,
+  "Controller harus menyelesaikan challenge di server.",
+);
+assert.match(
+  verificationScript,
+  /["']catat_absensi_terverifikasi["']/,
+  "Absensi harus memakai RPC yang mewajibkan sesi liveness.",
+);
+assert.match(
+  verificationScript,
+  /liveness_session_id/,
+  "ID sesi liveness harus diikat ke payload absensi.",
 );
 
 console.log("Liveness policy contract: OK");

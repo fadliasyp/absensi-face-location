@@ -2,12 +2,12 @@
 
 ## Status
 
-Penguatan anti-replay Tahap 1 selesai di repository. Unit/contract test hijau; deployment Vercel dan pengujian ulang dengan wajah asli/video replay belum dikonfirmasi.
+Penguatan anti-replay gratis Tahap 2 selesai di repository: challenge liveness terikat sesi Supabase, singkat, dibatasi, dan sekali pakai. Seluruh syntax check dan tujuh contract test lokal lulus; deployment migration/Vercel dan uji perangkat nyata belum dikonfirmasi.
 
 ## Last Completed Task
 
-- Task: memperkuat liveness agar foto diam tidak lolos sebagai wajah hidup.
-- Goal: tantangan acak kedip, tengok kanan, dan tengok kiri yang akurat, berurutan, adaptif, serta fail-closed.
+- Task: melanjutkan penguatan liveness tanpa layanan berbayar.
+- Goal: mengikat challenge browser ke sesi server Supabase dan menutup pemanggilan langsung RPC absensi lama.
 - Status repository: selesai pada 2026-10-04.
 - Status production: belum diterapkan/dikonfirmasi.
 
@@ -29,6 +29,14 @@ Penguatan anti-replay Tahap 1 selesai di repository. Unit/contract test hijau; d
 - Challenge lokal kini memakai jeda prompt acak 700–1700 ms, batas respons 6 detik, serta target kedip satu atau dua kali yang dipilih melalui Web Crypto.
 - Gerakan kepala yang dilakukan sebelum prompt atau berlawanan dengan instruksi selama dua frame menggagalkan sesi; kedip alami saat instruksi menoleh tidak diperlakukan sebagai pelanggaran.
 - Tahap 1 hanya memperkuat browser terhadap video rekaman biasa. Proof liveness sekali pakai yang diverifikasi server belum diterapkan dan menjadi kandidat Tahap 2.
+- Migration `202610040004_server_bound_liveness.sql` menambahkan tabel privat `liveness_sessions` dengan status pending/passed/failed/consumed/expired.
+- RPC `mulai_sesi_liveness` menerbitkan urutan dan target kedip dari server, kedaluwarsa tiga menit, serta membatasi lima sesi per sepuluh menit per peserta.
+- Engine mengeluarkan jejak aksi/waktu minimal; RPC `selesaikan_sesi_liveness` memeriksa urutan, durasi, ukuran payload, kepemilikan, dan masa berlaku.
+- RPC `catat_absensi_terverifikasi` hanya menerima sesi passed yang belum dipakai dan mengonsumsinya atomik setelah absensi berhasil.
+- Hak execute peserta pada `catat_absensi(jsonb)` dicabut; frontend beralih ke wrapper terverifikasi.
+- Asset liveness memakai cache key `active-liveness-v5`; popup kegagalan server memakai pesan formal.
+- Batas keamanan tetap eksplisit: event berasal dari browser, sehingga tahap gratis ini bukan PAD/attestation biometrik dan tidak menjamin penolakan virtual camera atau browser termodifikasi.
+- Verifikasi lokal lulus untuk `node --check` pada dua JavaScript yang diubah serta seluruh tujuh file test di `tests/`.
 
 - Migration `202610040001_dynamic_attendance_deadline.sql` menambahkan `jam_generate_alfa` dengan default 12.00 WIB.
 - Server mengklasifikasikan Hadir/Terlambat/Closed dari tiga waktu dan menolak urutan yang tidak valid.
@@ -53,8 +61,9 @@ Ini bukan task aktif sampai pengguna memintanya:
 - Terapkan migration `202610040001_dynamic_attendance_deadline.sql` ke Supabase sebelum frontend.
 - Terapkan migration `202610040002_reject_late_manual_leave.sql` setelah migration `202610040001`.
 - Terapkan migration `202610040003_reopen_alfa_after_deadline_extension.sql` setelah migration `202610040002`.
+- Terapkan migration `202610040004_server_bound_liveness.sql` setelah migration `202610040003`, sebelum deploy frontend liveness v5.
 - Deploy frontend ke Vercel setelah migration berhasil.
-- Deploy frontend liveness v4 ke Vercel lalu uji kamera nyata dan video replay pada Android/iOS serta laptop.
+- Deploy frontend liveness v5 ke Vercel lalu uji kamera nyata, retry/rate-limit, sesi kedaluwarsa, pemakaian ulang, dan video replay pada Android/iOS serta laptop.
 - Konfirmasi penerapan migration `202610030003` dan `202610030004` di Supabase remote.
 - Konfirmasi versi deployment Edge Function `delete-user`.
 - Ambil schema/RLS/Storage policy production untuk melengkapi reproducibility database.
@@ -66,11 +75,11 @@ Ini bukan task aktif sampai pengguna memintanya:
 
 ## Notes for Next Session
 
-1. Deploy frontend ke Vercel dan lakukan hard refresh pada perangkat uji; pastikan Network memuat asset dengan query `active-liveness-v4`.
+1. Terapkan migration `202610040004` lebih dahulu, lalu deploy frontend ke Vercel dan lakukan hard refresh; pastikan Network memuat asset dengan query `active-liveness-v5`.
 2. Uji wajah asli pada cahaya terang/redup, dengan/tanpa kacamata, dan kamera depan beberapa ponsel.
 3. Pastikan satu foto diam dengan mata terbuka tidak dapat menyelesaikan langkah kedip.
 4. Pastikan popup formal muncul untuk multi-face, kamera berhenti, tab berpindah, dan timeout.
 5. Uji video replay dengan beberapa urutan gerakan; gerakan sebelum prompt/arah berlawanan harus ditolak.
-6. Jika Tahap 1 stabil, desain Tahap 2 berupa session/proof liveness server sekali pakai atau managed PAD.
-7. Terapkan migration `202610040001`, `202610040002`, lalu `202610040003` bila belum diterapkan.
-8. Pertahankan seluruh baseline logic yang dilindungi pengguna.
+6. Pastikan pemanggilan langsung `catat_absensi` sebagai peserta ditolak, sesi kedua dengan proof yang sama ditolak, dan rate limit menampilkan popup formal.
+7. Terapkan migration `202610040001`, `202610040002`, `202610040003`, lalu `202610040004` bila belum diterapkan.
+8. Pertahankan seluruh baseline logic yang dilindungi pengguna dan jangan mengklaim tahap gratis ini sebagai PAD tersertifikasi.
