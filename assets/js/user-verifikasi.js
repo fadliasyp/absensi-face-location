@@ -853,6 +853,10 @@ function waitForNextLivenessFrame(delayMs = 35) {
   return new Promise((resolve) => window.setTimeout(resolve, delayMs));
 }
 
+function waitForPromptPaint() {
+  return new Promise((resolve) => window.requestAnimationFrame(resolve));
+}
+
 function getActiveVideoTrack() {
   if (!video || !video.srcObject) return null;
 
@@ -951,10 +955,11 @@ function renderLivenessState(state) {
     : state.failed
       ? "error"
       : "warning";
+  const visibleAction = state.phase === "action" ? state.action : null;
 
-  window.__attendanceLivenessAction = state.action;
-  updateContohGerakan(state.action);
-  setInstruksiUI(state.message, getLivenessIcon(state.action), type);
+  window.__attendanceLivenessAction = visibleAction;
+  updateContohGerakan(visibleAction);
+  setInstruksiUI(state.message, getLivenessIcon(visibleAction), type);
 }
 
 async function verifikasiGerakanSekali() {
@@ -998,41 +1003,53 @@ async function verifikasiGerakanSekali() {
 
   try {
     while (!state.complete && !state.failed) {
-    const videoTrack = getActiveVideoTrack();
+      const videoTrack = getActiveVideoTrack();
 
-    if (
-      document.visibilityState !== "visible" ||
-      !videoTrack ||
-      videoTrack.readyState !== "live"
-    ) {
-      return {
-        success: false,
-        message:
-          "Kamera atau halaman tidak lagi aktif. Verifikasi harus dimulai kembali.",
-      };
-    }
-
-    try {
-      const sample = await detectLivenessFrame();
-      state = session.ingest(sample);
-      consecutiveDetectionErrors = 0;
-      renderLivenessState(state);
-    } catch (error) {
-      console.error("Gagal membaca frame liveness:", error);
-      consecutiveDetectionErrors += 1;
-
-      if (consecutiveDetectionErrors >= 3) {
+      if (
+        document.visibilityState !== "visible" ||
+        !videoTrack ||
+        videoTrack.readyState !== "live"
+      ) {
         return {
           success: false,
           message:
-            "Kamera tidak dapat membaca gerakan secara stabil. Periksa pencahayaan lalu coba kembali.",
+            "Kamera atau halaman tidak lagi aktif. Verifikasi harus dimulai kembali.",
         };
       }
-    }
 
-    if (!state.complete && !state.failed) {
-      await waitForNextLivenessFrame();
-    }
+      try {
+        const previousPhase = state.phase;
+        const sample = await detectLivenessFrame();
+        state = session.ingest(sample);
+        consecutiveDetectionErrors = 0;
+        renderLivenessState(state);
+
+        if (previousPhase !== "action" && state.phase === "action") {
+          await waitForPromptPaint();
+
+          if (
+            typeof window.AttendanceFaceGuide
+              ?.requestImmediateLivenessSample === "function"
+          ) {
+            window.AttendanceFaceGuide.requestImmediateLivenessSample();
+          }
+        }
+      } catch (error) {
+        console.error("Gagal membaca frame liveness:", error);
+        consecutiveDetectionErrors += 1;
+
+        if (consecutiveDetectionErrors >= 3) {
+          return {
+            success: false,
+            message:
+              "Kamera tidak dapat membaca gerakan secara stabil. Periksa pencahayaan lalu coba kembali.",
+          };
+        }
+      }
+
+      if (!state.complete && !state.failed) {
+        await waitForNextLivenessFrame();
+      }
     }
 
     if (state.failed) {

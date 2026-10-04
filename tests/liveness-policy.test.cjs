@@ -91,8 +91,8 @@ for (const randomValue of [0, 0.2, 0.34, 0.5, 0.67, 0.999]) {
 
 assert.equal(
   DEFAULT_CONFIG.calibrationFrames,
-  1,
-  "Baseline produksi harus diambil dari satu frame valid tanpa tahap menstabilkan wajah.",
+  3,
+  "Baseline produksi harus memakai tiga frame cepat agar pose awal tidak bias tanpa tahap stabilisasi panjang.",
 );
 assert.equal(
   DEFAULT_CONFIG.neutralFrames,
@@ -103,8 +103,11 @@ assert.ok(
   DEFAULT_CONFIG.turnFrames === 2 &&
     DEFAULT_CONFIG.turnSupportRatio >= 0.6 &&
     DEFAULT_CONFIG.minPromptDelayMs >= 600 &&
-    DEFAULT_CONFIG.maxActionMs <= 7000,
-  "Gerakan cepat harus memakai dua frame searah dan jeda acak anti-replay tetap dipertahankan.",
+    DEFAULT_CONFIG.promptRenderGraceMs >= 200 &&
+    DEFAULT_CONFIG.promptRenderGraceMs <= 500 &&
+    DEFAULT_CONFIG.maxActionMs >= 8000 &&
+    DEFAULT_CONFIG.maxActionMs <= 9000,
+  "Gerakan cepat harus tetap aman, tetapi instruksi mendapat grace render dan waktu respons yang ramah perangkat.",
 );
 
 const testConfig = {
@@ -149,11 +152,53 @@ function frame(timestamp, overrides = {}) {
   );
 
   session.ingest(frame(0));
+  session.ingest(frame(80));
+
+  assert.equal(
+    session.getState().phase,
+    "calibrating",
+    "Dua frame awal harus tetap mengumpulkan baseline cepat tanpa membuka challenge terlalu dini.",
+  );
+
+  session.ingest(frame(160));
 
   assert.equal(
     session.getState().phase,
     "prompt_delay",
-    "Satu frame wajah valid harus langsung memulai jeda challenge.",
+    "Tiga frame wajah valid harus langsung memulai jeda challenge tanpa stabilisasi panjang.",
+  );
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.BLINK],
+    promptDelayRandom: () => 0,
+    config: {
+      calibrationFrames: 1,
+      neutralFrames: 0,
+      minPromptDelayMs: 0,
+      maxPromptDelayMs: 0,
+      promptRenderGraceMs: 300,
+      maxActionMs: 1000,
+    },
+  });
+
+  session.ingest(frame(0));
+  session.ingest(frame(1200));
+
+  assert.equal(
+    session.getState().failed,
+    false,
+    "Deadline gerakan belum boleh habis selama grace render masih termasuk dalam jendela respons.",
+  );
+
+  session.ingest(frame(1301));
+
+  assert.equal(session.getState().failed, true);
+  assert.equal(
+    session.getState().reason,
+    "action_timeout",
+    "Deadline tetap harus fail closed setelah grace render dan waktu aksi habis.",
   );
 }
 
@@ -952,9 +997,9 @@ assert.match(
   "Engine liveness harus dimuat sebelum controller verifikasi.",
 );
 assert.equal(
-  (verificationPage.match(/active-liveness-v16/g) || []).length,
+  (verificationPage.match(/active-liveness-v17/g) || []).length,
   3,
-  "Ketiga asset liveness harus memakai versi cache v16 yang sama.",
+  "Ketiga asset liveness harus memakai versi cache v17 yang sama.",
 );
 assert.match(
   verificationScript,
@@ -985,6 +1030,24 @@ assert.match(
   verificationScript,
   /AttendanceLiveness\.createRandomChallenge/,
   "Controller Tahap 1 harus membuat challenge acak di browser.",
+);
+assert.match(
+  verificationScript,
+  /const visibleAction\s*=\s*state\.phase\s*===\s*"action"\s*\?\s*state\.action\s*:\s*null/,
+  "Ikon dan contoh gerakan hanya boleh dibuka ketika langkah benar-benar aktif.",
+);
+assert.ok(
+  /__attendanceLivenessAction\s*=\s*visibleAction/.test(
+    verificationScript,
+  ) &&
+    /updateContohGerakan\(visibleAction\)/.test(verificationScript) &&
+    /getLivenessIcon\(visibleAction\)/.test(verificationScript),
+  "Renderer dan scheduler harus memakai aksi yang sudah aman untuk ditampilkan, bukan aksi internal berikutnya.",
+);
+assert.match(
+  verificationScript,
+  /function waitForPromptPaint\(\)[^]*requestAnimationFrame[^]*previousPhase[^]*state\.phase === "action"[^]*await waitForPromptPaint\(\)/,
+  "Controller harus memberi browser kesempatan menggambar instruksi sebelum membaca frame gerakan berikutnya.",
 );
 assert.doesNotMatch(
   verificationScript,
@@ -1032,6 +1095,16 @@ assert.match(
   "Panduan MediaPipe harus menyediakan sampel dan puncak kedip sekali konsumsi.",
 );
 assert.match(
+  faceGuideScript,
+  /function requestImmediateLivenessSample\(\)[^]*clearTimeout\(guideInterval\)[^]*setTimeout\(guideFrameRunner,\s*0\)/,
+  "Scheduler MediaPipe harus dapat dibangunkan segera ketika prompt gerakan mulai aktif.",
+);
+assert.match(
+  verificationScript,
+  /await waitForPromptPaint\(\)[^]*requestImmediateLivenessSample\(\)/,
+  "Controller harus membangunkan MediaPipe setelah prompt tergambar agar kedip awal tidak terlewat.",
+);
+assert.match(
   verificationScript,
   /AttendanceFaceGuide[^]*consumeLatestLivenessSample/,
   "Controller verifikasi harus mengonsumsi puncak kedip MediaPipe agar frame cepat tidak hilang.",
@@ -1049,11 +1122,11 @@ assert.match(
 );
 assert.match(
   faceGuideScript,
-  /livenessAction\s*===\s*"blink"\s*\?\s*35\s*:\s*120/,
-  "MediaPipe harus mengambil sampel rapat saat kedip dan mengurangi beban CPU saat langkah tengok.",
+  /livenessAction\s*===\s*"blink"\s*\?\s*35\s*:\s*livenessAction\s*\?\s*250\s*:\s*400/,
+  "MediaPipe harus rapat saat kedip, ringan saat tengok, dan kembali idle selama jeda instruksi.",
 );
 assert.ok(
-  /__attendanceLivenessAction\s*=\s*state\.action/.test(
+  /__attendanceLivenessAction\s*=\s*visibleAction/.test(
     verificationScript,
   ) &&
     /finally[^]*__attendanceLivenessAction\s*=\s*null/.test(

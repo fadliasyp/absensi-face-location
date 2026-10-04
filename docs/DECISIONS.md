@@ -182,7 +182,7 @@ Siklus kedip dapat dimulai ketika kedua mata tertutup menurut MediaPipe atau EAR
 
 ### Status
 
-ACCEPTED
+SUPERSEDED
 
 ### Decision
 
@@ -194,6 +194,24 @@ Baseline pose dan bukaan mata diambil dari frame wajah valid pertama. Penantian 
 - Jeda prompt acak, validasi gerakan beberapa frame, arah salah, kembali netral, pemeriksaan identitas, dan fail-closed kamera tetap dipertahankan.
 - Baseline satu frame dapat lebih sensitif terhadap frame awal yang buruk, sehingga pengujian kamera perangkat nyata tetap diperlukan.
 - Keputusan ini hanya menggantikan bagian kalibrasi awal dari keputusan active liveness sebelumnya.
+
+## 2026-10-04 - Sinkronisasi Prompt dan Baseline Cepat Active Liveness
+
+### Status
+
+ACCEPTED
+
+### Decision
+
+Gerakan berikutnya hanya ditampilkan saat fase `action`, browser diberi satu paint dan scheduler MediaPipe dibangunkan sebelum frame berikutnya diproses, dan setiap langkah mendapat delapan detik ditambah grace render 300 ms. Baseline memakai median tiga frame cepat tanpa mengembalikan layar stabilisasi panjang. MediaPipe berjalan 35 ms saat kedip, 250 ms saat tengok, dan 400 ms selama jeda/di luar challenge.
+
+### Consequences
+
+- Peserta tidak lagi mendapat isyarat visual yang bertentangan dengan fase anti-gerak-awal.
+- Tiga frame cepat mengurangi bias pose awal yang sebelumnya dapat membuat salah satu arah lebih sulit.
+- Sampling non-kedip yang lebih ringan mengurangi perebutan main thread dengan face-api pada HP/laptop.
+- Validasi dua mata, dua bukti tengok, arah berlawanan, kembali netral, dan fail-closed kamera tetap berlaku.
+- Keberhasilan runtime tetap harus diuji pada perangkat nyata; contract test tidak membuktikan FPS kamera/browser production.
 
 ## 2026-10-04 - Kembali ke Anti-Video Replay Tahap 1
 

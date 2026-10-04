@@ -49,13 +49,14 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 ### Perilaku yang Sudah Benar
 
 - Identitas wajah dicocokkan sebelum dan sesudah tantangan.
-- Baseline posisi netral dan bukaan mata diambil dari frame wajah valid pertama tanpa tahap stabilisasi awal.
+- Baseline posisi netral dan bukaan mata memakai median tiga frame valid yang cepat tanpa layar stabilisasi panjang.
 - Setiap sesi memuat tiga langkah acak dari kedip, tengok kanan, dan tengok kiri; gerakan boleh muncul kembali setelah diselingi gerakan lain, tidak boleh identik pada dua langkah berturut-turut, dan minimal satu langkah kedip wajib ada.
 - Setiap langkah kedip hanya meminta satu siklus tutup-buka; kedipan berikutnya, jika terpilih, menjadi langkah challenge tersendiri.
 - Teks instruksi meminta peserta mengedipkan kedua mata secara normal, tanpa perintah pejam/merem atau menahan mata tertutup.
 - Teks tengok menampilkan panah `➡️` untuk kanan dan `⬅️` untuk kiri agar arah tidak ambigu.
 - Pilihan tiga langkah gerakan dibuat lokal menggunakan Web Crypto bila tersedia.
-- Instruksi gerakan hanya aktif setelah jeda prompt acak; gerakan sebelumnya tidak boleh dihitung.
+- Instruksi gerakan hanya aktif setelah jeda prompt acak; ikon/contoh aksi berikutnya tidak boleh bocor selama jeda dan gerakan sebelumnya tidak boleh dihitung.
+- Browser harus memberi kesempatan prompt aktif tergambar dan membangunkan scheduler MediaPipe sebelum pembacaan frame gerakan berikutnya; deadline aksi adalah delapan detik dengan grace render 300 ms.
 - Gerakan harus dilakukan sesuai urutan dan kembali ke posisi netral.
 - Tengok cepat memerlukan dua bukti searah dalam jendela 900 ms: sedikitnya satu bukti pendekatan dan satu bukti yang mencapai ambang penuh.
 - Preview kamera depan dimirror hanya untuk tampilan CSS; face-api tetap membaca video mentah sehingga tengok kanan peserta memakai delta yaw negatif dan tengok kiri memakai delta yaw positif.
@@ -65,7 +66,7 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 - Kedipan mengutamakan koefisien MediaPipe `eyeBlinkLeft`/`eyeBlinkRight` yang dibandingkan dengan baseline peserta; EAR relatif face-api tetap menjadi fallback.
 - Kedipan normal cepat sekitar satu interval frame tetap diterima melalui MediaPipe atau EAR, sedangkan perubahan kecil tanpa transisi tutup-buka tetap ditolak.
 - MediaPipe menahan puncak tutup kedua mata sekali konsumsi sampai controller membacanya; puncak dinilai terpisah dari umur sampel biasa dan dapat memakai EAR frame terbaru sebagai bukti mata kembali terbuka.
-- MediaPipe berjalan 35 ms saat aksi kedip, 120 ms saat aksi liveness lain, dan 400 ms di luar challenge untuk mengurangi perebutan CPU pada perangkat mobile.
+- MediaPipe berjalan 35 ms saat aksi kedip, 250 ms saat aksi tengok, dan 400 ms selama jeda/di luar challenge untuk mengurangi perebutan CPU pada perangkat mobile.
 - Sumber yang membaca mata tertutup juga memverifikasi pembukaan kembali; kedua mata wajib ikut dalam siklus.
 - Sampel MediaPipe yang lebih lama dari 200 ms diabaikan agar tidak menutupi EAR frame terbaru.
 - Lebih dari satu wajah, wajah hilang terlalu lama, kamera berhenti, tab tersembunyi, dan timeout gagal secara tertutup.
@@ -81,6 +82,7 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 - Jangan menyamakan transformasi mirror CSS dengan koordinat input model; pada video mentah, kanan peserta harus tetap yaw negatif dan kiri peserta yaw positif.
 - Jangan mewajibkan seluruh frame tengok mencapai ambang penuh karena gerakan manusia normal dapat berlangsung cepat.
 - Jangan kembali mengabaikan arah berlawanan atau menghitung gerakan sebelum prompt.
+- Jangan menampilkan ikon/contoh gerakan berikutnya sebelum fase aksi aktif.
 - Jangan mematikan inferensi blendshape MediaPipe selama langkah kedip.
 - Jangan kembali membuat sampel MediaPipe lama mengalahkan EAR terbaru.
 - Jangan menghapus sifat sekali konsumsi pada puncak kedip atau menerima puncak yang hanya melibatkan satu mata.

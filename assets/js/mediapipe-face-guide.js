@@ -9,6 +9,7 @@ const faceShape = document.getElementById("faceShape");
 
 let faceLandmarker = null;
 let guideInterval = null;
+let guideFrameRunner = null;
 let latestLivenessSample = Object.freeze({
   timestamp: 0,
   faceCount: 0,
@@ -87,8 +88,19 @@ function consumeLatestLivenessSample() {
   return sample;
 }
 
+function requestImmediateLivenessSample() {
+  if (typeof guideFrameRunner !== "function") return;
+
+  if (guideInterval) {
+    clearTimeout(guideInterval);
+  }
+
+  guideInterval = window.setTimeout(guideFrameRunner, 0);
+}
+
 window.AttendanceFaceGuide = Object.freeze({
   consumeLatestLivenessSample,
+  requestImmediateLivenessSample,
 });
 
 function setGuideState(type) {
@@ -229,8 +241,8 @@ async function initMediaPipeFaceGuide() {
     const runGuideFrame = () => {
       const livenessActive = Boolean(window.__attendanceLivenessActive);
       const livenessAction = window.__attendanceLivenessAction;
-      const activeDelay = livenessAction === "blink" ? 35 : 120;
-      const nextDelay = livenessActive ? activeDelay : 400;
+      const nextDelay =
+        livenessAction === "blink" ? 35 : livenessAction ? 250 : 400;
 
       try {
         if (!faceLandmarker || !video || video.readyState < 2) return;
@@ -268,6 +280,7 @@ async function initMediaPipeFaceGuide() {
       }
     };
 
+    guideFrameRunner = runGuideFrame;
     runGuideFrame();
   } catch (error) {
     console.error("Gagal memuat MediaPipe Face Guide:", error);

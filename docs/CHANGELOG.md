@@ -16,6 +16,9 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 
 ### Changed
 
+- Prompt liveness tidak lagi membocorkan ikon/contoh aksi berikutnya selama jeda; browser memberi satu paint dan membangunkan MediaPipe sebelum membaca frame aksi.
+- Baseline liveness memakai tiga frame cepat, deadline gerakan menjadi delapan detik dengan grace render 300 ms, dan cache asset naik ke `active-liveness-v17`.
+- Polling MediaPipe non-kedip dikurangi menjadi 250 ms saat tengok dan 400 ms selama jeda agar face-api mendapat waktu CPU lebih besar pada HP/laptop.
 - Puncak kedipan MediaPipe yang masih valid tidak lagi ikut terbuang saat sampel biasa terlambat; EAR frame terbaru dapat membuktikan mata sudah terbuka.
 - Deteksi tengok cepat kini menggabungkan dua bukti dalam jendela 900 ms tanpa menerima satu lonjakan atau bukti kedaluwarsa.
 - Polling MediaPipe menjadi 35 ms khusus aksi kedip, 120 ms untuk aksi liveness lain, dan 400 ms di luar challenge agar beban CPU mobile lebih seimbang.

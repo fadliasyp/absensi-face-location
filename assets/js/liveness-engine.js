@@ -18,7 +18,7 @@
   });
 
   const DEFAULT_CONFIG = Object.freeze({
-    calibrationFrames: 1,
+    calibrationFrames: 3,
     neutralFrames: 0,
     returnNeutralFrames: 3,
     turnFrames: 2,
@@ -43,8 +43,9 @@
     maxMissingFaceMs: 2200,
     minPromptDelayMs: 700,
     maxPromptDelayMs: 1700,
+    promptRenderGraceMs: 300,
     wrongActionFrames: 2,
-    maxActionMs: 6000,
+    maxActionMs: 8000,
     maxChallengeMs: 45000,
   });
 
@@ -224,7 +225,7 @@
 
     function beginAction(timestamp) {
       state.phase = "action";
-      state.actionStartedAt = timestamp;
+      state.actionStartedAt = timestamp + settings.promptRenderGraceMs;
       state.promptReadyAt = null;
       state.turnCount = 0;
       state.turnPeakDetected = false;
