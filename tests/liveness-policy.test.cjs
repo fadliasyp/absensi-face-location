@@ -169,6 +169,102 @@ function prepareAction(session, startAt = 0, overrides = {}) {
 }
 
 {
+  const rightSession = createLivenessSession({
+    sequence: [ACTIONS.TURN_RIGHT],
+    config: testConfig,
+  });
+  prepareAction(rightSession);
+  assert.match(
+    rightSession.getState().message,
+    /kanan\s*➡️/u,
+    "Instruksi tengok kanan harus menampilkan panah kanan langsung pada teks.",
+  );
+
+  const leftSession = createLivenessSession({
+    sequence: [ACTIONS.TURN_LEFT],
+    config: testConfig,
+  });
+  prepareAction(leftSession);
+  assert.match(
+    leftSession.getState().message,
+    /kiri\s*⬅️/u,
+    "Instruksi tengok kiri harus menampilkan panah kiri langsung pada teks.",
+  );
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.BLINK],
+    config: testConfig,
+  });
+  const timestamp = prepareAction(session);
+
+  session.ingest(
+    frame(timestamp, {
+      blinkLeft: 0.08,
+      blinkRight: 0.09,
+      blinkPeakLeft: 0.62,
+      blinkPeakRight: 0.64,
+      blinkPeakTimestamp: timestamp - 70,
+    }),
+  );
+
+  assert.equal(
+    session.getState().phase,
+    "return_neutral",
+    "Kedipan cepat yang sempat tertangkap MediaPipe lalu terbuka kembali harus tetap terbaca.",
+  );
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.BLINK],
+    config: testConfig,
+  });
+  const timestamp = prepareAction(session);
+
+  session.ingest(
+    frame(timestamp, {
+      blinkLeft: 0.08,
+      blinkRight: 0.09,
+      blinkPeakLeft: 0.62,
+      blinkPeakRight: 0.2,
+      blinkPeakTimestamp: timestamp - 70,
+    }),
+  );
+
+  assert.equal(
+    session.getState().phase,
+    "action",
+    "Puncak yang hanya menutup satu mata tidak boleh dianggap sebagai kedipan valid.",
+  );
+}
+
+{
+  const session = createLivenessSession({
+    sequence: [ACTIONS.BLINK],
+    config: testConfig,
+  });
+  const timestamp = prepareAction(session);
+
+  session.ingest(
+    frame(timestamp, {
+      blinkLeft: 0.08,
+      blinkRight: 0.09,
+      blinkPeakLeft: 0.62,
+      blinkPeakRight: 0.64,
+      blinkPeakTimestamp: timestamp - 1500,
+    }),
+  );
+
+  assert.equal(
+    session.getState().phase,
+    "action",
+    "Puncak kedip yang melewati durasi maksimum tidak boleh diterima.",
+  );
+}
+
+{
   const session = createLivenessSession({
     sequence: [ACTIONS.TURN_RIGHT],
     promptDelayRandom: () => 0,
@@ -788,9 +884,9 @@ assert.match(
   "Engine liveness harus dimuat sebelum controller verifikasi.",
 );
 assert.equal(
-  (verificationPage.match(/active-liveness-v11/g) || []).length,
+  (verificationPage.match(/active-liveness-v12/g) || []).length,
   3,
-  "Ketiga asset liveness harus memakai versi cache v11 yang sama.",
+  "Ketiga asset liveness harus memakai versi cache v12 yang sama.",
 );
 assert.match(
   verificationScript,
@@ -844,13 +940,29 @@ assert.ok(
 );
 assert.match(
   faceGuideScript,
-  /getLatestLivenessSample/,
-  "Panduan MediaPipe harus menyediakan sampel kedip terbaru untuk liveness.",
+  /consumeLatestLivenessSample/,
+  "Panduan MediaPipe harus menyediakan sampel dan puncak kedip sekali konsumsi.",
 );
 assert.match(
   verificationScript,
-  /AttendanceFaceGuide[^]*getLatestLivenessSample/,
-  "Controller verifikasi harus menggabungkan sinyal kedip MediaPipe.",
+  /AttendanceFaceGuide[^]*consumeLatestLivenessSample/,
+  "Controller verifikasi harus mengonsumsi puncak kedip MediaPipe agar frame cepat tidak hilang.",
+);
+assert.ok(
+  /blinkPeakLeft/.test(faceGuideScript) &&
+    /blinkPeakRight/.test(faceGuideScript) &&
+    /blinkPeakTimestamp/.test(faceGuideScript),
+  "MediaPipe harus menahan puncak kedua mata beserta waktunya sampai dikonsumsi.",
+);
+assert.match(
+  faceGuideScript,
+  /function consumeLatestLivenessSample\(\)[^]*resetPendingBlinkPeak\(\)/,
+  "Puncak kedip harus dihapus segera setelah satu kali konsumsi.",
+);
+assert.match(
+  faceGuideScript,
+  /livenessActive\s*\?\s*35\s*:\s*400/,
+  "MediaPipe harus mengambil sampel lebih rapat selama challenge aktif.",
 );
 assert.match(
   verificationScript,

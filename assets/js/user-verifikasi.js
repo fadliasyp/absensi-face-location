@@ -845,11 +845,14 @@ function getActiveVideoTrack() {
 function getRecentMediaPipeBlinkSample(timestamp) {
   const faceGuide = window.AttendanceFaceGuide;
 
-  if (!faceGuide || typeof faceGuide.getLatestLivenessSample !== "function") {
+  if (
+    !faceGuide ||
+    typeof faceGuide.consumeLatestLivenessSample !== "function"
+  ) {
     return {};
   }
 
-  const sample = faceGuide.getLatestLivenessSample();
+  const sample = faceGuide.consumeLatestLivenessSample();
   const sampleAge = timestamp - Number(sample?.timestamp);
   const isRecent = Number.isFinite(sampleAge) && Math.abs(sampleAge) <= 200;
 
@@ -862,10 +865,26 @@ function getRecentMediaPipeBlinkSample(timestamp) {
     return {};
   }
 
-  return {
+  const result = {
     blinkLeft: sample.blinkLeft,
     blinkRight: sample.blinkRight,
   };
+
+  const peakAge = timestamp - Number(sample?.blinkPeakTimestamp);
+  const hasRecentPeak =
+    Number.isFinite(peakAge) &&
+    peakAge >= 0 &&
+    peakAge <= 400 &&
+    Number.isFinite(sample?.blinkPeakLeft) &&
+    Number.isFinite(sample?.blinkPeakRight);
+
+  if (hasRecentPeak) {
+    result.blinkPeakTimestamp = sample.blinkPeakTimestamp;
+    result.blinkPeakLeft = sample.blinkPeakLeft;
+    result.blinkPeakRight = sample.blinkPeakRight;
+  }
+
+  return result;
 }
 
 async function detectLivenessFrame() {

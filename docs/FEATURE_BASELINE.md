@@ -53,6 +53,7 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 - Setiap sesi memuat tiga langkah acak dari kedip, tengok kanan, dan tengok kiri; gerakan boleh berulang, tetapi minimal satu langkah kedip wajib ada.
 - Setiap langkah kedip hanya meminta satu siklus tutup-buka; kedipan berikutnya, jika terpilih, menjadi langkah challenge tersendiri.
 - Teks instruksi meminta peserta mengedipkan kedua mata secara normal, tanpa perintah pejam/merem atau menahan mata tertutup.
+- Teks tengok menampilkan panah `➡️` untuk kanan dan `⬅️` untuk kiri agar arah tidak ambigu.
 - Pilihan tiga langkah gerakan dibuat lokal menggunakan Web Crypto bila tersedia.
 - Instruksi gerakan hanya aktif setelah jeda prompt acak; gerakan sebelumnya tidak boleh dihitung.
 - Gerakan harus dilakukan sesuai urutan dan kembali ke posisi netral.
@@ -63,6 +64,7 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 - Kedip harus memiliki transisi kedua mata terbuka, tertutup, lalu terbuka kembali.
 - Kedipan mengutamakan koefisien MediaPipe `eyeBlinkLeft`/`eyeBlinkRight` yang dibandingkan dengan baseline peserta; EAR relatif face-api tetap menjadi fallback.
 - Kedipan normal cepat sekitar satu interval frame tetap diterima melalui MediaPipe atau EAR, sedangkan perubahan kecil tanpa transisi tutup-buka tetap ditolak.
+- MediaPipe menahan puncak tutup kedua mata sekali konsumsi sampai controller membacanya, sehingga frame kedip cepat tidak hilang ketika sampel terbaru sudah kembali terbuka.
 - Sumber yang membaca mata tertutup juga memverifikasi pembukaan kembali; kedua mata wajib ikut dalam siklus.
 - Sampel MediaPipe yang lebih lama dari 200 ms diabaikan agar tidak menutupi EAR frame terbaru.
 - Lebih dari satu wajah, wajah hilang terlalu lama, kamera berhenti, tab tersembunyi, dan timeout gagal secara tertutup.
@@ -79,6 +81,7 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 - Jangan kembali mengabaikan arah berlawanan atau menghitung gerakan sebelum prompt.
 - Jangan mematikan inferensi blendshape MediaPipe selama langkah kedip.
 - Jangan kembali membuat sampel MediaPipe lama mengalahkan EAR terbaru.
+- Jangan menghapus sifat sekali konsumsi pada puncak kedip atau menerima puncak yang hanya melibatkan satu mata.
 - Jangan menerima kedipan satu mata atau sinyal kecil sebagai kedipan penuh.
 - Jangan mengembalikan instruksi pejam/merem atau kedip perlahan; peserta cukup diminta berkedip normal.
 - Jangan menghapus pemeriksaan identitas sebelum dan sesudah challenge.

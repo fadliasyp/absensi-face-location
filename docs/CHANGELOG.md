@@ -16,6 +16,9 @@ Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history da
 
 ### Changed
 
+- Instruksi tengok kini menampilkan panah kanan/kiri langsung pada teks agar arah gerakan tidak ambigu.
+- MediaPipe liveness kini mengambil sampel setiap 35 ms dan menahan puncak tutup kedua mata sampai sekali dikonsumsi, sehingga kedipan cepat tidak hilang ketika sampel terbaru sudah terbuka.
+- Cache asset liveness dinaikkan ke `active-liveness-v12` untuk memuat instruksi panah dan perbaikan kedipan cepat.
 - Mapping tengok kamera depan diselaraskan dengan preview mirror: kanan memakai delta yaw positif dan kiri memakai delta yaw negatif; arah berlawanan tetap ditolak.
 - Cache asset liveness dinaikkan ke `active-liveness-v11` agar perbaikan arah kanan/kiri segera dimuat setelah deploy frontend.
 - Challenge liveness kini memilih tiga langkah acak dengan pengulangan diperbolehkan, menjamin minimal satu langkah kedip, dan membatasi setiap langkah kedip menjadi satu kedipan.

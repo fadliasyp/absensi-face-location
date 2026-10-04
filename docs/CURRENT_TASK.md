@@ -2,12 +2,12 @@
 
 ## Status
 
-Arah tengok Tahap 1 kini mengikuti preview kamera depan yang tampil seperti cermin: kanan memakai delta yaw positif dan kiri memakai delta yaw negatif. Challenge tetap terdiri dari tiga langkah acak yang boleh berulang, dengan satu kedipan per langkah dan minimal satu langkah kedip. Deployment rollback/Vercel dan uji perangkat nyata belum dikonfirmasi.
+Instruksi tengok Tahap 1 kini menampilkan panah langsung pada teks kanan/kiri. Kedipan cepat diperkuat dengan sampling MediaPipe 35 ms dan puncak tutup kedua mata sekali konsumsi, sehingga frame tertutup tidak hilang ketika sudah tertimpa frame mata terbuka. Syarat kedua mata, pembukaan kembali, dan mapping arah kamera depan tetap dipertahankan. Deployment rollback/Vercel dan uji perangkat nyata belum dikonfirmasi.
 
 ## Last Completed Task
 
-- Task: memperbaiki perintah tengok kanan/kiri yang terbalik pada kamera depan.
-- Goal: menyamakan kontrak arah engine dengan preview mirror yang dilihat peserta.
+- Task: memperjelas instruksi arah dan meningkatkan keberhasilan deteksi kedipan normal yang cepat.
+- Goal: menambahkan panah kanan/kiri pada teks serta mencegah frame mata tertutup terlewat tanpa menerima kedipan satu mata.
 - Status repository: selesai pada 2026-10-04.
 - Status production: belum diterapkan/dikonfirmasi.
 
@@ -31,15 +31,18 @@ Arah tengok Tahap 1 kini mengikuti preview kamera depan yang tampil seperti cerm
 - Regression test memastikan kedipan cepat lolos, sinyal MediaPipe mata terbuka tidak menutupi EAR, dan kedipan satu mata tetap ditolak.
 - Sampling face-api dipercepat dari jeda 90 ms menjadi 35 ms dan input detector liveness diturunkan dari 320 menjadi 256 agar frame kedipan tidak mudah terlewat.
 - Instruksi kedip hanya meminta peserta mengedipkan kedua mata secara normal; tidak ada lagi perintah untuk pejam/merem atau menahan mata tertutup.
+- Instruksi tengok menyertakan `➡️` untuk kanan dan `⬅️` untuk kiri langsung pada teks perintah.
 - Kedip sekarang mengutamakan blendshape MediaPipe yang dibandingkan dengan baseline peserta; EAR face-api tetap menjadi fallback bila sampel MediaPipe belum tersedia/terlalu lama.
-- Polling MediaPipe berubah dinamis menjadi 80 ms saat challenge dan 400 ms di luar challenge; pemrosesan frame tetap berurutan.
-- Ketiga script liveness memakai query versi `active-liveness-v11` untuk mencegah browser/Vercel memakai JavaScript lama dari cache.
+- Polling MediaPipe berubah dinamis menjadi 35 ms saat challenge dan 400 ms di luar challenge; pemrosesan frame tetap berurutan.
+- MediaPipe menahan puncak koefisien kedua mata sejak konsumsi terakhir; controller mengonsumsinya sekali dan engine menerima pulsa tutup-buka yang memenuhi durasi 25–1400 ms.
+- Puncak satu mata, puncak kedaluwarsa, dan puncak yang sudah dikonsumsi tidak dapat menyelesaikan langkah kedip.
+- Ketiga script liveness memakai query versi `active-liveness-v12` untuk mencegah browser/Vercel memakai JavaScript lama dari cache.
 - Challenge lokal memakai jeda prompt acak 700–1700 ms dan batas respons 6 detik per langkah; setiap langkah kedip hanya meminta satu kedipan.
 - Gerakan kepala yang dilakukan sebelum prompt atau berlawanan dengan instruksi selama dua frame menggagalkan sesi; kedip alami saat instruksi menoleh tidak diperlakukan sebagai pelanggaran.
 - Tahap 1 hanya memperkuat browser terhadap foto diam dan video rekaman biasa; tidak ada proof liveness server.
 - Frontend kembali membuat challenge melalui `AttendanceLiveness.createRandomChallenge` dan mencatat absensi melalui `catat_absensi`.
 - Telemetry event Tahap 2 telah dihapus dari `liveness-engine.js`.
-- Setelah rollback Tahap 2, cache key terbaru adalah `active-liveness-v11` untuk mapping kanan/kiri kamera depan, challenge tiga langkah acak, dan satu gerakan per langkah.
+- Setelah rollback Tahap 2, cache key terbaru adalah `active-liveness-v12` untuk panah instruksi serta latch kedipan cepat sekali konsumsi.
 - Migration `202610040006_rollback_server_bound_liveness.sql` menghapus function/table Tahap 2 dan memulihkan execute `catat_absensi(jsonb)` untuk `authenticated`.
 - Migration `202610040004` dan `202610040005` dipertahankan sebagai histori karena status penerapannya pada remote belum diketahui.
 - Contract `tests/liveness-stage1-rollback.test.cjs` melindungi hasil akhir rollback.
@@ -69,7 +72,7 @@ Ini bukan task aktif sampai pengguna memintanya:
 - Terapkan migration `202610040003_reopen_alfa_after_deadline_extension.sql` setelah migration `202610040002`.
 - Jika `202610040004` atau `202610040005` pernah diterapkan, jalankan `202610040006_rollback_server_bound_liveness.sql` sebelum deploy frontend Tahap 1.
 - Deploy frontend ke Vercel setelah migration berhasil.
-- Deploy frontend liveness v11 ke Vercel lalu uji kamera nyata dan video replay pada Android/iOS serta laptop.
+- Deploy frontend liveness v12 ke Vercel lalu uji kamera nyata dan video replay pada Android/iOS serta laptop.
 - Konfirmasi penerapan migration `202610030003` dan `202610030004` di Supabase remote.
 - Konfirmasi versi deployment Edge Function `delete-user`.
 - Ambil schema/RLS/Storage policy production untuk melengkapi reproducibility database.
@@ -81,7 +84,7 @@ Ini bukan task aktif sampai pengguna memintanya:
 
 ## Notes for Next Session
 
-1. Terapkan migration rollback `202610040006` bila Tahap 2 pernah diterapkan; setelah itu deploy frontend ke Vercel dan lakukan hard refresh. Pastikan Network memuat asset dengan query `active-liveness-v11`.
+1. Terapkan migration rollback `202610040006` bila Tahap 2 pernah diterapkan; setelah itu deploy frontend ke Vercel dan lakukan hard refresh. Pastikan Network memuat asset dengan query `active-liveness-v12`.
 2. Uji wajah asli pada cahaya terang/redup, dengan/tanpa kacamata, dan kamera depan beberapa ponsel.
 3. Pastikan satu foto diam dengan mata terbuka tidak dapat menyelesaikan langkah kedip.
 4. Pastikan popup formal muncul untuk multi-face, kamera berhenti, tab berpindah, dan timeout.

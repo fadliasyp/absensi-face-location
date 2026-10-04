@@ -15,6 +15,19 @@ let latestLivenessSample = Object.freeze({
   blinkLeft: null,
   blinkRight: null,
 });
+let pendingBlinkPeak = {
+  timestamp: 0,
+  blinkLeft: null,
+  blinkRight: null,
+};
+
+function resetPendingBlinkPeak() {
+  pendingBlinkPeak = {
+    timestamp: 0,
+    blinkLeft: null,
+    blinkRight: null,
+  };
+}
 
 function getBlendshapeScore(categories, categoryName) {
   const category = categories.find(
@@ -27,21 +40,55 @@ function getBlendshapeScore(categories, categoryName) {
 function updateLatestLivenessSample(result, timestamp) {
   const faceCount = result.faceLandmarks?.length || 0;
   const categories = result.faceBlendshapes?.[0]?.categories || [];
+  const blinkLeft = getBlendshapeScore(categories, "eyeBlinkLeft");
+  const blinkRight = getBlendshapeScore(categories, "eyeBlinkRight");
 
   latestLivenessSample = Object.freeze({
     timestamp,
     faceCount,
-    blinkLeft: getBlendshapeScore(categories, "eyeBlinkLeft"),
-    blinkRight: getBlendshapeScore(categories, "eyeBlinkRight"),
+    blinkLeft,
+    blinkRight,
   });
+
+  if (
+    !window.__attendanceLivenessActive ||
+    faceCount !== 1 ||
+    !Number.isFinite(blinkLeft) ||
+    !Number.isFinite(blinkRight)
+  ) {
+    resetPendingBlinkPeak();
+    return;
+  }
+
+  const currentStrength = Math.min(blinkLeft, blinkRight);
+  const pendingStrength = Math.min(
+    pendingBlinkPeak.blinkLeft ?? -1,
+    pendingBlinkPeak.blinkRight ?? -1,
+  );
+
+  if (currentStrength > pendingStrength) {
+    pendingBlinkPeak = {
+      timestamp,
+      blinkLeft,
+      blinkRight,
+    };
+  }
 }
 
-function getLatestLivenessSample() {
-  return { ...latestLivenessSample };
+function consumeLatestLivenessSample() {
+  const sample = {
+    ...latestLivenessSample,
+    blinkPeakTimestamp: pendingBlinkPeak.timestamp,
+    blinkPeakLeft: pendingBlinkPeak.blinkLeft,
+    blinkPeakRight: pendingBlinkPeak.blinkRight,
+  };
+
+  resetPendingBlinkPeak();
+  return sample;
 }
 
 window.AttendanceFaceGuide = Object.freeze({
-  getLatestLivenessSample,
+  consumeLatestLivenessSample,
 });
 
 function setGuideState(type) {
@@ -181,7 +228,7 @@ async function initMediaPipeFaceGuide() {
 
     const runGuideFrame = () => {
       const livenessActive = Boolean(window.__attendanceLivenessActive);
-      const nextDelay = livenessActive ? 80 : 400;
+      const nextDelay = livenessActive ? 35 : 400;
 
       try {
         if (!faceLandmarker || !video || video.readyState < 2) return;

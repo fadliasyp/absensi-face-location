@@ -1,5 +1,36 @@
 # Decision Log
 
+## 2026-10-04 - Puncak Kedip Cepat Sekali Konsumsi
+
+### Status
+
+Accepted.
+
+### Decision
+
+Saat liveness aktif, MediaPipe mengambil sampel setiap 35 ms dan menyimpan puncak koefisien kedua mata terkuat sejak konsumsi terakhir. Controller mengonsumsi puncak itu satu kali bersama sampel terbaru. Engine dapat menerima siklus kedip ketika puncak membuktikan kedua mata tertutup dan sampel terbaru membuktikan keduanya sudah terbuka.
+
+### Consequences
+
+- Kedipan normal yang cepat tidak hilang hanya karena frame tertutup sudah tertimpa frame terbuka sebelum face-api selesai.
+- Puncak satu mata, puncak berumur lebih dari 400 ms, durasi di luar 25–1400 ms, dan puncak yang sudah dikonsumsi tidak dapat menyelesaikan langkah.
+- Beban inferensi meningkat hanya selama challenge; di luar challenge interval MediaPipe tetap 400 ms.
+
+## 2026-10-04 - Panah pada Instruksi Tengok
+
+### Status
+
+Accepted.
+
+### Decision
+
+Teks instruksi tengok kanan menyertakan `➡️`, sedangkan tengok kiri menyertakan `⬅️`. Panah berada langsung pada kalimat perintah dan mengikuti perspektif preview kamera depan.
+
+### Consequences
+
+- Peserta memperoleh petunjuk teks dan visual yang konsisten.
+- Mapping yaw dan aturan deteksi gerakan tidak diubah oleh penambahan panah.
+
 ## 2026-10-04 - Arah Tengok Mengikuti Preview Kamera Depan
 
 ### Status

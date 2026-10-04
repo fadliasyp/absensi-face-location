@@ -49,8 +49,8 @@
 
   const ACTION_LABELS = Object.freeze({
     [ACTIONS.BLINK]: "kedipkan kedua mata secara normal",
-    [ACTIONS.TURN_RIGHT]: "tengok ke kanan",
-    [ACTIONS.TURN_LEFT]: "tengok ke kiri",
+    [ACTIONS.TURN_RIGHT]: "tengok ke kanan ➡️",
+    [ACTIONS.TURN_LEFT]: "tengok ke kiri ⬅️",
   });
 
   function median(values) {
@@ -423,6 +423,14 @@
         hasBlendshapeSignal &&
         sample.blinkLeft >= leftClosedThreshold &&
         sample.blinkRight >= rightClosedThreshold;
+      const hasBlendshapePeak =
+        Number.isFinite(sample.blinkPeakLeft) &&
+        Number.isFinite(sample.blinkPeakRight) &&
+        Number.isFinite(sample.blinkPeakTimestamp);
+      const blendshapePeakEyesClosed =
+        hasBlendshapePeak &&
+        sample.blinkPeakLeft >= leftClosedThreshold &&
+        sample.blinkPeakRight >= rightClosedThreshold;
       const earEyesClosed =
         sample.leftEAR <=
           state.baseline.leftEAR * settings.blinkClosedRatio &&
@@ -435,6 +443,19 @@
       const earEyesReopened = eyesAreOpen(sample, settings.blinkReopenRatio);
 
       if (state.blinkStage === "awaiting_closed") {
+        const peakClosedDuration = sample.timestamp - sample.blinkPeakTimestamp;
+        const capturedBlinkPulse =
+          blendshapePeakEyesClosed &&
+          blendshapeEyesReopened &&
+          peakClosedDuration >= settings.minBlinkClosedMs &&
+          peakClosedDuration <= settings.maxBlinkClosedMs;
+
+        if (capturedBlinkPulse) {
+          state.blinkCompletedCount += 1;
+          beginReturnToNeutral();
+          return;
+        }
+
         if (blendshapeEyesClosed || earEyesClosed) {
           state.blinkStage = "awaiting_reopen";
           state.blinkSignalSource = blendshapeEyesClosed
