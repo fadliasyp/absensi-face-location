@@ -1,8 +1,16 @@
 # Current Task
 
+## Thesis Defense Notes (Completed 2026-10-05)
+
+- Created `docs/CATATAN_SIDANG_SKRIPSI.pdf`, a 21-page Indonesian thesis-defense study guide grounded in the current repository implementation.
+- Kept the editable source at `docs/CATATAN_SIDANG_SKRIPSI.html`.
+- Coverage includes architecture, technology stack, face recognition, active liveness Stage 1, geolocation/Haversine, attendance timing, calendar/Alfa logic, participant/admin flows, database integrity, security boundaries, testing, limitations, demo preparation, and examiner Q&A.
+- No application UI, attendance logic, liveness behavior, database schema, or deployment configuration was changed for this documentation task.
+- Verification: Chrome rendered the PDF successfully; the final PDF contains 21 page objects and one EOF marker. Representative pages were visually inspected before temporary previews were removed.
+
 ## Status
 
-Active liveness Tahap 1 kini menyinkronkan prompt dengan timing peserta: aksi berikutnya tidak ditampilkan selama jeda, browser menggambar instruksi sebelum membaca frame berikutnya, deadline aksi menjadi delapan detik dengan grace render 300 ms, dan baseline memakai tiga frame cepat. MediaPipe tetap 35 ms saat kedip, tetapi turun ke 250 ms saat tengok dan 400 ms selama jeda agar face-api mendapat lebih banyak waktu CPU. Syarat kedua mata, pembukaan kembali, dua bukti tengok, penolakan satu lonjakan, dan mapping arah kamera depan tetap dipertahankan. Deployment rollback/Vercel dan uji perangkat nyata belum dikonfirmasi.
+Active liveness Tahap 1 kini menyinkronkan prompt dengan timing peserta: aksi berikutnya tidak ditampilkan selama jeda, browser menggambar instruksi sebelum membaca frame berikutnya, deadline aksi menjadi delapan detik dengan grace render 300 ms, dan baseline memakai tiga frame cepat. MediaPipe tetap 35 ms saat kedip, tetapi turun ke 250 ms saat tengok dan 400 ms selama jeda agar face-api mendapat lebih banyak waktu CPU. Syarat kedua mata, pembukaan kembali, dua bukti tengok, penolakan satu lonjakan, dan mapping arah kamera depan tetap dipertahankan. Pada 2026-10-05 pengguna menetapkan logic langkah verifikasi v17 sebagai baseline PROTECTED yang tidak boleh diubah tanpa persetujuan eksplisit. Deployment rollback/Vercel dan uji perangkat nyata belum dikonfirmasi.
 
 ## Last Completed Task
 

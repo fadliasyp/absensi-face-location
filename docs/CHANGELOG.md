@@ -1,6 +1,19 @@
 # Changelog
 
+## 2026-10-05 - Thesis Defense Study Guide
+
+- Added `docs/CATATAN_SIDANG_SKRIPSI.pdf`, a 21-page Indonesian PDF for thesis-defense preparation.
+- Added `docs/CATATAN_SIDANG_SKRIPSI.html` as the editable, print-ready A4 source.
+- Documented the actual technology stack, end-to-end flows, biometric and geolocation logic, database/security boundaries, testing scope, known limitations, demo checklist, presentation script, glossary, and examiner Q&A.
+- Preserved all application logic and protected feature behavior; this change is documentation-only.
+
 Changelog ini hanya memuat perubahan yang dapat diverifikasi dari Git history dan source saat bootstrap. Tanggal mengikuti metadata commit.
+
+## 2026-10-05
+
+### Documentation
+
+- Logic langkah active liveness `active-liveness-v17` ditetapkan sebagai baseline PROTECTED berdasarkan instruksi eksplisit pengguna dan tidak boleh diubah tanpa persetujuan baru.
 
 ## 2026-10-04
 

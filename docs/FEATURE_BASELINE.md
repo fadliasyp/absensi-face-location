@@ -40,7 +40,7 @@ node tests/session-routing.test.cjs
 
 ### Status
 
-STABLE pada unit/contract test; runtime kamera perangkat nyata perlu dikonfirmasi setelah deploy.
+STABLE pada unit/contract test dan PROTECTED berdasarkan konfirmasi eksplisit pengguna; runtime kamera perangkat nyata tetap perlu dikonfirmasi setelah deploy.
 
 ### Fungsi
 
@@ -76,6 +76,7 @@ Mengurangi spoofing menggunakan foto diam melalui tantangan aktif yang adaptif t
 
 ### Jangan Rusak
 
+- Jangan mengubah logic langkah verifikasi v17—termasuk urutan, timing, threshold, mapping arah, baseline, kembali netral, dan scheduler detector—tanpa permintaan atau persetujuan eksplisit pengguna.
 - Jangan kembali ke tantangan kanan-kiri tetap tanpa kedip.
 - Jangan meminta dua kedipan dalam satu langkah, menghasilkan dua gerakan identik secara berurutan, atau menghapus jaminan minimal satu langkah kedip.
 - Jangan menerima satu frame arah sebagai gerakan valid.

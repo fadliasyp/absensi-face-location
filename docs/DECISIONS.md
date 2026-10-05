@@ -1,5 +1,29 @@
 # Decision Log
 
+## 2026-10-05 - Logic Langkah Verifikasi Liveness Dikunci
+
+### Status
+
+ACCEPTED dan PROTECTED.
+
+### Decision
+
+Implementasi active liveness frontend versi `active-liveness-v17` menjadi baseline final yang dilindungi untuk project ini. Urutan tiga langkah, generator acak, satu kedipan per langkah, instruksi kanan/kiri, timing prompt, grace render, baseline tiga frame, threshold kedip/tengok, mapping arah kamera depan, kembali netral, fail-closed kamera, serta scheduler face-api/MediaPipe tidak boleh diubah tanpa permintaan atau persetujuan eksplisit pengguna.
+
+### Scope
+
+Khusus alur verifikasi absensi peserta di `user/verifikasi.html`, `assets/js/liveness-engine.js`, `assets/js/user-verifikasi.js`, dan `assets/js/mediapipe-face-guide.js`.
+
+### Provenance
+
+Instruksi eksplisit pengguna pada 2026-10-05 setelah menyatakan hasil verifikasi sudah bagus: pertahankan dan jangan mengubah lagi logic langkah verifikasi.
+
+### Consequences
+
+- Pekerjaan berikutnya harus memperlakukan logic langkah liveness v17 sebagai invariant produk, bukan area tuning bebas.
+- Pengujian perangkat nyata tetap boleh dilakukan sebagai observasi, tetapi hasilnya tidak mengotorisasi perubahan threshold, urutan, atau timing.
+- Perubahan hanya boleh dilakukan setelah pengguna secara eksplisit membuka kembali keputusan ini.
+
 ## 2026-10-04 - Puncak Kedip Cepat Sekali Konsumsi
 
 ### Status

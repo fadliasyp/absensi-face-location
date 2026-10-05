@@ -1,5 +1,11 @@
 # Project Context
 
+## Thesis Defense Artifact
+
+- `docs/CATATAN_SIDANG_SKRIPSI.pdf` is the presentation/study artifact for explaining this project during a thesis defense.
+- `docs/CATATAN_SIDANG_SKRIPSI.html` is its editable A4 source.
+- The artifact is evidence-grounded in the current frontend, migrations, Edge Functions, tests, and architecture/database documentation. It explicitly separates implemented behavior, known limitations, and proposed future improvements.
+
 ## Project Overview
 
 `absensi-face-location` adalah aplikasi web existing untuk mencatat kehadiran peserta/pegawai dengan face scan, pemeriksaan gerakan wajah, geolokasi, waktu server WIB, serta titik lokasi dan radius yang ditentukan admin.
@@ -35,7 +41,7 @@ Frontend berupa halaman statis. Supabase menjadi backend untuk Auth, Postgres, S
 | Login Google dan pelengkapan profil pending | WORKING | `login.html`, `oauth-callback.html`, `lengkapi-profil.js` |
 | Approval/status/role user dan email notifikasi | WORKING | `admin-users.js`, `send-approval-email` |
 | Daftar wajah dan reset wajah | WORKING | `user-daftar-wajah.js`, `admin-users.js` |
-| Absensi wajah + active liveness + geolokasi | STABLE pada contract | `liveness-engine.js`, `liveness-policy.test.cjs`, `user-verifikasi.js`, `catat_absensi` |
+| Absensi wajah + active liveness + geolokasi | STABLE pada contract; PROTECTED | `liveness-engine.js`, `liveness-policy.test.cjs`, `user-verifikasi.js`, `catat_absensi` |
 | Jendela absensi dinamis berbasis waktu server WIB | STABLE pada contract | migration `202610040001`, `attendance-policy.test.cjs` |
 | Kalender kerja dan override admin | STABLE | migration `002`, `attendance-policy.test.cjs` |
 | Alfa otomatis dinamis dan fallback admin | STABLE pada contract | migration `001/002/202610040001`, contract test |
@@ -62,7 +68,7 @@ Active liveness dipertahankan pada Tahap 1: browser membuat tiga langkah acak da
 - Ambil schema dump production agar base schema, RLS policy, Storage policy, dan grants dapat terversi.
 - Buat atau nonaktifkan referensi `supabase/seed.sql`; file tersebut dirujuk config tetapi belum ada.
 - Tambahkan browser/runtime test untuk kamera, geolokasi, R2, export, dan email bila diperlukan.
-- Uji active liveness pada beberapa ponsel, kondisi cahaya, kacamata, dan bentuk mata sebelum menetapkan threshold sebagai final production.
+- Uji active liveness v17 pada beberapa ponsel, kondisi cahaya, kacamata, dan bentuk mata sebagai observasi runtime; jangan mengubah baseline logic tanpa persetujuan eksplisit pengguna.
 - Jika migration Tahap 2 (`202610040004`/`202610040005`) pernah diterapkan, jalankan `202610040006_rollback_server_bound_liveness.sql` sebelum deploy frontend liveness v17.
 - Ukur ulang respons UI pada perangkat pengguna setelah deploy ikon statis. Kurangi efek blur/transisi mobile hanya jika jank masih terukur.
 

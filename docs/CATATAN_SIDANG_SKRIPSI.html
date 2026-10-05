@@ -1,0 +1,1274 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Catatan Sidang Skripsi - Absensi Face Location</title>
+  <style>
+    :root {
+      --navy: #0b1f3a;
+      --blue: #1557b0;
+      --cyan: #0ea5a8;
+      --green: #15803d;
+      --orange: #d97706;
+      --red: #b91c1c;
+      --ink: #172033;
+      --muted: #596579;
+      --line: #d9e2ef;
+      --paper: #ffffff;
+      --soft: #f4f7fb;
+    }
+
+    * { box-sizing: border-box; }
+
+    @page {
+      size: A4;
+      margin: 14mm 14mm 16mm;
+    }
+
+    html { background: #dfe7f2; }
+
+    body {
+      margin: 0 auto;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 10.1pt;
+      line-height: 1.48;
+      max-width: 210mm;
+    }
+
+    h1, h2, h3, h4, p { margin-top: 0; }
+    h1, h2, h3 { color: var(--navy); }
+    h2 { font-size: 20pt; line-height: 1.18; margin-bottom: 5mm; }
+    h3 { font-size: 13.2pt; margin: 5mm 0 2mm; }
+    h4 { font-size: 10.5pt; margin: 3mm 0 1.5mm; color: var(--blue); }
+    p { margin-bottom: 2.5mm; }
+    ul, ol { margin: 1.5mm 0 3mm 5mm; padding-left: 4mm; }
+    li { margin-bottom: 1.2mm; }
+    code { font-family: Consolas, monospace; font-size: 8.6pt; color: #8b1e3f; }
+    a { color: var(--blue); text-decoration: none; }
+    strong { color: #111827; }
+
+    .page {
+      min-height: 267mm;
+      break-after: page;
+      page-break-after: always;
+      position: relative;
+      padding-bottom: 8mm;
+    }
+
+    .page:last-child { break-after: auto; page-break-after: auto; }
+
+    .page-no {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      color: #7a879a;
+      font-size: 8pt;
+    }
+
+    .eyebrow {
+      color: var(--blue);
+      font-weight: 700;
+      font-size: 8.5pt;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 2mm;
+    }
+
+    .lead { font-size: 12pt; color: #334155; line-height: 1.55; }
+    .small { font-size: 8.5pt; color: var(--muted); }
+    .muted { color: var(--muted); }
+    .center { text-align: center; }
+    .right { text-align: right; }
+
+    .cover {
+      overflow: hidden;
+      padding: 18mm 12mm;
+      background:
+        radial-gradient(circle at 90% 8%, rgba(14,165,168,.22), transparent 28%),
+        radial-gradient(circle at 5% 90%, rgba(21,87,176,.16), transparent 30%),
+        linear-gradient(145deg, #f8fbff 0%, #ffffff 58%, #eef5ff 100%);
+    }
+
+    .cover::before {
+      content: "";
+      position: absolute;
+      width: 62mm;
+      height: 62mm;
+      right: -22mm;
+      top: 65mm;
+      border: 10mm solid rgba(21,87,176,.08);
+      border-radius: 50%;
+    }
+
+    .brand-mark {
+      display: inline-flex;
+      width: 17mm;
+      height: 17mm;
+      align-items: center;
+      justify-content: center;
+      border-radius: 5mm;
+      color: white;
+      background: linear-gradient(145deg, var(--navy), var(--blue));
+      font-weight: 800;
+      font-size: 12pt;
+      box-shadow: 0 3mm 8mm rgba(21,87,176,.2);
+    }
+
+    .cover-title {
+      font-size: 34pt;
+      line-height: 1.08;
+      margin: 22mm 0 5mm;
+      max-width: 150mm;
+    }
+
+    .cover-subtitle {
+      max-width: 150mm;
+      font-size: 14pt;
+      line-height: 1.55;
+      color: #40516b;
+    }
+
+    .identity {
+      margin-top: 22mm;
+      width: 120mm;
+      display: grid;
+      grid-template-columns: 28mm 1fr;
+      gap: 2mm 4mm;
+      font-size: 10pt;
+    }
+
+    .identity .line { border-bottom: 1px solid #91a0b4; min-height: 6mm; }
+
+    .cover-band {
+      position: absolute;
+      left: 12mm;
+      right: 12mm;
+      bottom: 18mm;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 3mm;
+    }
+
+    .mini-card {
+      border: 1px solid #cfdbeb;
+      border-radius: 3mm;
+      padding: 3mm;
+      background: rgba(255,255,255,.78);
+      min-height: 25mm;
+    }
+
+    .mini-card strong { display: block; color: var(--blue); margin-bottom: 1mm; }
+
+    .section-head {
+      border-bottom: 1.2mm solid var(--blue);
+      padding-bottom: 2mm;
+      margin-bottom: 5mm;
+    }
+
+    .section-head h2 { margin-bottom: 0; }
+
+    .callout {
+      border-left: 1.4mm solid var(--blue);
+      background: #eef5ff;
+      border-radius: 0 3mm 3mm 0;
+      padding: 3mm 4mm;
+      margin: 3mm 0;
+    }
+
+    .callout.green { border-color: var(--green); background: #eefbf3; }
+    .callout.orange { border-color: var(--orange); background: #fff7e8; }
+    .callout.red { border-color: var(--red); background: #fff1f1; }
+    .callout p:last-child { margin-bottom: 0; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 3mm;
+      padding: 3.5mm;
+      background: white;
+      break-inside: avoid;
+    }
+
+    .card h3 { margin-top: 0; color: var(--blue); }
+    .card h4:first-child { margin-top: 0; }
+    .card p:last-child, .card ul:last-child { margin-bottom: 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 3mm 0 4mm;
+      break-inside: avoid;
+      font-size: 8.8pt;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 2.1mm 2.4mm;
+      vertical-align: top;
+    }
+
+    th {
+      color: white;
+      background: var(--navy);
+      font-weight: 700;
+      text-align: left;
+    }
+
+    tbody tr:nth-child(even) { background: #f7f9fc; }
+
+    .flow {
+      display: flex;
+      align-items: stretch;
+      gap: 1.5mm;
+      margin: 4mm 0;
+      break-inside: avoid;
+    }
+
+    .flow .node {
+      flex: 1;
+      border: 1px solid #b9c9dd;
+      border-radius: 2.5mm;
+      padding: 2.5mm 2mm;
+      text-align: center;
+      background: #f8fbff;
+      font-size: 8.2pt;
+      font-weight: 650;
+    }
+
+    .flow .arrow {
+      align-self: center;
+      color: var(--blue);
+      font-weight: 900;
+      font-size: 12pt;
+    }
+
+    .architecture {
+      display: grid;
+      grid-template-columns: 1.1fr .15fr 1fr .15fr 1.2fr;
+      gap: 2mm;
+      align-items: center;
+      margin: 5mm 0;
+    }
+
+    .arch-box {
+      border-radius: 3mm;
+      padding: 4mm 3mm;
+      color: white;
+      min-height: 56mm;
+      break-inside: avoid;
+    }
+
+    .arch-box h3 { color: white; margin-top: 0; }
+    .arch-box ul { margin-bottom: 0; }
+    .arch-client { background: linear-gradient(145deg, #123a6d, #2169c4); }
+    .arch-backend { background: linear-gradient(145deg, #075e55, #0ea5a8); }
+    .arch-storage { background: linear-gradient(145deg, #6b3b08, #d97706); }
+    .arch-arrow { text-align: center; font-size: 17pt; color: var(--blue); font-weight: 900; }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      margin: 5mm 0;
+      break-inside: avoid;
+    }
+
+    .time-block { padding: 4mm 3mm; color: white; min-height: 36mm; }
+    .time-block:first-child { border-radius: 3mm 0 0 3mm; }
+    .time-block:last-child { border-radius: 0 3mm 3mm 0; }
+    .time-early { background: #64748b; }
+    .time-present { background: #15803d; }
+    .time-late { background: #d97706; }
+    .time-closed { background: #b91c1c; }
+    .time-block strong { color: white; display: block; font-size: 11pt; }
+
+    .formula {
+      text-align: center;
+      font-family: Georgia, serif;
+      font-size: 12pt;
+      border: 1px solid var(--line);
+      border-radius: 3mm;
+      padding: 4mm;
+      background: #fbfdff;
+      margin: 4mm 0;
+    }
+
+    .qa {
+      margin: 0 0 3mm;
+      break-inside: avoid;
+      border-bottom: 1px solid #e4eaf3;
+      padding-bottom: 2.5mm;
+    }
+
+    .qa .q { color: var(--navy); font-weight: 750; margin-bottom: 1mm; }
+    .qa .a { margin: 0; color: #344054; }
+
+    .tag {
+      display: inline-block;
+      border-radius: 99px;
+      background: #e8f1ff;
+      color: #174a8b;
+      padding: .7mm 2.2mm;
+      margin: .5mm .8mm .5mm 0;
+      font-size: 8pt;
+      font-weight: 650;
+    }
+
+    .script {
+      border: 1px solid var(--line);
+      border-radius: 3mm;
+      padding: 4mm;
+      background: #fcfdff;
+      font-size: 9.5pt;
+    }
+
+    .checklist { list-style: none; padding-left: 0; margin-left: 0; }
+    .checklist li::before { content: "\2610"; color: var(--blue); margin-right: 2mm; }
+
+    .legend {
+      display: flex;
+      gap: 4mm;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 8pt;
+      margin-top: 2mm;
+    }
+
+    .legend i {
+      display: inline-block;
+      width: 3mm;
+      height: 3mm;
+      border-radius: .6mm;
+      margin-right: 1mm;
+      vertical-align: -0.5mm;
+    }
+
+    .avoid-break { break-inside: avoid; }
+    .compact-page .section-head { margin-bottom: 3mm; }
+    .compact-page h3 { margin-top: 2mm; margin-bottom: 1.5mm; }
+    .compact-page .card { padding: 2.5mm; }
+    .compact-page .grid-2 { gap: 2.5mm; }
+    .compact-page .callout { padding-top: 2mm; padding-bottom: 2mm; }
+
+    @media print {
+      html, body { background: white; }
+      body { max-width: none; }
+      a { color: inherit; }
+    }
+  </style>
+</head>
+<body>
+  <section class="page cover">
+    <div class="brand-mark">PJS</div>
+    <div class="eyebrow" style="margin-top:8mm">Dokumen Persiapan Sidang Skripsi</div>
+    <h1 class="cover-title">Sistem Absensi Berbasis Pengenalan Wajah dan Geolokasi</h1>
+    <p class="cover-subtitle">
+      Catatan teknis, alur sistem, argumentasi desain, skenario demonstrasi, dan latihan jawaban penguji untuk proyek <strong>absensi-face-location</strong>.
+    </p>
+
+    <div class="identity">
+      <strong>Nama</strong><div class="line"></div>
+      <strong>NIM</strong><div class="line"></div>
+      <strong>Program Studi</strong><div class="line"></div>
+      <strong>Tahun</strong><div class="line">2026</div>
+    </div>
+
+    <div class="cover-band">
+      <div class="mini-card"><strong>Biometrik</strong>face-api.js dan descriptor wajah 128 dimensi</div>
+      <div class="mini-card"><strong>Liveness</strong>MediaPipe dengan kedip dan tengok acak</div>
+      <div class="mini-card"><strong>Lokasi</strong>Geolocation API dan rumus Haversine</div>
+      <div class="mini-card"><strong>Backend</strong>Supabase, PostgreSQL, RPC, dan Edge Functions</div>
+    </div>
+    <div class="page-no">Catatan Sidang • 1</div>
+  </section>
+
+  <section class="page">
+    <div class="section-head">
+      <div class="eyebrow">Cara Menggunakan Dokumen</div>
+      <h2>Peta Materi Sidang</h2>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Tujuan dokumen</h3>
+        <ul>
+          <li>Menjelaskan sistem secara runtut kepada dosen penguji.</li>
+          <li>Membedakan proses pengenalan wajah, liveness, dan validasi lokasi.</li>
+          <li>Menjelaskan keputusan keamanan yang dikerjakan di browser dan server.</li>
+          <li>Mempersiapkan demo serta jawaban yang jujur atas keterbatasan sistem.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Strategi belajar</h3>
+        <ol>
+          <li>Hafalkan ringkasan satu menit.</li>
+          <li>Pahami diagram arsitektur dan alur absensi.</li>
+          <li>Kuasai tiga inti teknis: descriptor wajah, Haversine, dan waktu server.</li>
+          <li>Latih pertanyaan-jawaban, bukan menghafal kalimat penuh.</li>
+        </ol>
+      </div>
+    </div>
+
+    <h3>Daftar isi</h3>
+    <table>
+      <thead><tr><th>Bagian</th><th>Materi</th><th>Fokus saat sidang</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Ringkasan penelitian dan nilai sistem</td><td>Masalah, solusi, kontribusi implementasi</td></tr>
+        <tr><td>2</td><td>Arsitektur dan teknologi</td><td>Komponen serta pembagian tanggung jawab</td></tr>
+        <tr><td>3</td><td>Pengenalan wajah</td><td>Model, descriptor, Euclidean distance</td></tr>
+        <tr><td>4</td><td>Active liveness Tahap 1</td><td>Challenge acak, fusion detector, batas klaim</td></tr>
+        <tr><td>5</td><td>Geolokasi</td><td>Geolocation API, Haversine, validasi server</td></tr>
+        <tr><td>6</td><td>Waktu, kalender, dan Alfa</td><td>WIB server dan aturan status dinamis</td></tr>
+        <tr><td>7</td><td>Alur pengguna dan admin</td><td>Urutan proses end-to-end</td></tr>
+        <tr><td>8</td><td>Database, storage, dan keamanan</td><td>Integritas data dan trust boundary</td></tr>
+        <tr><td>9</td><td>Pengujian dan keterbatasan</td><td>Bukti yang ada dan yang belum dibuktikan</td></tr>
+        <tr><td>10</td><td>Naskah presentasi, demo, dan latihan Q&amp;A</td><td>Persiapan praktik sidang</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout orange">
+      <strong>Prinsip jawaban aman:</strong> jelaskan sesuai implementasi yang benar-benar ada. Jangan menyebut sistem “100% anti-kecurangan” atau “akurasi 100%”. Istilah yang tepat adalah <em>menambah lapisan verifikasi</em> dan <em>mengurangi peluang kecurangan</em>.
+    </div>
+    <div class="page-no">Catatan Sidang • 2</div>
+  </section>
+
+  <section class="page">
+    <div class="section-head">
+      <div class="eyebrow">Bagian 1</div>
+      <h2>Ringkasan Penelitian</h2>
+    </div>
+
+    <h3>Versi satu kalimat</h3>
+    <div class="callout green">
+      Sistem ini mencatat kehadiran peserta dengan menggabungkan kecocokan identitas wajah, challenge gerakan wajah, validasi radius lokasi, kalender kerja, serta waktu server WIB agar data absensi lebih konsisten dan lebih sulit dimanipulasi dari sisi browser.
+    </div>
+
+    <h3>Latar belakang masalah</h3>
+    <div class="grid-3">
+      <div class="card"><h4>Identitas</h4><p>Absensi biasa belum memastikan bahwa orang yang mengisi adalah pemilik akun.</p></div>
+      <div class="card"><h4>Lokasi</h4><p>Kehadiran perlu dibatasi pada titik dan radius yang ditetapkan organisasi.</p></div>
+      <div class="card"><h4>Waktu</h4><p>Status hadir, terlambat, dan alfa harus mengikuti jadwal yang konsisten, bukan jam perangkat.</p></div>
+    </div>
+
+    <h3>Solusi yang dibangun</h3>
+    <ul>
+      <li><strong>Face recognition:</strong> membandingkan descriptor wajah kamera dengan descriptor yang tersimpan pada profil.</li>
+      <li><strong>Active liveness:</strong> peserta mengikuti tiga instruksi acak berupa kedip, tengok kanan, atau tengok kiri.</li>
+      <li><strong>Geofencing:</strong> koordinat peserta dihitung jaraknya terhadap lokasi absensi memakai Haversine.</li>
+      <li><strong>Kebijakan waktu:</strong> server menentukan kapan absensi dibuka, status Hadir/Terlambat, dan kapan Alfa dibuat.</li>
+      <li><strong>Kalender kerja:</strong> Sabtu-Minggu libur secara default dan admin dapat memberi pengecualian per tanggal.</li>
+      <li><strong>Pelaporan:</strong> admin memonitor data dan mengekspor laporan PDF atau Excel, termasuk tautan foto bukti.</li>
+    </ul>
+
+    <h3>Kontribusi implementasi</h3>
+    <p>Kontribusi proyek bukan membuat algoritma pengenalan wajah baru. Kontribusinya adalah <strong>mengintegrasikan beberapa mekanisme verifikasi</strong> ke dalam satu alur absensi yang memiliki pembagian validasi client-server, riwayat, kalender, izin, dan pelaporan.</p>
+
+    <div class="callout">
+      <strong>Kalimat presentasi:</strong> “Sistem tidak hanya bertanya siapa penggunanya, tetapi juga apakah ada respons gerakan langsung, apakah posisinya berada di radius yang diizinkan, dan apakah waktunya masih berada dalam jendela absensi.”
+    </div>
+    <div class="page-no">Catatan Sidang • 3</div>
+  </section>
+
+  <section class="page">
+    <div class="section-head">
+      <div class="eyebrow">Bagian 2</div>
+      <h2>Arsitektur Sistem</h2>
+    </div>
+
+    <div class="architecture">
+      <div class="arch-box arch-client">
+        <h3>Browser</h3>
+        <ul>
+          <li>HTML, CSS, JavaScript</li>
+          <li>face-api.js</li>
+          <li>MediaPipe</li>
+          <li>Geolocation API</li>
+          <li>UI peserta/admin</li>
+        </ul>
+      </div>
+      <div class="arch-arrow">⇄</div>
+      <div class="arch-box arch-backend">
+        <h3>Supabase</h3>
+        <ul>
+          <li>Auth</li>
+          <li>PostgreSQL</li>
+          <li>RPC &amp; RLS</li>
+          <li>pg_cron</li>
+          <li>Edge Functions</li>
+        </ul>
+      </div>
+      <div class="arch-arrow">⇄</div>
+      <div class="arch-box arch-storage">
+        <h3>Layanan Pendukung</h3>
+        <ul>
+          <li>Cloudflare R2</li>
+          <li>Supabase Storage</li>
+          <li>Gmail SMTP</li>
+          <li>Vercel</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="legend">
+      <span><i style="background:#2169c4"></i>interaksi dan pre-check</span>
+      <span><i style="background:#0ea5a8"></i>otoritas data dan aturan</span>
+      <span><i style="background:#d97706"></i>penyimpanan, email, dan hosting</span>
+    </div>
+
+    <h3>Pembagian tanggung jawab</h3>
+    <table>
+      <thead><tr><th>Lapisan</th><th>Tanggung jawab</th><th>Alasan</th></tr></thead>
+      <tbody>
+        <tr><td>Browser</td><td>Kamera, face detection, face matching, liveness, meminta lokasi, preview UI.</td><td>Membutuhkan akses sensor perangkat dan respons real-time.</td></tr>
+        <tr><td>Database/RPC</td><td>Identitas dari sesi login, waktu WIB, status absensi, radius lokasi, kalender, duplikasi.</td><td>Keputusan sensitif tidak boleh dipercaya dari input browser.</td></tr>
+        <tr><td>Edge Functions</td><td>Operasi dengan secret: R2, email, penghapusan user.</td><td>Credential tidak boleh dikirim ke frontend.</td></tr>
+        <tr><td>Storage</td><td>Foto wajah, bukti izin, dan foto absensi.</td><td>Memisahkan file biner dari data transaksional.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout red">
+      <strong>Trust boundary:</strong> hasil face recognition dan liveness Tahap 1 saat ini diproses di browser. Database tetap memvalidasi akun, waktu, lokasi, radius, dan duplikasi, tetapi liveness browser bukan bukti server-side yang kebal terhadap browser yang dimodifikasi.
+    </div>
+    <div class="page-no">Catatan Sidang • 4</div>
+  </section>
+
+  <section class="page">
+    <div class="section-head">
+      <div class="eyebrow">Bagian 2.1</div>
+      <h2>Teknologi yang Digunakan</h2>
+    </div>
+
+    <table>
+      <thead><tr><th>Area</th><th>Teknologi</th><th>Fungsi di proyek</th></tr></thead>
+      <tbody>
+        <tr><td>Frontend</td><td>HTML5, CSS3, JavaScript browser</td><td>Aplikasi multipage statis tanpa framework dan tanpa bundler.</td></tr>
+        <tr><td>Backend platform</td><td>Supabase</td><td>Authentication, PostgreSQL, RPC, RLS/grant, Storage, Edge Functions.</td></tr>
+        <tr><td>Face recognition</td><td>face-api.js 0.22.2</td><td>Deteksi wajah, 68 landmark, descriptor, dan Euclidean distance.</td></tr>
+        <tr><td>Face/liveness signal</td><td>MediaPipe Tasks Vision 0.10.22-rc.20250304</td><td>FaceLandmarker dan blendshape kedipan mata.</td></tr>
+        <tr><td>Geolokasi</td><td>HTML5 Geolocation API</td><td>Mengambil latitude, longitude, dan metadata akurasi perangkat.</td></tr>
+        <tr><td>Perhitungan jarak</td><td>Rumus Haversine</td><td>Menghitung jarak permukaan bumi antara peserta dan titik absensi.</td></tr>
+        <tr><td>Notifikasi UI</td><td>SweetAlert2 v11</td><td>Popup formal untuk berhasil, terlambat, ditolak, atau error.</td></tr>
+        <tr><td>Ekspor</td><td>jsPDF 2.5.1, AutoTable 3.8.2, ExcelJS 4.4.0</td><td>Membuat laporan PDF dan Excel dari area admin.</td></tr>
+        <tr><td>Foto absensi</td><td>Cloudflare R2 + AWS SDK S3-compatible</td><td>Object storage private dan signed URL sementara.</td></tr>
+        <tr><td>Email</td><td>Deno + denomailer + Gmail SMTP</td><td>Mengirim email persetujuan akun melalui Edge Function.</td></tr>
+        <tr><td>Penjadwalan</td><td>pg_cron</td><td>Memeriksa deadline dinamis dan membuat Alfa secara idempoten.</td></tr>
+        <tr><td>Deployment</td><td>Vercel + Supabase</td><td>Vercel untuk frontend; database dan Edge Function dideploy terpisah di Supabase.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Mengapa aplikasi statis?</h3>
+    <p>Arsitektur statis dipertahankan karena halaman dapat langsung berjalan di browser dan backend-as-a-service menyediakan kebutuhan auth, database, storage, serta function. Konsekuensinya, disiplin keamanan server tetap penting karena kode JavaScript browser dapat dilihat dan dimodifikasi pengguna.</p>
+
+    <div class="callout">
+      <strong>Jawaban singkat jika ditanya framework:</strong> “Frontend tidak memakai React/Vue/Angular. Aplikasi menggunakan HTML, CSS, dan JavaScript murni. Supabase menjadi backend platform, sedangkan face-api.js dan MediaPipe adalah library pemrosesan wajah.”
+    </div>
+    <div class="page-no">Catatan Sidang • 5</div>
+  </section>
+
+  <section class="page">
+    <div class="section-head">
+      <div class="eyebrow">Bagian 3</div>
+      <h2>Face Recognition: Cara Kerja</h2>
+    </div>
+
+    <div class="flow">
+      <div class="node">Frame kamera</div><div class="arrow">→</div>
+      <div class="node">Deteksi wajah</div><div class="arrow">→</div>
+      <div class="node">68 landmark</div><div class="arrow">→</div>
+      <div class="node">Descriptor 128D</div><div class="arrow">→</div>
+      <div class="node">Jarak Euclidean</div>
+    </div>
+
+    <h3>Model face-api.js yang dimuat</h3>
+    <div class="grid-3">
+      <div class="card"><h4>Tiny Face Detector</h4><p>Mencari area wajah pada frame kamera. Dipilih karena relatif ringan untuk browser.</p></div>
+      <div class="card"><h4>Face Landmark 68</h4><p>Mendeteksi titik-titik struktur wajah agar wajah dapat disejajarkan dan dianalisis.</p></div>
+      <div class="card"><h4>Face Recognition Net</h4><p>Mengubah wajah menjadi descriptor numerik dengan panjang 128 nilai.</p></div>
+    </div>
+
+    <h3>Pendaftaran wajah</h3>
+    <ol>
+      <li>Kamera depan dibuka dan satu wajah dideteksi.</li>
+      <li>face-api.js menghasilkan descriptor 128 dimensi.</li>
+      <li>Descriptor diubah menjadi array dan disimpan pada <code>profiles.face_descriptor</code>.</li>
+      <li>Foto referensi disimpan pada bucket Supabase Storage <code>foto-wajah</code>.</li>
+    </ol>
+
+    <h3>Verifikasi wajah</h3>
+    <p>Descriptor hasil kamera dibandingkan dengan descriptor profil menggunakan <strong>Euclidean distance</strong>. Semakin kecil nilainya, semakin dekat kedua representasi wajah.</p>
+    <div class="formula">d(p,q) = √Σ (pᵢ − qᵢ)² &nbsp;&nbsp; untuk i = 1 ... 128</div>
+
+    <div class="grid-2">
+      <div class="callout green">
+        <strong>Implementasi proyek:</strong> cocok apabila distance ≤ <strong>0,5</strong>. Pemeriksaan dilakukan sebelum challenge dan sekali lagi setelah challenge.
+      </div>
+      <div class="callout orange">
+        <strong>Makna threshold:</strong> threshold 0,5 adalah parameter implementasi, bukan jaminan universal. Idealnya dikalibrasi memakai data uji pengguna dan kondisi perangkat target.
+      </div>
+    </div>
+
+    <h3>Tiga istilah yang tidak boleh tertukar</h3>
+    <table>
+      <thead><tr><th>Istilah</th><th>Pertanyaan yang dijawab</th></tr></thead>
+      <tbody>
+        <tr><td>Face detection</td><td>“Apakah ada wajah pada gambar, dan di mana posisinya?”</td></tr>
+        <tr><td>Face recognition</td><td>“Apakah wajah ini cukup mirip dengan descriptor pemilik akun?”</td></tr>
+        <tr><td>Liveness detection</td><td>“Apakah ada respons gerakan yang sesuai challenge saat proses berlangsung?”</td></tr>
+      </tbody>
+    </table>
+    <div class="page-no">Catatan Sidang • 6</div>
+  </section>
+
+  <section class="page">
+    <div class="section-head">
+      <div class="eyebrow">Bagian 4</div>
+      <h2>Active Liveness Tahap 1</h2>
+    </div>
+
+    <h3>Tujuan</h3>
+    <p>Liveness menambah hambatan terhadap penggunaan foto statis atau video yang tidak sesuai instruksi. Sistem meminta respons aktif sehingga pengguna tidak hanya menampilkan wajah.</p>
+
+    <div class="flow">
+      <div class="node">Baseline singkat</div><div class="arrow">→</div>
+      <div class="node">Instruksi acak 1</div><div class="arrow">→</div>
+      <div class="node">Kembali netral</div><div class="arrow">→</div>
+      <div class="node">Instruksi 2 &amp; 3</div><div class="arrow">→</div>
+      <div class="node">Cocokkan wajah akhir</div>
+    </div>
+
+    <h3>Perilaku versi aktif</h3>
+    <ul>
+      <li>Terdapat tiga langkah acak dari aksi <strong>kedip</strong>, <strong>tengok kanan</strong>, dan <strong>tengok kiri</strong>.</li>
+      <li>Setiap langkah kedip hanya meminta satu kedipan; rangkaian minimal memuat satu langkah kedip.</li>
+      <li>Aksi yang sama tidak muncul dua kali berturut-turut.</li>
+      <li>Instruksi belum terlihat saat baseline dan jeda acak, sehingga replay lebih sulit dipersiapkan.</li>
+      <li>Tengok dinilai dari arah peserta, bukan arah tampilan layar yang dicerminkan.</li>
+      <li>Sistem menolak lebih dari satu wajah, wajah hilang, kamera berhenti, tab disembunyikan, atau gerakan terlalu dini/berlawanan.</li>
+      <li>Durasi inti tiap tantangan sekitar delapan detik dengan toleransi render singkat.</li>
+    </ul>
+
+    <h3>Fusion detector untuk kedip</h3>
+    <div class="grid-2">
+      <div class="card">
+        <h4>face-api.js</h4>
+        <p>Landmark mata menghasilkan perubahan rasio bukaan mata. Sinyal ini membantu membaca transisi mata terbuka–tertutup–terbuka.</p>
+      </div>
+      <div class="card">
+        <h4>MediaPipe FaceLandmarker</h4>
+        <p>Blendshape <code>eyeBlinkLeft</code> dan <code>eyeBlinkRight</code> menjadi sinyal kedua agar kedipan cepat pada perangkat berbeda lebih mudah ditangkap.</p>
+      </div>
+    </div>
+
+    <div class="callout orange">
+      <strong>Batas klaim akademik:</strong> ini adalah active liveness berbasis challenge di browser, bukan Presentation Attack Detection tersertifikasi. Sistem membantu menolak foto/video sederhana, tetapi tidak dapat dijamin melawan virtual camera, browser yang dimodifikasi, deepfake real-time, atau serangan replay canggih.
+    </div>
+
+    <div class="callout">
+      <strong>Jika ditanya mengapa challenge acak:</strong> video rekaman memiliki urutan gerak tetap. Instruksi acak, jeda acak, dan kewajiban kembali netral membuat rekaman yang sudah disiapkan lebih sulit mengikuti urutan real-time.
+    </div>
+    <div class="page-no">Catatan Sidang • 7</div>
+  </section>
+
+  <section class="page">
+    <div class="section-head">
+      <div class="eyebrow">Bagian 5</div>
+      <h2>Geolokasi dan Geofencing</h2>
+    </div>
+
+    <h3>Teknologi lokasi</h3>
+    <p>Browser meminta posisi melalui <code>navigator.geolocation.getCurrentPosition()</code> dengan <code>enableHighAccuracy: true</code>, <code>maximumAge: 0</code>, dan timeout 15 detik pada halaman peserta. Hasil utamanya adalah latitude dan longitude.</p>
+
+    <h3>Alur validasi</h3>
+    <div class="flow">
+      <div class="node">Browser meminta posisi</div><div class="arrow">→</div>
+      <div class="node">Cari lokasi terdekat</div><div class="arrow">→</div>
+      <div class="node">Pre-check radius</div><div class="arrow">→</div>
+      <div class="node">Kirim ke RPC</div><div class="arrow">→</div>
+      <div class="node">Server hitung ulang</div>
+    </div>
+
+    <h3>Rumus Haversine</h3>
+    <div class="formula">
+      a = sin²(Δφ/2) + cos φ₁ · cos φ₂ · sin²(Δλ/2)<br>
+      d = 2R · asin(√a), &nbsp; R ≈ 6.371.000 meter
+    </div>
+    <p>Rumus ini menghitung jarak terpendek di permukaan bumi dari dua koordinat. Browser memakainya untuk pengalaman pengguna, sedangkan fungsi database menghitung ulang agar keputusan tidak hanya bergantung pada angka dari UI.</p>
+
+    <h3>Mengapa laptop kadang kurang akurat?</h3>
+    <p>Laptop umumnya tidak memiliki GPS. Browser/Windows dapat memperkirakan posisi melalui Wi-Fi, alamat IP, jaringan, atau layanan lokasi sistem. Karena sumbernya berbeda, posisi dapat meleset walaupun pengguna sebenarnya dekat.</p>
+
+    <div class="grid-2">
+      <div class="callout green">
+        <strong>Bukan otomatis bug kode:</strong> <code>enableHighAccuracy</code> hanya permintaan kepada perangkat, bukan jaminan posisi GPS yang presisi.
+      </div>
+      <div class="callout orange">
+        <strong>Catatan audit:</strong> implementasi peserta saat ini mengambil satu pembacaan lokasi dan belum memakai nilai <code>coords.accuracy</code> untuk menolak atau mengulang pembacaan yang buruk.
+      </div>
+    </div>
+
+    <h3>Peningkatan yang dapat diajukan</h3>
+    <ul>
+      <li>Mengambil beberapa sampel posisi dan memilih pembacaan dengan akurasi terbaik.</li>
+      <li>Menampilkan estimasi akurasi kepada peserta.</li>
+      <li>Menolak atau meminta ulang apabila radius ketidakpastian terlalu besar.</li>
+      <li>Memberi panduan menyalakan Location Services dan Wi-Fi pada laptop.</li>
+    </ul>
+
+    <p class="small">Penting: peningkatan di atas adalah usulan pengembangan, bukan perilaku aktif yang boleh diklaim sudah tersedia.</p>
+    <div class="page-no">Catatan Sidang • 8</div>
+  </section>
+
+  <section class="page">
+    <div class="section-head">
+      <div class="eyebrow">Bagian 6</div>
+      <h2>Logika Waktu, Kalender, dan Alfa</h2>
+    </div>
+
+    <h3>Timeline absensi dinamis</h3>
+    <div class="timeline">
+      <div class="time-block time-early"><strong>Terlalu Awal</strong>Sebelum Jam Masuk − 1 jam</div>
+      <div class="time-block time-present"><strong>Hadir</strong>Dari waktu buka sampai Batas Masuk</div>
+      <div class="time-block time-late"><strong>Terlambat</strong>Setelah Batas Masuk sampai sebelum deadline</div>
+      <div class="time-block time-closed"><strong>Ditutup / Alfa</strong>Mulai Jam Generate Alfa</div>
+    </div>
+
+    <p><strong>Contoh:</strong> Jam Masuk 09.00, Batas Masuk 11.00, Jam Generate Alfa 17.00. Absensi dibuka 08.00; pukul 08.00–11.00 berstatus Hadir; setelah 11.00 sampai 16.59 berstatus Terlambat; mulai 17.00 absensi ditolak dan peserta tanpa absensi/izin diproses menjadi Alfa.</p>
+
+    <h3>Mengapa memakai waktu server?</h3>
+    <p>Jam perangkat pengguna mudah salah atau dimanipulasi. Fungsi database menggunakan <code>statement_timestamp()</code> lalu mengonversinya ke <code>Asia/Jakarta</code>. Karena itu tanggal, waktu masuk, dan status tidak ditentukan oleh nilai yang dikirim browser.</p>
+
+    <h3>Kalender kerja</h3>
+    <table>
+      <thead><tr><th>Kondisi</th><th>Keputusan</th></tr></thead>
+      <tbody>
+        <tr><td>Senin–Jumat tanpa override</td><td>Hari kerja.</td></tr>
+        <tr><td>Sabtu/Minggu tanpa override</td><td>Libur default.</td></tr>
+        <tr><td>Override tanggal = <code>libur</code></td><td>Libur meskipun hari kerja biasa.</td></tr>
+        <tr><td>Override tanggal = <code>masuk</code></td><td>Hari kerja meskipun Sabtu/Minggu.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Generate Alfa</h3>
+    <ul>
+      <li><code>pg_cron</code> menjalankan pemeriksaan setiap menit.</li>
+      <li>Fungsi hanya membuat Alfa setelah Jam Generate Alfa yang aktif.</li>
+      <li>Proses hanya berlaku pada hari kerja.</li>
+      <li>Insert bersifat idempoten: pemanggilan ulang tidak membuat duplikasi.</li>
+      <li>Fallback apabila deadline belum dikonfigurasi adalah pukul 12.00 WIB.</li>
+    </ul>
+
+    <div class="callout">
+      <strong>Perubahan jadwal pada hari yang sama:</strong> pengaturan dapat diubah admin. Data Hadir/Terlambat yang sudah tercatat tidak dihitung ulang. Jika deadline Alfa dimundurkan dan waktu server masih sebelum deadline baru, Alfa hari ini dapat dibuka kembali untuk pengajuan izin sesuai fungsi migrasi lanjutan.
+    </div>
+    <div class="page-no">Catatan Sidang • 9</div>
+  </section>
+
+  <section class="page">
+    <div class="section-head">
+      <div class="eyebrow">Bagian 7</div>
+      <h2>Alur Peserta End-to-End</h2>
+    </div>
+
+    <h3>A. Registrasi dan aktivasi</h3>
+    <div class="flow">
+      <div class="node">Daftar email / Google</div><div class="arrow">→</div>
+      <div class="node">Profil dibuat</div><div class="arrow">→</div>
+      <div class="node">Status menunggu</div><div class="arrow">→</div>
+      <div class="node">Admin menyetujui</div><div class="arrow">→</div>
+      <div class="node">Akun aktif</div>
+    </div>
+
+    <h3>B. Pendaftaran wajah</h3>
+    <ol>
+      <li>Peserta membuka halaman pendaftaran wajah dan memberi izin kamera.</li>
+      <li>Sistem mendeteksi satu wajah serta membuat descriptor 128 dimensi.</li>
+      <li>Foto referensi diunggah dan descriptor disimpan pada profil.</li>
+      <li>Session routing menganggap profil siap apabila data wajah dan foto tersedia.</li>
+    </ol>
+
+    <h3>C. Absensi</h3>
+    <ol>
+      <li><strong>Pre-check server:</strong> periksa hari kerja, jadwal, dan apakah data hari ini sudah ada.</li>
+      <li><strong>Verifikasi wajah awal:</strong> descriptor kamera dibandingkan dengan profil.</li>
+      <li><strong>Challenge liveness:</strong> jalankan tiga instruksi acak.</li>
+      <li><strong>Verifikasi wajah akhir:</strong> pastikan wajah setelah challenge tetap milik peserta.</li>
+      <li><strong>Ambil lokasi:</strong> browser meminta koordinat dan menentukan titik terdekat.</li>
+      <li><strong>Foto bukti:</strong> frame akhir dikompres dan diunggah ke R2 private.</li>
+      <li><strong>RPC pencatatan:</strong> server memvalidasi akun, waktu WIB, lokasi, radius, dan duplikasi.</li>
+      <li><strong>Hasil formal:</strong> popup menampilkan status Hadir/Terlambat atau alasan penolakan.</li>
+    </ol>
+
+    <h3>D. Izin manual</h3>
+    <p>Peserta dapat mengajukan izin sakit/berhalangan dengan tanggal, keterangan, dan bukti. Server menolak izin pada hari libur, data ganda, tanggal yang sudah ditutup, atau setelah deadline dinamis. Izin yang sah menempati satu baris absensi pada tanggal tersebut.</p>
+
+    <div class="callout green">
+      <strong>Invariant utama:</strong> satu peserta hanya boleh memiliki satu data pada satu tanggal, baik Hadir, Terlambat, Izin, maupun Alfa.
+    </div>
+    <div class="page-no">Catatan Sidang • 10</div>
+  </section>
+
+  <section class="page">
+    <div class="section-head">
+      <div class="eyebrow">Bagian 7.1</div>
+      <h2>Alur dan Fitur Admin</h2>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Manajemen peserta</h3>
+        <ul>
+          <li>Menyetujui atau menolak akun.</li>
+          <li>Melihat status pendaftaran wajah.</li>
+          <li>Mereset data wajah bila diperlukan.</li>
+          <li>Menghapus pengguna melalui Edge Function berotorisasi admin.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Pengaturan operasional</h3>
+        <ul>
+          <li>Mengatur Jam Masuk, Batas Masuk, dan Jam Generate Alfa.</li>
+          <li>Mengelola titik lokasi dan radius.</li>
+          <li>Mengelola kalender libur/masuk per tanggal.</li>
+          <li>Menjalankan generate Alfa manual sebagai cadangan.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Monitoring dan laporan</h3>
+        <ul>
+          <li>Melihat daftar absensi dan status.</li>
+          <li>Melihat foto bukti absensi.</li>
+          <li>Ekspor laporan PDF.</li>
+          <li>Ekspor laporan Excel.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Storage</h3>
+        <ul>
+          <li>Memantau object foto absensi.</li>
+          <li>Menghapus foto terpilih melalui Edge Function.</li>
+          <li>Menyimpan log hasil cleanup.</li>
+          <li>Tautan export memakai viewer publik dengan signed URL sementara.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Menghapus lokasi tanpa merusak riwayat</h3>
+    <p>Relasi lokasi pada data absensi menggunakan <code>ON DELETE SET NULL</code>. Nama tempat disimpan sebagai snapshot pada baris absensi. Dengan demikian lokasi aktif boleh dihapus, tetapi riwayat absensi lama dan nama tempatnya tetap tersedia.</p>
+
+    <h3>Pemisahan deployment</h3>
+    <table>
+      <thead><tr><th>Komponen</th><th>Cara rilis</th></tr></thead>
+      <tbody>
+        <tr><td>Frontend HTML/CSS/JS</td><td>Dideploy ke Vercel.</td></tr>
+        <tr><td>Migration database</td><td>Diterapkan ke project Supabase, bukan otomatis oleh Vercel.</td></tr>
+        <tr><td>Supabase Edge Functions</td><td>Dideploy dengan Supabase CLI/Dashboard secara terpisah.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout orange">
+      <strong>Poin penting saat demo:</strong> apabila frontend terbaru sudah di Vercel tetapi migration atau Edge Function belum dideploy, perilaku production dapat berbeda dari kode lokal.
+    </div>
+    <div class="page-no">Catatan Sidang • 11</div>
+  </section>
+
+  <section class="page">
+    <div class="section-head">
+      <div class="eyebrow">Bagian 8</div>
+      <h2>Desain Data</h2>
+    </div>
+
+    <div class="architecture" style="grid-template-columns:1fr .12fr 1fr .12fr 1fr">
+      <div class="arch-box arch-client" style="min-height:46mm"><h3>profiles</h3><p>Identitas, role, status akun, descriptor dan foto wajah.</p></div>
+      <div class="arch-arrow">1→N</div>
+      <div class="arch-box arch-backend" style="min-height:46mm"><h3>absensi</h3><p>Tanggal, waktu, status, lokasi, jarak, bukti, validasi.</p></div>
+      <div class="arch-arrow">N→1</div>
+      <div class="arch-box arch-storage" style="min-height:46mm"><h3>lokasi_absen</h3><p>Nama titik, latitude, longitude, dan radius.</p></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card"><h3>pengaturan_absen</h3><p>Menyimpan Jam Masuk, Batas Masuk (nama kolom historis <code>batas_telat</code>), dan Jam Generate Alfa.</p></div>
+      <div class="card"><h3>kalender_absen</h3><p>Menyimpan override per tanggal dengan tipe <code>libur</code> atau <code>masuk</code>.</p></div>
+    </div>
+
+    <h3>Data penting pada absensi</h3>
+    <table>
+      <thead><tr><th>Kelompok</th><th>Contoh field</th><th>Tujuan</th></tr></thead>
+      <tbody>
+        <tr><td>Identitas &amp; waktu</td><td><code>user_id</code>, <code>tanggal</code>, <code>waktu_masuk</code></td><td>Menghubungkan peserta dan waktu server.</td></tr>
+        <tr><td>Lokasi</td><td><code>latitude</code>, <code>longitude</code>, <code>lokasi_absen_id</code>, <code>jarak_meter</code></td><td>Menyimpan bukti posisi dan hasil perhitungan.</td></tr>
+        <tr><td>Snapshot</td><td><code>nama_tempat</code></td><td>Menjaga riwayat walau master lokasi dihapus.</td></tr>
+        <tr><td>Status</td><td><code>hadir</code>, <code>terlambat</code>, <code>izin</code>, <code>alfa</code></td><td>Mewakili hasil akhir per tanggal.</td></tr>
+        <tr><td>Bukti</td><td><code>foto_absen_key</code>, <code>bukti_izin_url</code></td><td>Menghubungkan bukti file dengan record.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Integritas data</h3>
+    <ul>
+      <li>Unique index menjaga satu record per <code>(user_id, tanggal)</code>.</li>
+      <li>Advisory lock mencegah race condition ketika request bersamaan.</li>
+      <li>Trigger dan RPC bertindak sebagai pertahanan berlapis.</li>
+      <li>Hak insert/update/delete langsung peserta dicabut pada migration terbaru; pencatatan dilakukan melalui RPC.</li>
+    </ul>
+
+    <div class="callout red">
+      <strong>Keterbatasan dokumentasi repository:</strong> base schema awal, seluruh policy RLS production, dan policy Storage belum terversi lengkap. Karena itu jangan mengklaim audit production sudah menyeluruh tanpa schema dump dari project Supabase remote.
+    </div>
+    <div class="page-no">Catatan Sidang • 12</div>
+  </section>
+
+  <section class="page">
+    <div class="section-head">
+      <div class="eyebrow">Bagian 8.1</div>
+      <h2>Keamanan dan Privasi</h2>
+    </div>
+
+    <h3>Lapisan keamanan yang ada</h3>
+    <table>
+      <thead><tr><th>Ancaman</th><th>Mitigasi</th><th>Batasnya</th></tr></thead>
+      <tbody>
+        <tr><td>Memalsukan user ID/status dari browser</td><td>RPC menggunakan <code>auth.uid()</code>, role, dan status akun dari database.</td><td>Bergantung pada konfigurasi Supabase/JWT yang benar.</td></tr>
+        <tr><td>Mengubah jam perangkat</td><td>Tanggal dan waktu absensi berasal dari server WIB.</td><td>Jadwal admin tetap perlu dikonfigurasi benar.</td></tr>
+        <tr><td>Mengirim status Hadir palsu</td><td>Status dihitung ulang oleh fungsi database.</td><td>Migration terkait harus benar-benar aktif di production.</td></tr>
+        <tr><td>Absensi ganda</td><td>Unique index, pengecekan RPC, advisory lock.</td><td>Memerlukan schema remote sesuai migration.</td></tr>
+        <tr><td>Lokasi di luar radius</td><td>Haversine dihitung ulang di server.</td><td>Koordinat perangkat masih dapat dipalsukan oleh perangkat terkompromi.</td></tr>
+        <tr><td>Foto/video sederhana</td><td>Challenge liveness acak dan face match awal/akhir.</td><td>Belum server-verifiable dan bukan PAD tersertifikasi.</td></tr>
+        <tr><td>Kebocoran credential storage</td><td>R2 credential hanya berada di Edge Function.</td><td>Secret management deployment harus dijaga.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Privasi biometrik</h3>
+    <p>Descriptor wajah bukan foto literal, tetapi tetap merupakan data biometrik sensitif karena dipakai untuk mengenali seseorang. Praktik yang perlu dijelaskan:</p>
+    <ul>
+      <li>Batasi akses descriptor hanya untuk proses yang memerlukannya.</li>
+      <li>Jelaskan tujuan pengumpulan dan masa retensi kepada peserta.</li>
+      <li>Sediakan prosedur reset/penghapusan data wajah.</li>
+      <li>Jangan mencatat descriptor atau credential pada log publik.</li>
+    </ul>
+
+    <h3>Mengapa foto export dapat dilihat?</h3>
+    <p>Bucket R2 tetap private. Export membuat tautan menuju public viewer yang kemudian menghasilkan signed URL sementara (sekitar lima menit). Keputusan produk ini membuat penerima laporan dapat membuka foto tanpa login, tetapi siapa pun yang memegang tautan viewer memiliki kemampuan sementara untuk mengakses foto tersebut.</p>
+
+    <div class="callout orange">
+      <strong>Jawaban jujur:</strong> akses foto export adalah trade-off antara kemudahan verifikasi laporan dan privasi. Kontrol utamanya adalah object key yang sulit ditebak serta signed URL berumur pendek; tautan laporan tetap harus dibagikan secara terbatas.
+    </div>
+    <div class="page-no">Catatan Sidang • 13</div>
+  </section>
+
+  <section class="page">
+    <div class="section-head">
+      <div class="eyebrow">Bagian 9</div>
+      <h2>Pengujian dan Validasi</h2>
+    </div>
+
+    <h3>Contract test yang tersedia</h3>
+    <table>
+      <thead><tr><th>Test</th><th>Fokus</th></tr></thead>
+      <tbody>
+        <tr><td><code>session-routing.test.cjs</code></td><td>Pengalihan sesi berdasarkan role, status, dan kelengkapan wajah.</td></tr>
+        <tr><td><code>attendance-policy.test.cjs</code></td><td>Aturan waktu, kalender, status, dan deadline absensi.</td></tr>
+        <tr><td><code>integrity-hardening.test.cjs</code></td><td>Kontrak integritas migration/RPC dan pertahanan database.</td></tr>
+        <tr><td><code>icon-performance.test.cjs</code></td><td>Penggunaan aset ikon statis yang ringan.</td></tr>
+        <tr><td><code>navbar-layout.test.cjs</code></td><td>Perilaku navbar desktop yang fixed/offsite sesuai baseline.</td></tr>
+        <tr><td><code>liveness-policy.test.cjs</code></td><td>Kontrak challenge, arah, timing, serta sinyal liveness.</td></tr>
+        <tr><td><code>liveness-stage1-rollback.test.cjs</code></td><td>Memastikan arsitektur server-bound Tahap 2 tidak kembali aktif.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Apa yang dibuktikan dan belum dibuktikan?</h3>
+    <div class="grid-2">
+      <div class="callout green">
+        <strong>Dibuktikan oleh test statis/contract:</strong> pola kode, API yang dipakai, aturan yang harus ada, dan perlindungan regresi tertentu.
+      </div>
+      <div class="callout red">
+        <strong>Belum otomatis dibuktikan:</strong> kamera nyata semua perangkat, akurasi biometrik populasi, GPS/lokasi production, migration remote, serta ketahanan terhadap serangan canggih.
+      </div>
+    </div>
+
+    <h3>Rancangan pengujian akademik yang disarankan</h3>
+    <table>
+      <thead><tr><th>Skenario</th><th>Metode</th><th>Metrik</th></tr></thead>
+      <tbody>
+        <tr><td>Wajah benar/salah</td><td>Uji beberapa pengguna dan variasi cahaya/jarak.</td><td>False Accept Rate, False Reject Rate.</td></tr>
+        <tr><td>Liveness</td><td>Wajah asli, foto, video, urutan gerak salah.</td><td>Attack success rate, completion rate, durasi.</td></tr>
+        <tr><td>Geolokasi</td><td>HP dan laptop pada jarak berbeda dari titik.</td><td>Error koordinat, keputusan radius, waktu fix.</td></tr>
+        <tr><td>Waktu</td><td>Uji batas buka, Batas Masuk, dan deadline.</td><td>Status yang dihasilkan vs expected result.</td></tr>
+        <tr><td>Usability</td><td>Peserta menyelesaikan absensi berulang.</td><td>Success rate, rata-rata waktu, jumlah retry.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <strong>Jika penguji meminta angka akurasi:</strong> berikan hanya angka dari eksperimen terdokumentasi. Jangan menyimpulkan akurasi model dari threshold 0,5 atau dari beberapa percobaan pribadi.
+    </div>
+    <div class="page-no">Catatan Sidang • 14</div>
+  </section>
+
+  <section class="page">
+    <div class="section-head">
+      <div class="eyebrow">Bagian 9.1</div>
+      <h2>Keterbatasan dan Pengembangan Lanjutan</h2>
+    </div>
+
+    <table>
+      <thead><tr><th>Keterbatasan saat ini</th><th>Dampak</th><th>Arah peningkatan</th></tr></thead>
+      <tbody>
+        <tr><td>Liveness berjalan di browser.</td><td>Client yang dimodifikasi dapat mencoba melewati alur.</td><td>Bukti challenge terikat server atau layanan PAD tepercaya jika kebutuhan dan biaya memungkinkan.</td></tr>
+        <tr><td>Belum ada dataset evaluasi biometrik formal.</td><td>FAR/FRR dan threshold optimal belum terukur secara akademik.</td><td>Kumpulkan data uji berizin, pisahkan train/calibration/test, lalu ukur ROC/EER.</td></tr>
+        <tr><td>Lokasi peserta hanya satu pembacaan.</td><td>Laptop atau sinyal buruk dapat menghasilkan false rejection.</td><td>Multi-sample, pilih accuracy terbaik, dan tampilkan kualitas lokasi.</td></tr>
+        <tr><td>Koordinat berasal dari perangkat.</td><td>Perangkat terkompromi dapat melakukan location spoofing.</td><td>Risk scoring, device attestation, atau verifikasi jaringan organisasi.</td></tr>
+        <tr><td>Base schema/RLS tidak seluruhnya terversi.</td><td>Audit local tidak membuktikan konfigurasi production lengkap.</td><td>Ambil schema dump, versioning policy, dan pemeriksaan drift.</td></tr>
+        <tr><td>Tidak ada CI/CD terversi.</td><td>Regression test bergantung pada proses manual.</td><td>Tambahkan workflow test dan deployment terkontrol.</td></tr>
+        <tr><td>Dependency frontend berasal dari CDN.</td><td>Ketersediaan dan supply-chain bergantung pihak ketiga.</td><td>Pin/integrity hash atau self-host dependency kritis.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Prioritas realistis</h3>
+    <ol>
+      <li><strong>Akurasi lokasi:</strong> sampling beberapa posisi dan memakai <code>coords.accuracy</code>.</li>
+      <li><strong>Evaluasi formal:</strong> ukur tingkat keberhasilan face matching dan liveness di HP/laptop.</li>
+      <li><strong>Database governance:</strong> sinkronkan schema production dan migration repository.</li>
+      <li><strong>Observability:</strong> log error terstruktur tanpa menyimpan data biometrik mentah.</li>
+      <li><strong>Server-verifiable liveness:</strong> hanya jika tingkat ancaman benar-benar memerlukannya.</li>
+    </ol>
+
+    <div class="callout green">
+      <strong>Nilai jawaban saat sidang:</strong> mengakui keterbatasan bukan kelemahan presentasi. Justru menunjukkan bahwa Anda memahami ruang lingkup, threat model, dan perbedaan antara prototype fungsional dengan sistem biometrik tersertifikasi.
+    </div>
+    <div class="page-no">Catatan Sidang • 15</div>
+  </section>
+
+  <section class="page">
+    <div class="section-head">
+      <div class="eyebrow">Bagian 10</div>
+      <h2>Naskah Presentasi 5–7 Menit</h2>
+    </div>
+
+    <div class="script">
+      <p><strong>Pembuka (30 detik)</strong><br>
+      “Sistem yang saya bangun adalah aplikasi absensi berbasis web yang menggabungkan pengenalan wajah, pemeriksaan gerakan wajah, geolokasi, kalender kerja, dan waktu server WIB. Tujuannya adalah meningkatkan keandalan identitas, tempat, dan waktu dalam proses absensi.”</p>
+
+      <p><strong>Masalah dan solusi (45 detik)</strong><br>
+      “Absensi biasa dapat memiliki tiga masalah: pengguna yang mengisi belum tentu pemilik akun, posisi belum tentu berada di lokasi yang diwajibkan, dan waktu perangkat dapat salah atau dimanipulasi. Karena itu sistem menggunakan face recognition, active liveness, validasi radius, serta keputusan waktu di database.”</p>
+
+      <p><strong>Arsitektur (60 detik)</strong><br>
+      “Frontend dibuat dengan HTML, CSS, dan JavaScript tanpa framework. Supabase menangani authentication, PostgreSQL, RPC, storage, cron, dan Edge Functions. Foto absensi disimpan secara private di Cloudflare R2. Frontend di-host pada Vercel, sedangkan migration dan Edge Functions dideploy terpisah ke Supabase.”</p>
+
+      <p><strong>Face recognition dan liveness (90 detik)</strong><br>
+      “face-api.js memuat Tiny Face Detector, Face Landmark 68, dan Face Recognition Net. Wajah diubah menjadi descriptor 128 dimensi, lalu dibandingkan menggunakan Euclidean distance dengan threshold implementasi 0,5. Setelah cocok, peserta mengikuti tiga challenge acak berupa kedip atau tengok. MediaPipe membantu membaca blendshape kedipan. Face matching dilakukan lagi setelah challenge agar identitas tetap konsisten.”</p>
+
+      <p><strong>Lokasi dan waktu (60 detik)</strong><br>
+      “Browser mengambil koordinat melalui Geolocation API. Jarak ke titik absensi dihitung dengan rumus Haversine dan dihitung ulang oleh server. Status absensi ditentukan menggunakan waktu server Asia/Jakarta: dibuka satu jam sebelum Jam Masuk, Hadir sampai Batas Masuk, Terlambat setelahnya, lalu ditutup pada Jam Generate Alfa.”</p>
+
+      <p><strong>Integritas dan penutup (60 detik)</strong><br>
+      “Database menjaga satu baris per peserta per tanggal, memakai unique index dan advisory lock. Peserta yang belum memiliki absensi atau izin pada deadline dibuat Alfa secara idempoten. Sistem ini tidak saya klaim sebagai biometrik anti-serangan 100 persen; kontribusinya adalah integrasi verifikasi berlapis dan pembagian validasi client-server dalam alur absensi yang lengkap.”</p>
+    </div>
+
+    <div class="callout orange">
+      <strong>Latihan:</strong> sampaikan dengan bahasa sendiri. Targetkan satu slide atau satu diagram untuk satu gagasan; jangan membaca kode panjang saat presentasi.
+    </div>
+    <div class="page-no">Catatan Sidang • 16</div>
+  </section>
+
+  <section class="page">
+    <div class="section-head">
+      <div class="eyebrow">Bagian 10.1</div>
+      <h2>Checklist Demonstrasi</h2>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Sebelum sidang</h3>
+        <ul class="checklist">
+          <li>Pastikan Vercel membuka versi frontend terbaru.</li>
+          <li>Konfirmasi migration database yang diperlukan sudah aktif.</li>
+          <li>Konfirmasi Edge Functions yang dipakai sudah dideploy.</li>
+          <li>Siapkan satu akun admin dan satu akun peserta aktif.</li>
+          <li>Pastikan descriptor wajah peserta sudah terdaftar.</li>
+          <li>Atur titik lokasi/radius sesuai ruang demo.</li>
+          <li>Atur jadwal agar jendela absensi sedang terbuka.</li>
+          <li>Aktifkan izin kamera dan lokasi pada browser.</li>
+          <li>Siapkan koneksi cadangan/hotspot.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Urutan demo aman</h3>
+        <ol>
+          <li>Login sebagai peserta.</li>
+          <li>Tunjukkan profil dan status akun.</li>
+          <li>Mulai verifikasi wajah.</li>
+          <li>Ikuti tiga challenge dengan gerakan normal.</li>
+          <li>Tunjukkan pengambilan lokasi dan hasil absensi.</li>
+          <li>Buka riwayat peserta.</li>
+          <li>Login admin dan buka monitoring.</li>
+          <li>Tunjukkan jadwal, lokasi, kalender, serta export.</li>
+        </ol>
+      </div>
+    </div>
+
+    <h3>Skenario cadangan jika sensor bermasalah</h3>
+    <table>
+      <thead><tr><th>Masalah</th><th>Tindakan saat demo</th><th>Penjelasan teknis</th></tr></thead>
+      <tbody>
+        <tr><td>Kamera tidak tampil</td><td>Periksa permission, refresh, tutup aplikasi kamera lain.</td><td>Media stream dapat ditolak atau sedang dipakai proses lain.</td></tr>
+        <tr><td>Kedip gagal</td><td>Hadap lurus, cahaya merata, jangan terlalu dekat/jauh.</td><td>Landmark dan blendshape membutuhkan frame wajah yang cukup jelas.</td></tr>
+        <tr><td>Arah tengok gagal</td><td>Kembali netral, lalu tengok sesuai arah peserta.</td><td>Preview dicerminkan secara CSS, tetapi mapping memakai koordinat frame asli.</td></tr>
+        <tr><td>Lokasi laptop meleset</td><td>Nyalakan Location Services dan Wi-Fi; gunakan HP untuk demo utama.</td><td>Laptop sering mengandalkan Wi-Fi/IP, bukan GPS.</td></tr>
+        <tr><td>Di luar jam</td><td>Admin ubah jadwal demo sebelum pengujian.</td><td>Server, bukan jam perangkat, menentukan status.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout red">
+      <strong>Jangan mengubah data production secara improvisasi di depan penguji.</strong> Gunakan akun dan konfigurasi demo yang telah disiapkan, lalu catat perubahan yang perlu dikembalikan.
+    </div>
+    <div class="page-no">Catatan Sidang • 17</div>
+  </section>
+
+  <section class="page">
+    <div class="section-head">
+      <div class="eyebrow">Bagian 10.2</div>
+      <h2>Latihan Pertanyaan Penguji I</h2>
+    </div>
+
+    <div class="qa"><div class="q">1. Apakah Anda membuat model face recognition sendiri?</div><p class="a">Tidak. Saya menggunakan model pralatih yang disediakan face-api.js. Kontribusi saya berada pada integrasi pendaftaran descriptor, pencocokan identitas, liveness, geolokasi, aturan waktu, database, dan pelaporan.</p></div>
+    <div class="qa"><div class="q">2. Mengapa memilih face-api.js?</div><p class="a">Library ini dapat berjalan langsung di browser, menyediakan deteksi wajah, landmark, descriptor, dan perhitungan yang diperlukan, sehingga sesuai dengan arsitektur web statis proyek.</p></div>
+    <div class="qa"><div class="q">3. Apa yang disimpan dari wajah pengguna?</div><p class="a">Sistem menyimpan foto referensi dan descriptor numerik 128 dimensi pada profil. Descriptor bukan gambar, tetapi tetap diperlakukan sebagai data biometrik sensitif.</p></div>
+    <div class="qa"><div class="q">4. Bagaimana menentukan wajah cocok?</div><p class="a">Descriptor kamera dan descriptor profil dihitung Euclidean distance-nya. Implementasi menerima jika jarak maksimal 0,5. Nilai lebih kecil berarti lebih mirip.</p></div>
+    <div class="qa"><div class="q">5. Mengapa threshold 0,5?</div><p class="a">Itu parameter implementasi yang cukup ketat untuk proyek, tetapi bukan angka universal. Penetapan terbaik harus dikalibrasi menggunakan dataset dan target FAR/FRR.</p></div>
+    <div class="qa"><div class="q">6. Apa beda face recognition dan liveness?</div><p class="a">Recognition menguji kemiripan identitas. Liveness menguji respons gerakan terhadap challenge saat proses berlangsung. Keduanya menyelesaikan masalah yang berbeda.</p></div>
+    <div class="qa"><div class="q">7. Apakah foto atau video pasti tidak bisa lolos?</div><p class="a">Tidak boleh diklaim pasti. Challenge acak dirancang mengurangi serangan foto/video sederhana, tetapi Tahap 1 masih berjalan di browser dan belum merupakan PAD tersertifikasi.</p></div>
+    <div class="qa"><div class="q">8. Mengapa memakai MediaPipe juga?</div><p class="a">MediaPipe FaceLandmarker memberikan blendshape kedipan. Sinyalnya digabung dengan landmark face-api.js agar kedipan cepat lebih stabil di beragam perangkat.</p></div>
+    <div class="qa"><div class="q">9. Mengapa verifikasi wajah dilakukan dua kali?</div><p class="a">Pemeriksaan awal memastikan orang yang memulai adalah pemilik akun. Pemeriksaan akhir memastikan wajah setelah menyelesaikan challenge tetap identitas yang sama.</p></div>
+    <div class="qa"><div class="q">10. Bagaimana arah kanan-kiri pada kamera depan?</div><p class="a">Preview dicerminkan agar natural seperti cermin, tetapi analisis memakai frame asli. Karena itu instruksi dan mapping didefinisikan dari arah peserta, bukan sisi piksel yang terlihat pada layar.</p></div>
+    <div class="page-no">Catatan Sidang • 18</div>
+  </section>
+
+  <section class="page">
+    <div class="section-head">
+      <div class="eyebrow">Bagian 10.3</div>
+      <h2>Latihan Pertanyaan Penguji II</h2>
+    </div>
+
+    <div class="qa"><div class="q">11. Geolokasi menggunakan apa?</div><p class="a">Koordinat diambil melalui HTML5 Geolocation API. Jarak dihitung dengan rumus Haversine di frontend untuk pre-check dan dihitung ulang oleh RPC database untuk keputusan akhir.</p></div>
+    <div class="qa"><div class="q">12. Mengapa lokasi laptop bisa salah?</div><p class="a">Banyak laptop tidak memiliki GPS dan menggunakan estimasi Wi-Fi/IP. Opsi high accuracy hanya permintaan, bukan jaminan. Versi saat ini juga baru mengambil satu fix dan belum menilai <code>coords.accuracy</code>.</p></div>
+    <div class="qa"><div class="q">13. Apakah koordinat browser aman dari spoofing?</div><p class="a">Tidak sepenuhnya. Server dapat menghitung ulang jarak, tetapi tidak dapat membuktikan sensor fisik tidak dipalsukan. Untuk ancaman lebih tinggi diperlukan kontrol tambahan seperti device attestation atau risk scoring.</p></div>
+    <div class="qa"><div class="q">14. Mengapa menggunakan waktu server?</div><p class="a">Karena jam perangkat dapat salah atau dimanipulasi. Server memakai zona Asia/Jakarta untuk menentukan tanggal, waktu masuk, status, dan deadline secara konsisten.</p></div>
+    <div class="qa"><div class="q">15. Bagaimana mencegah absensi ganda?</div><p class="a">Ada pengecekan RPC, unique index pada user dan tanggal, serta advisory lock untuk request bersamaan. Kombinasi ini menjaga invariant satu record per peserta per hari.</p></div>
+    <div class="qa"><div class="q">16. Bagaimana Alfa dibuat otomatis?</div><p class="a">pg_cron memanggil fungsi pemeriksaan setiap menit. Fungsi membaca Jam Generate Alfa dinamis, memastikan hari kerja dan deadline sudah lewat, lalu memasukkan Alfa hanya bagi peserta aktif yang belum punya data.</p></div>
+    <div class="qa"><div class="q">17. Mengapa tidak menyimpan foto langsung di database?</div><p class="a">File biner lebih sesuai disimpan pada object storage. Database menyimpan key/metadata, sehingga data transaksional tetap ringan dan akses file dapat diatur melalui signed URL.</p></div>
+    <div class="qa"><div class="q">18. Apa fungsi Edge Function?</div><p class="a">Menjalankan operasi server yang membutuhkan secret atau hak tinggi, seperti akses R2, email persetujuan, cleanup storage, dan penghapusan user.</p></div>
+    <div class="qa"><div class="q">19. Apakah test yang ada membuktikan production aman?</div><p class="a">Tidak. Contract test membuktikan pola dan aturan kode lokal. Production masih perlu verifikasi migration, RLS, Edge Function, browser nyata, dan konfigurasi remote.</p></div>
+    <div class="qa"><div class="q">20. Apa pengembangan paling penting berikutnya?</div><p class="a">Mengukur akurasi secara formal dan memperbaiki akuisisi lokasi dengan beberapa sampel serta nilai accuracy. Setelah itu sinkronisasi schema production dan otomatisasi test/deploy.</p></div>
+    <div class="page-no">Catatan Sidang • 19</div>
+  </section>
+
+  <section class="page">
+    <div class="section-head">
+      <div class="eyebrow">Lampiran A</div>
+      <h2>Glosarium</h2>
+    </div>
+
+    <table>
+      <thead><tr><th>Istilah</th><th>Penjelasan singkat</th></tr></thead>
+      <tbody>
+        <tr><td>Biometrik</td><td>Karakteristik fisik/perilaku yang digunakan untuk identifikasi atau verifikasi.</td></tr>
+        <tr><td>Descriptor / embedding</td><td>Vektor angka yang mewakili ciri wajah untuk proses pencocokan.</td></tr>
+        <tr><td>Euclidean distance</td><td>Ukuran jarak antara dua vektor; lebih kecil berarti lebih dekat/mirip.</td></tr>
+        <tr><td>Landmark</td><td>Titik-titik struktur wajah seperti mata, hidung, mulut, dan kontur.</td></tr>
+        <tr><td>Blendshape</td><td>Skor ekspresi/gerak wajah yang diprediksi model, misalnya kedipan mata.</td></tr>
+        <tr><td>Liveness</td><td>Pemeriksaan respons untuk mengurangi penggunaan media palsu.</td></tr>
+        <tr><td>Geolocation</td><td>API untuk meminta estimasi posisi perangkat.</td></tr>
+        <tr><td>Geofencing</td><td>Pembatasan tindakan berdasarkan jarak dari suatu titik.</td></tr>
+        <tr><td>Haversine</td><td>Rumus jarak dua koordinat pada permukaan bumi.</td></tr>
+        <tr><td>RPC</td><td>Fungsi database yang dipanggil client untuk menjalankan operasi terkontrol.</td></tr>
+        <tr><td>RLS</td><td>Row Level Security, kebijakan akses per baris pada PostgreSQL/Supabase.</td></tr>
+        <tr><td>Security definer</td><td>Fungsi database yang berjalan dengan hak pemilik fungsi; wajib divalidasi ketat.</td></tr>
+        <tr><td>Advisory lock</td><td>Kunci transaksi logis untuk mencegah race condition pada operasi tertentu.</td></tr>
+        <tr><td>Idempoten</td><td>Dipanggil berulang tetap menghasilkan keadaan akhir yang sama tanpa duplikasi.</td></tr>
+        <tr><td>Signed URL</td><td>URL bertanda tangan yang memberi akses file dalam waktu terbatas.</td></tr>
+        <tr><td>Edge Function</td><td>Kode server terpisah untuk operasi rahasia/berhak tinggi.</td></tr>
+        <tr><td>FAR</td><td>False Accept Rate: tingkat pengguna/serangan salah yang diterima.</td></tr>
+        <tr><td>FRR</td><td>False Reject Rate: tingkat pengguna sah yang ditolak.</td></tr>
+        <tr><td>PAD</td><td>Presentation Attack Detection: deteksi serangan presentasi biometrik.</td></tr>
+        <tr><td>Trust boundary</td><td>Batas tempat data berpindah antara komponen dengan tingkat kepercayaan berbeda.</td></tr>
+      </tbody>
+    </table>
+    <div class="page-no">Catatan Sidang • 20</div>
+  </section>
+
+  <section class="page compact-page">
+    <div class="section-head">
+      <div class="eyebrow">Lampiran B</div>
+      <h2>Cheat Sheet Satu Halaman</h2>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Inti sistem</h3>
+        <p>Verifikasi <strong>siapa</strong> (wajah), <strong>respons langsung</strong> (liveness), <strong>di mana</strong> (lokasi), dan <strong>kapan</strong> (waktu server).</p>
+      </div>
+      <div class="card">
+        <h3>Stack</h3>
+        <p>HTML/CSS/JS, Supabase, face-api.js, MediaPipe, Geolocation API, R2, Vercel.</p>
+      </div>
+      <div class="card">
+        <h3>Face recognition</h3>
+        <p>Descriptor 128D → Euclidean distance → cocok jika ≤ 0,5.</p>
+      </div>
+      <div class="card">
+        <h3>Liveness</h3>
+        <p>Tiga challenge acak: kedip/kanan/kiri. Tahap 1 browser-side, bukan PAD tersertifikasi.</p>
+      </div>
+      <div class="card">
+        <h3>Lokasi</h3>
+        <p>Geolocation API → lokasi terdekat → Haversine → server menghitung ulang radius.</p>
+      </div>
+      <div class="card">
+        <h3>Waktu</h3>
+        <p>Buka = Jam Masuk − 1 jam; Hadir sampai Batas Masuk; Terlambat sampai deadline; lalu Alfa.</p>
+      </div>
+      <div class="card">
+        <h3>Integritas</h3>
+        <p>Satu record/user/tanggal melalui RPC, unique index, dan advisory lock.</p>
+      </div>
+      <div class="card">
+        <h3>Batas klaim</h3>
+        <p>Tidak 100% anti-curang; lokasi laptop dapat meleset; test lokal bukan bukti production.</p>
+      </div>
+    </div>
+
+    <h3>Kalimat kunci</h3>
+    <ul>
+      <li>“Keputusan sensitif seperti user, waktu, status, dan radius divalidasi ulang di server.”</li>
+      <li>“Frontend melakukan pemrosesan real-time sensor; database menjaga otoritas kebijakan.”</li>
+      <li>“Kontribusi utama adalah integrasi verifikasi berlapis, bukan pembuatan model AI baru.”</li>
+      <li>“Threshold dan tingkat akurasi harus dibedakan: threshold adalah parameter, akurasi perlu eksperimen.”</li>
+    </ul>
+
+    <h3>Sumber implementasi utama</h3>
+    <p class="small">
+      <code>assets/js/user-verifikasi.js</code>, <code>assets/js/liveness-engine.js</code>,
+      <code>assets/js/mediapipe-face-guide.js</code>, <code>assets/js/user-daftar-wajah.js</code>,
+      <code>supabase/migrations/</code>, <code>supabase/functions/</code>,
+      <code>docs/ARCHITECTURE.md</code>, dan <code>docs/DATABASE.md</code>.
+    </p>
+
+    <h3>Referensi teknologi</h3>
+    <p class="small">
+      Supabase Documentation — supabase.com/docs<br>
+      face-api.js — github.com/justadudewhohacks/face-api.js<br>
+      MediaPipe Face Landmarker — ai.google.dev/edge/mediapipe/solutions/vision/face_landmarker<br>
+      W3C Geolocation API — w3.org/TR/geolocation/<br>
+      Cloudflare R2 — developers.cloudflare.com/r2/
+    </p>
+
+    <div class="callout green">
+      <strong>Penutup:</strong> kuasai alasan desain, bukan hanya nama teknologi. Penguji biasanya lebih tertarik pada “mengapa”, risiko, validasi, serta bukti pengujian daripada daftar library.
+    </div>
+    <div class="page-no">Catatan Sidang • 21</div>
+  </section>
+</body>
+</html>
